@@ -1,0 +1,54 @@
+import { createBrowserRouter } from "react-router";
+import RootLayout from "./layouts/RootLayout";
+import HomePage from "./pages/HomePage";
+import NotFound from "./pages/NotFound";
+import ProtectedLayout from "./layouts/ProtectedLayout";
+import { authLoader } from "./features/auth/loaders";
+import ProfilePage from "./pages/ProfilePage";
+import { ROOT_ID, ROUTES } from "./constants/routes";
+import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+
+const router = createBrowserRouter([
+    {
+        id: ROOT_ID,
+        path: ROUTES.HOME,
+        Component: RootLayout,
+        loader: authLoader,
+        children: [
+            {
+                index: true,
+                Component: HomePage
+            },
+            {
+                Component: ProtectedLayout,
+                children: [
+                    {
+                        path: ROUTES.PROFILE,
+                        Component: ProfilePage
+                    }
+                ]
+            },
+            {
+                Component: GuestOnlyLayout,
+                children: [
+                    {
+                        path: ROUTES.LOGIN,
+                        Component: LoginPage
+                    },
+                    {
+                        path: ROUTES.REGISTER,
+                        Component: RegisterPage
+                    },
+                ]
+            },
+            {
+                path: "*",
+                Component: NotFound
+            }
+        ]
+    }
+]);
+
+export default router;

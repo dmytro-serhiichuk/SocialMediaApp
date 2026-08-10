@@ -1,0 +1,19 @@
+@use "./vars.scss";
+
+html, body, #root {
+    min-height: 100dvh;
+    margin: 0;
+    background-color: vars.$white;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+
+    & main {
+        flex: 1;
+        width: vars.$main-width;
+        margin: 0 auto;
+        padding: vars.$main-padding;
+    }
+}
