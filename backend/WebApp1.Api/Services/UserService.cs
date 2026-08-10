@@ -20,6 +20,7 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
 
             var user = new User
             {
+                UserName = createUserRequest.UserName,
                 Email = createUserRequest.Email
             };
             user.PasswordHash = passwordHasher.HashPassword(user, createUserRequest.Password);

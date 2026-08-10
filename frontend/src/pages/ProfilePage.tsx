@@ -5,7 +5,7 @@ export default function ProfilePage() {
 
     return(
         <>
-            <p>Id: {String(user.id)}</p>
+            <p>UserName: {user.UserName}</p>
             <p>Email: {user.Email}</p>
         </>
     );

@@ -38,6 +38,11 @@ namespace WebApp1.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")

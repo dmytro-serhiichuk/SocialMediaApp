@@ -19,5 +19,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(320);
 
         builder.HasIndex(u => u.Email).IsUnique();
+
+        builder.Property(u => u.UserName)
+            .IsRequired()
+            .HasMaxLength(256);
     }
 }
