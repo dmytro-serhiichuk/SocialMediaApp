@@ -23,5 +23,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.UserName)
             .IsRequired()
             .HasMaxLength(256);
+
+        builder.Property(u => u.UserTag)
+            .IsRequired()
+            .HasMaxLength(50);
+
+        builder.HasIndex(u => u.UserTag).IsUnique();
     }
 }
