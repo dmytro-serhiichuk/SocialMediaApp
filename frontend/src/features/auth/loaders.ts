@@ -1,5 +1,5 @@
-import { getUser } from "./authService";
+import { getUser } from "./api";
 
 export async function authLoader() {
-    return await getUser();
+    return getUser();
 }

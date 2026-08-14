@@ -9,7 +9,7 @@ export function useUser(): User | null {
 export function useRequiredUser(): User {
     const user = useRouteLoaderData<User | null>(ROOT_ID);
 
-    if (!user) throw new Error("useRequiredUser must be used inside a protected route");
+    if (!user) throw new Error("useRequiredUser called without an authenticated user");
 
     return user;
 }

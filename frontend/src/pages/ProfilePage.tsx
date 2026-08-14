@@ -5,8 +5,9 @@ export default function ProfilePage() {
 
     return(
         <>
-            <p>UserName: {user.UserName}</p>
-            <p>Email: {user.Email}</p>
+            <p>UserName: {user.userName}</p>
+            <p>Tag: {user.userTag}</p>
+            <p>Email: {user.email}</p>
         </>
     );
 }

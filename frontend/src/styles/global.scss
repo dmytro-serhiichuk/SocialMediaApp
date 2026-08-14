@@ -17,3 +17,8 @@ html, body, #root {
         padding: vars.$main-padding;
     }
 }
+
+form {
+    display: flex;
+    flex-direction: column;
+}
