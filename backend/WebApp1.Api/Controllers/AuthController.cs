@@ -77,4 +77,17 @@ public class AuthController(UserService userService, JwtTokenService jwtService,
                 MaxAge = TimeSpan.FromMinutes(jwtOptions.AccessTokenLifetimeMinutes)
             });
     }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        // TODO: handle refresh tokens
+        var userId = User.GetUserId();
+        var user = await userService.GetById(userId);
+
+        Response.Cookies.Delete(jwtOptions.AccessTokenCookieName);
+        
+        return NoContent();
+    }
 }

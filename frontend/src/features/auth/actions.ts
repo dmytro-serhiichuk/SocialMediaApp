@@ -47,3 +47,14 @@ export async function loginAction({ request }: ActionFunctionArgs) {
         }
     }
 }
+
+export async function logoutAction() {
+    try {
+        await apiClient('auth/logout', { method: "POST" });
+
+        return redirect(ROUTES.LOGIN);
+    } catch (err) {
+        // TODO: handle refresh token errors
+        console.log(err);
+    }
+}

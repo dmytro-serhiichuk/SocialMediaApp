@@ -9,7 +9,7 @@ import { ROOT_ID, ROUTES } from "./constants/routes";
 import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import { loginAction, registerAction } from "./features/auth/actions";
+import { loginAction, logoutAction, registerAction } from "./features/auth/actions";
 
 const router = createBrowserRouter([
     {
@@ -28,6 +28,10 @@ const router = createBrowserRouter([
                     {
                         path: ROUTES.PROFILE,
                         Component: ProfilePage
+                    },
+                    {
+                        path: ROUTES.LOGOUT,
+                        action: logoutAction
                     }
                 ]
             },
