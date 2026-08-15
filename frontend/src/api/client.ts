@@ -26,34 +26,43 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
 
     const isFormData = options?.body instanceof FormData;
     const url = new URL(endpoint.replace(/^\//, ""), API_URL);
-    const response = await fetch(url, {
-        ...options,
-        credentials: "include",
-        headers: {
-            ...(!isFormData && { "Content-Type": "application/json" }),
-            ...options?.headers,
-        }
-    });
 
-    const text = await response.text();
+    try {
+        const response = await fetch(url, {
+            ...options,
+            credentials: "include",
+            headers: {
+                ...(!isFormData && { "Content-Type": "application/json" }),
+                ...options?.headers,
+            },
+            signal: AbortSignal.timeout(5000)
+        });
 
-    let body: unknown;
+        const text = await response.text();
 
-    if (text) {
-        const contentType = response.headers.get("content-type");
+        let body: unknown;
 
-        if (contentType?.includes("json")) {
-            try {
-                body = JSON.parse(text);
-            } catch {
-                body = undefined;
+        if (text) {
+            const contentType = response.headers.get("content-type");
+
+            if (contentType?.includes("json")) {
+                try {
+                    body = JSON.parse(text);
+                } catch {
+                    body = undefined;
+                }
             }
         }
-    }
 
-    if (!response.ok) {
-        throw new ApiError(response.status, body as ProblemDetails | undefined);
-    }
+        if (!response.ok) {
+            throw new ApiError(response.status, body as ProblemDetails | undefined);
+        }
 
-    return body as T;
+        return body as T;
+    } catch (error) {
+        if (error instanceof DOMException && error.name === "TimeoutError") {
+            throw new Error("Server takes too long to respond");
+        }
+        throw new Error("Server is not responding");
+    }
 }

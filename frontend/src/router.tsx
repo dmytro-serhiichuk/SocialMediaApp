@@ -10,6 +10,7 @@ import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { loginAction, logoutAction, registerAction } from "./features/auth/actions";
+import RootErrorBoundary from "./components/rootErrorBoundary";
 
 const router = createBrowserRouter([
     {
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
         path: ROUTES.HOME,
         Component: RootLayout,
         loader: authLoader,
+        ErrorBoundary: RootErrorBoundary,
         children: [
             {
                 index: true,
