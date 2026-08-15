@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using WebApp1.Api.DTOs;
 using WebApp1.Api.Extensions;
 using WebApp1.Api.Models;
 using WebApp1.Api.Services;
@@ -23,7 +24,7 @@ public class AuthController(UserService userService, JwtTokenService jwtService,
         
         if (user is null) return NotFound();
         
-        return Ok(GetUserResponse.CreateFromUser(user));
+        return Ok(UserResponse.CreateFromUser(user));
     }
 
     

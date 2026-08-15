@@ -1,7 +1,7 @@
 export interface User {
+    id: number,
     userName: string,
-    userTag: string,
-    email: string
+    userTag: string
 }
 
 export interface LoginRequest {

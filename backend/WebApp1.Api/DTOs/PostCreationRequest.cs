@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebApp1.Api.Models;
+namespace WebApp1.Api.DTOs;
 
 public class PostCreationRequest
 {

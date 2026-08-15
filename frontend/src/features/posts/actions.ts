@@ -12,7 +12,7 @@ export async function createPostAction({ request }: ActionFunctionArgs) {
     }
 
     try {
-        await apiClient('post/create', {
+        await apiClient('posts/create', {
             method: "POST",
             body: JSON.stringify(requestBody)
         });

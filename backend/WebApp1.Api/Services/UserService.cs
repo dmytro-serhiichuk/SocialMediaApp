@@ -3,6 +3,7 @@ using WebApp1.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using WebApp1.Api.DTOs;
 
 namespace WebApp1.Api.Services;
 
