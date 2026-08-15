@@ -11,6 +11,8 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { loginAction, logoutAction, registerAction } from "./features/auth/actions";
 import RootErrorBoundary from "./components/rootErrorBoundary";
+import PostEditorPage from "./pages/PostEditorPage";
+import { createPostAction } from "./features/posts/actions";
 
 const router = createBrowserRouter([
     {
@@ -34,6 +36,11 @@ const router = createBrowserRouter([
                     {
                         path: ROUTES.LOGOUT,
                         action: logoutAction
+                    },
+                    {
+                        path: ROUTES.POST_NEW,
+                        Component: PostEditorPage,
+                        action: createPostAction
                     }
                 ]
             },

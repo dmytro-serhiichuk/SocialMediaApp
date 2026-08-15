@@ -63,6 +63,9 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
         if (error instanceof DOMException && error.name === "TimeoutError") {
             throw new Error("Server takes too long to respond");
         }
+        if (error instanceof ApiError) {
+            throw error;
+        }
         throw new Error("Server is not responding");
     }
 }

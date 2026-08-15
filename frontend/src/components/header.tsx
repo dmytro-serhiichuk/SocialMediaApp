@@ -9,6 +9,7 @@ export default function Header({user}: {user: User | null}) {
             {user ? (
                 <>
                     <Link to={ROUTES.PROFILE}>Profile</Link>
+                    <Link to={ROUTES.POST_NEW}>Create New Post</Link>
                     <Form method="post" action={ROUTES.LOGOUT}>
                         <button type="submit">
                             Logout

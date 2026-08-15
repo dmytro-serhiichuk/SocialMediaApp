@@ -5,5 +5,6 @@ export const ROUTES = Object.freeze({
     PROFILE: "/profile",
     LOGIN: "/login",
     REGISTER: "/register",
-    LOGOUT: "/logout"
+    LOGOUT: "/logout",
+    POST_NEW: "/posts/new"
 })

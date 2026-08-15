@@ -1,19 +1,23 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
 import { apiClient, ApiError } from "../../api/client";
 import { ROUTES } from "../../constants/routes";
+import type { LoginRequest, RegisterRequest } from "./types";
+import { getFormString } from "../../utils/formDataUtils";
 
 export async function registerAction({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
 
+    const registerRequest: RegisterRequest = {
+        userName: getFormString(formData, "userName"),
+        userTag: getFormString(formData, "userTag"),
+        email: getFormString(formData, "email"),
+        password: getFormString(formData, "password"),
+    };
+
     try {
         await apiClient('auth/register', {
             method: "POST",
-            body: JSON.stringify({
-                userName: formData.get("userName"),
-                userTag: formData.get("userTag"),
-                email: formData.get("email"),
-                password: formData.get("password"),
-            })
+            body: JSON.stringify(registerRequest)
         });
 
         return redirect(ROUTES.PROFILE);
@@ -29,13 +33,15 @@ export async function registerAction({ request }: ActionFunctionArgs) {
 export async function loginAction({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
 
+    const loginRequest: LoginRequest = {
+        login: getFormString(formData, "login"),
+        password: getFormString(formData, "password"),
+    };
+
     try {
         await apiClient('auth/login', {
             method: "POST",
-            body: JSON.stringify({
-                login: formData.get("login"),
-                password: formData.get("password"),
-            })
+            body: JSON.stringify(loginRequest)
         });
 
         return redirect(ROUTES.PROFILE);
