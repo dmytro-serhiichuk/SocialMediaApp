@@ -1,8 +1,8 @@
 namespace WebApp1.Api.DTOs;
 
-public class PostPaginationResponse
+public class PaginationResponse<T>
 {
-    public List<PostResponse> Posts { get; set; } = null!;
+    public List<T> Items { get; set; } = null!;
     public bool HasMore { get; set; }
     public string NextCursor { get; set; } = string.Empty;
 }

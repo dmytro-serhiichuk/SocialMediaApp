@@ -19,7 +19,7 @@ public class PostService(AppDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<PostPaginationResponse> GetPosts(PostPaginationRequest postPagination)
+    public async Task<PaginationResponse<PostResponse>> GetPosts(PostPaginationRequest postPagination)
     {
         IQueryable<Post>? query = dbContext.Posts
             .OrderByDescending(p => p.CreatedAt)
@@ -28,7 +28,7 @@ public class PostService(AppDbContext dbContext)
         return await GetPostsByQuery(query, postPagination);
     }
 
-    public async Task<PostPaginationResponse> GetPostsByUser(PostPaginationRequest postPagination, int userId)
+    public async Task<PaginationResponse<PostResponse>> GetPostsByUser(PostPaginationRequest postPagination, int userId)
     {
         IQueryable<Post>? query = dbContext.Posts
             .Where(p => p.UserId == userId)
@@ -38,7 +38,7 @@ public class PostService(AppDbContext dbContext)
         return await GetPostsByQuery(query, postPagination);
     }
 
-    private async Task<PostPaginationResponse> GetPostsByQuery(IQueryable<Post> query, PostPaginationRequest postPagination)
+    private async Task<PaginationResponse<PostResponse>> GetPostsByQuery(IQueryable<Post> query, PostPaginationRequest postPagination)
     {
         var cursor = CursorEncoder.Decode<PostPaginationCursor>(postPagination.Cursor);
         
@@ -70,9 +70,9 @@ public class PostService(AppDbContext dbContext)
             ));
         }
 
-        return new PostPaginationResponse
+        return new PaginationResponse<PostResponse>
         {
-            Posts = posts,
+            Items = posts,
             HasMore = hasMore,
             NextCursor = nextCursor
         };
