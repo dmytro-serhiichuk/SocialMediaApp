@@ -6,7 +6,11 @@ import { apiClient } from "../../../api/client";
 import PostComponent from "./post";
 import PostPlaceholder from "./postPlaceholder";
 
-export default function PostList() {
+export type PostListEndpoint = {
+    endpoint: string
+};
+
+export default function PostList({endpoint}: PostListEndpoint) {
     const [state, setStatus]  = useState<InfiniteScrollStatus>("idle");
     const [cursor, setCursor] = useState<string | null>(null);
     const [posts, setPosts]   = useState<Post[]>([]);
@@ -15,10 +19,7 @@ export default function PostList() {
         setStatus("loading");
 
         try {
-            let endpoint = 'posts/';
-            if (cursor !== null) endpoint += `?cursor=${cursor}`;
-
-            const response = await apiClient<PaginationResponse<Post>>(endpoint);
+            const response = await apiClient<PaginationResponse<Post>>(cursor ? endpoint += `?cursor=${cursor}` : endpoint);
 
             setPosts(prev => [...prev, ...response.items]);
             setCursor(response.nextCursor);

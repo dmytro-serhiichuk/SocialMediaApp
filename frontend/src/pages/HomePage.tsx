@@ -5,7 +5,7 @@ export default function HomePage() {
         <>
             <p>home page</p>
 
-            <PostList />
+            <PostList endpoint="posts/" />
         </>
     );
 }

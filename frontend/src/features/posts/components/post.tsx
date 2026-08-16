@@ -10,7 +10,7 @@ export default function PostComponent({ post }: { post: Post }) {
                 <p>{post.user.userTag}</p>
             </Link>
 
-            <p>{new Date(post.createdAt).toDateString()}</p>
+            <p>{new Date(post.createdAt).toISOString()}</p>
 
             <div>
                 <p>{post.content}</p>
