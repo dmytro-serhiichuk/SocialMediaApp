@@ -53,6 +53,21 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("posts", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.PostLike", b =>
+                {
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("postLikes", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -100,6 +115,35 @@ namespace WebApp1.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApp1.Api.Models.PostLike", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithMany("LikedPosts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApp1.Api.Models.Post", b =>
+                {
+                    b.Navigation("Likes");
+                });
+
+            modelBuilder.Entity("WebApp1.Api.Models.User", b =>
+                {
+                    b.Navigation("LikedPosts");
                 });
 #pragma warning restore 612, 618
         }

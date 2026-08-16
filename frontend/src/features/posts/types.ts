@@ -9,5 +9,7 @@ export interface Post {
     user: User,
     content: string,
     createdAt: string,
-    updatedAt: string | null
+    updatedAt: string | null,
+    likesCount: number,
+    isLikedByMe: boolean
 }

@@ -27,9 +27,27 @@ public class PostsController(PostService postService) : ControllerBase
         return Ok(await postService.GetPosts(postPagination));
     }
 
-    [HttpGet("users/{id}/[controller]")]
-    public async Task<IActionResult> GetPostsByUser([FromQuery] PostPaginationRequest postPagination, [FromRoute] int id)
+    [HttpGet("users/{userId}/[controller]")]
+    public async Task<IActionResult> GetPostsByUser([FromQuery] PostPaginationRequest postPagination, [FromRoute] int userId)
     {
-        return Ok(await postService.GetPostsByUser(postPagination, id));
+        return Ok(await postService.GetPostsByUser(postPagination, userId));
+    }
+
+    [Authorize]
+    [HttpPost("[controller]/{id}/likes")]
+    public async Task<IActionResult> LikePost([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        await postService.LikePost(id, userId);
+        return Created();
+    }
+
+    [Authorize]
+    [HttpDelete("[controller]/{id}/likes")]
+    public async Task<IActionResult> UnlikePost([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        await postService.UnlikePost(id, userId);
+        return NoContent();
     }
 }

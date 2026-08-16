@@ -9,16 +9,6 @@ public class PostResponse
     public string Content { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
-
-    public static PostResponse CreateFromPost(Post post)
-    {
-        return new PostResponse
-        {
-            Id = post.Id,
-            Content = post.Content,
-            CreatedAt = post.CreatedAt,
-            UpdatedAt = post.UpdatedAt,
-            User = UserResponse.CreateFromUser(post.User)
-        };
-    }
+    public int LikesCount { get; set; }
+    public bool IsLikedByMe { get; set; }
 }

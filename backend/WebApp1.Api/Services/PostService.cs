@@ -6,7 +6,7 @@ using WebApp1.Api.Utils;
 
 namespace WebApp1.Api.Services;
 
-public class PostService(AppDbContext dbContext)
+public class PostService(AppDbContext dbContext, CurrentUserService currentUser)
 {
     public async Task Create(PostCreationRequest creationRequest, int userId)
     {
@@ -50,10 +50,29 @@ public class PostService(AppDbContext dbContext)
             );
         }
 
+        int? userId = null;
+        try
+        {
+            userId = currentUser.UserId;
+        }
+        catch
+        {
+            userId = null;
+        }
+
         var posts = await query
             .Include(p => p.User)
             .Take(postPagination.Limit + 1)
-            .Select(p => PostResponse.CreateFromPost(p))
+            .Select(p => new PostResponse
+            {
+                Id = p.Id,
+                Content = p.Content,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
+                User = UserResponse.CreateFromUser(p.User),
+                LikesCount = p.Likes.Count(),
+                IsLikedByMe = userId != null && p.Likes.Any(l => l.UserId == userId)
+            })
             .ToListAsync();
 
         var hasMore = posts.Count > postPagination.Limit;
@@ -76,5 +95,34 @@ public class PostService(AppDbContext dbContext)
             HasMore = hasMore,
             NextCursor = nextCursor
         };
+    }
+
+    public async Task LikePost(int postId, int userId)
+    {
+        var alreadyLiked = await dbContext.PostLikes
+            .AnyAsync(x => x.PostId == postId && x.UserId == userId);
+
+        if (!alreadyLiked)
+        {
+            dbContext.PostLikes.Add(new PostLike
+            {
+                PostId = postId,
+                UserId = userId
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UnlikePost(int postId, int userId)
+    {
+        var like = await dbContext.PostLikes
+            .FirstOrDefaultAsync(x => x.PostId == postId && x.UserId == userId);
+
+        if (like is not null)
+        {
+            dbContext.PostLikes.Remove(like);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }

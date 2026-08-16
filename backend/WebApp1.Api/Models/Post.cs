@@ -8,4 +8,5 @@ public class Post
     public string Content { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+    public ICollection<PostLike> Likes { get; set; } = [];
 }

@@ -7,6 +7,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Post> Posts => Set<Post>();
+    public DbSet<PostLike> PostLikes => Set<PostLike>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
