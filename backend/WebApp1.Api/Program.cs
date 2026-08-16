@@ -12,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -33,6 +37,9 @@ builder.Services
         options.AccessTokenLifetimeMinutes > 0,
         "Access token lifetime must be greater than zero.")
     .ValidateOnStart();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CurrentUserService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<UserService>();
@@ -103,6 +110,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseCors("Frontend");
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
