@@ -4,7 +4,7 @@ import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import ProtectedLayout from "./layouts/ProtectedLayout";
 import { authLoader } from "./features/auth/loaders";
-import ProfilePage from "./pages/ProfilePage";
+import UserPage from "./pages/UserPage";
 import { ROOT_ID, ROUTES } from "./constants/routes";
 import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import LoginPage from "./pages/LoginPage";
@@ -13,6 +13,7 @@ import { loginAction, logoutAction, registerAction } from "./features/auth/actio
 import RootErrorBoundary from "./components/rootErrorBoundary";
 import PostEditorPage from "./pages/PostEditorPage";
 import { createPostAction } from "./features/posts/actions";
+import { userLoader } from "./features/user/loaders";
 
 const router = createBrowserRouter([
     {
@@ -27,12 +28,13 @@ const router = createBrowserRouter([
                 Component: HomePage
             },
             {
+                path: ROUTES.USER,
+                Component: UserPage,
+                loader: userLoader
+            },
+            {
                 Component: ProtectedLayout,
                 children: [
-                    {
-                        path: ROUTES.PROFILE,
-                        Component: ProfilePage
-                    },
                     {
                         path: ROUTES.LOGOUT,
                         action: logoutAction

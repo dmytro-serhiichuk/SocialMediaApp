@@ -1,12 +1,12 @@
 import { Navigate, Outlet } from "react-router";
-import { ROUTES } from "../constants/routes";
 import { useUser } from "../features/auth/hooks";
+import { getUserPagePath } from "../utils/routerUtils";
 
 export default function GuestOnlyLayout() {
     const user = useUser();
 
     if (user) {
-        return <Navigate to={ROUTES.PROFILE} replace />;
+        return <Navigate to={getUserPagePath(user.userTag)} replace />;
     }
 
     return <Outlet />;

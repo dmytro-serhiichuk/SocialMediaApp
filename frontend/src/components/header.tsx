@@ -1,6 +1,7 @@
 import { Form, Link } from "react-router";
 import type { User } from "../features/auth/types";
 import { ROUTES } from "../constants/routes";
+import { getUserPagePath } from "../utils/routerUtils";
 
 export default function Header({user}: {user: User | null}) {
     return (
@@ -8,7 +9,7 @@ export default function Header({user}: {user: User | null}) {
             <Link to={ROUTES.HOME}>WebApp 1</Link>
             {user ? (
                 <>
-                    <Link to={ROUTES.PROFILE}>Profile</Link>
+                    <Link to={getUserPagePath(user.userTag)}>Profile</Link>
                     <Link to={ROUTES.POST_NEW}>Create New Post</Link>
                     <Form method="post" action={ROUTES.LOGOUT}>
                         <button type="submit">

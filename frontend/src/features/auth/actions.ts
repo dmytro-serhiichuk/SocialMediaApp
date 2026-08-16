@@ -19,8 +19,6 @@ export async function registerAction({ request }: ActionFunctionArgs) {
             method: "POST",
             body: JSON.stringify(registerRequest)
         });
-
-        return redirect(ROUTES.PROFILE);
     } catch (err) {
         if (err instanceof ApiError && err.status == 409) {
             return {
@@ -43,8 +41,6 @@ export async function loginAction({ request }: ActionFunctionArgs) {
             method: "POST",
             body: JSON.stringify(loginRequest)
         });
-
-        return redirect(ROUTES.PROFILE);
     } catch (err) {
         if (err instanceof ApiError && err.status == 401) {
             return {

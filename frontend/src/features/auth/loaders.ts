@@ -1,5 +1,5 @@
-import { getUser } from "./api";
+import { getCurrentUser } from "./api";
 
 export async function authLoader() {
-    return getUser();
+    return getCurrentUser();
 }

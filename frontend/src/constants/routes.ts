@@ -2,7 +2,7 @@ export const ROOT_ID = 'root';
 
 export const ROUTES = Object.freeze({
     HOME: "/",
-    PROFILE: "/profile",
+    USER: "/users/:userTag",
     LOGIN: "/login",
     REGISTER: "/register",
     LOGOUT: "/logout",
