@@ -11,5 +11,16 @@ public class CurrentUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public int? UserId => _httpContextAccessor.HttpContext?.User.GetUserId();
+    public int? UserId
+    {
+        get
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user?.Identity?.IsAuthenticated != true)
+                return null;
+
+            return user.GetUserId();
+        }
+    }
 }

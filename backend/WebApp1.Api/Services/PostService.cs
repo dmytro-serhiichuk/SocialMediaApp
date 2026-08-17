@@ -50,29 +50,12 @@ public class PostService(AppDbContext dbContext, CurrentUserService currentUser)
             );
         }
 
-        int? userId = null;
-        try
-        {
-            userId = currentUser.UserId;
-        }
-        catch
-        {
-            userId = null;
-        }
+        int? userId = currentUser.UserId;
 
         var posts = await query
             .Include(p => p.User)
             .Take(postPagination.Limit + 1)
-            .Select(p => new PostResponse
-            {
-                Id = p.Id,
-                Content = p.Content,
-                CreatedAt = p.CreatedAt,
-                UpdatedAt = p.UpdatedAt,
-                User = UserResponse.CreateFromUser(p.User),
-                LikesCount = p.Likes.Count(),
-                IsLikedByMe = userId != null && p.Likes.Any(l => l.UserId == userId)
-            })
+            .Select(p => PostResponse.CreateFromPost(p, currentUser.UserId))
             .ToListAsync();
 
         var hasMore = posts.Count > postPagination.Limit;

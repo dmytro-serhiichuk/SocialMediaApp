@@ -11,4 +11,18 @@ public class PostResponse
     public DateTimeOffset? UpdatedAt { get; set; }
     public int LikesCount { get; set; }
     public bool IsLikedByMe { get; set; }
+
+    public static PostResponse CreateFromPost(Post post, int? currentUserId)
+    {
+        return new PostResponse
+            {
+                Id = post.Id,
+                Content = post.Content,
+                CreatedAt = post.CreatedAt,
+                UpdatedAt = post.UpdatedAt,
+                User = UserResponse.CreateFromUser(post.User),
+                LikesCount = post.Likes.Count,
+                IsLikedByMe = currentUserId != null && post.Likes.Any(l => l.UserId == currentUserId)
+            };
+    }
 }

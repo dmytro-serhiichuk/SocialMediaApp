@@ -8,4 +8,6 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public ICollection<PostLike> LikedPosts { get; set; } = [];
+    public ICollection<UserFollow> Following { get; set; } = [];
+    public ICollection<UserFollow> Followers { get; set; } = [];
 }

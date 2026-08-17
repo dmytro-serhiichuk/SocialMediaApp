@@ -7,7 +7,7 @@ using WebApp1.Api.DTOs;
 
 namespace WebApp1.Api.Services;
 
-public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordHasher)
+public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordHasher, CurrentUserService currentUser)
 {
     public async Task<User?> GetById(int id)
     {
@@ -78,5 +78,13 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
         {
             return null;
         }
+    }
+
+    public async Task<UserProfileResponse?> GetUserProfile(string tag)
+    {
+        return await dbContext.Users
+            .Where(u => u.UserTag == tag)
+            .Select(u => UserProfileResponse.CreateFromUser(u, currentUser.UserId))
+            .FirstOrDefaultAsync();
     }
 }

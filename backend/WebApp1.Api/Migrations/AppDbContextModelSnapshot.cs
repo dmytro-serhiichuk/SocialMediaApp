@@ -106,6 +106,21 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.UserFollow", b =>
+                {
+                    b.Property<int>("FollowerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FollowingId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FollowerId", "FollowingId");
+
+                    b.HasIndex("FollowingId");
+
+                    b.ToTable("userFollows", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.Post", b =>
                 {
                     b.HasOne("WebApp1.Api.Models.User", "User")
@@ -136,6 +151,25 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.UserFollow", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.User", "Follower")
+                        .WithMany("Following")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp1.Api.Models.User", "Following")
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("Following");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.Post", b =>
                 {
                     b.Navigation("Likes");
@@ -143,6 +177,10 @@ namespace WebApp1.Api.Migrations
 
             modelBuilder.Entity("WebApp1.Api.Models.User", b =>
                 {
+                    b.Navigation("Followers");
+
+                    b.Navigation("Following");
+
                     b.Navigation("LikedPosts");
                 });
 #pragma warning restore 612, 618

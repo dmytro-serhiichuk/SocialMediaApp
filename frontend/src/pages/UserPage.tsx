@@ -16,6 +16,12 @@ export default function UserPage() {
 
             <p>Owner: {isOwnProfile ? "Yes" : "No"}</p>
 
+            <p>Followers: {profileUser.followersCount}</p>
+            <p>Followings: {profileUser.followingCount}</p>
+
+            <p>Followed By Me: {profileUser.isFollowedByMe ? "Yes" : "No"}</p>
+            <p>Follows Me: {profileUser.isFollowingMe ? "Yes" : "No"}</p>
+
             <hr />
             
             <p>Posts:</p>
