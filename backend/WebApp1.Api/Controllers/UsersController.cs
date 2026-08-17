@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApp1.Api.Extensions;
 using WebApp1.Api.Services;
 
 namespace WebApp1.Api.Controllers;
@@ -15,5 +17,23 @@ public class UsersController(UserService userService) : ControllerBase
         if (user is null) return NotFound();
         
         return Ok(user);
+    }
+
+    [Authorize]
+    [HttpPost("{id}/follow")]
+    public async Task<IActionResult> Follow([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        await userService.FollowUser(id, userId);
+        return Created();
+    }
+
+    [Authorize]
+    [HttpDelete("{id}/follow")]
+    public async Task<IActionResult> Unfollow([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        await userService.UnfollowUser(id, userId);
+        return NoContent();
     }
 }

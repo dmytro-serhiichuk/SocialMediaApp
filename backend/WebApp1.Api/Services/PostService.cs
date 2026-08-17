@@ -55,7 +55,16 @@ public class PostService(AppDbContext dbContext, CurrentUserService currentUser)
         var posts = await query
             .Include(p => p.User)
             .Take(postPagination.Limit + 1)
-            .Select(p => PostResponse.CreateFromPost(p, currentUser.UserId))
+            .Select(p => new PostResponse
+            {
+                Id = p.Id,
+                Content = p.Content,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
+                User = UserResponse.CreateFromUser(p.User),
+                LikesCount = p.Likes.Count,
+                IsLikedByMe = userId != null && p.Likes.Any(l => l.UserId == userId)
+            })
             .ToListAsync();
 
         var hasMore = posts.Count > postPagination.Limit;

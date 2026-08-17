@@ -82,9 +82,53 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
 
     public async Task<UserProfileResponse?> GetUserProfile(string tag)
     {
+        var currentUserId = currentUser.UserId;
+
         return await dbContext.Users
             .Where(u => u.UserTag == tag)
-            .Select(u => UserProfileResponse.CreateFromUser(u, currentUser.UserId))
+            .Select(user => new UserProfileResponse
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                UserTag = user.UserTag,
+                FollowingCount = user.Following.Count,
+                FollowersCount = user.Followers.Count,
+                IsFollowedByMe = currentUserId != null && user.Followers.Any(u => u.FollowerId  == currentUserId),
+                IsFollowingMe  = currentUserId != null && user.Following.Any(u => u.FollowingId == currentUserId),
+            })
             .FirstOrDefaultAsync();
+    }
+
+    public async Task FollowUser(int userId, int currentUserId)
+    {
+        if (userId == currentUserId) return;
+
+        var alreadyFollowed = await dbContext.UserFollows
+            .AnyAsync(x => x.FollowerId == currentUserId && x.FollowingId == userId);
+
+        if (!alreadyFollowed)
+        {
+            dbContext.UserFollows.Add(new UserFollow
+            {
+                FollowerId = currentUserId,
+                FollowingId = userId
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UnfollowUser(int userId, int currentUserId)
+    {
+        if (userId == currentUserId) return;
+        
+        var userFollow = await dbContext.UserFollows
+            .FirstOrDefaultAsync(x => x.FollowerId == currentUserId && x.FollowingId == userId);
+
+        if (userFollow is not null)
+        {
+            dbContext.UserFollows.Remove(userFollow);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }
