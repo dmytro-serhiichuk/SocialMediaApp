@@ -53,7 +53,6 @@ public class PostService(AppDbContext dbContext, CurrentUserService currentUser)
         int? userId = currentUser.UserId;
 
         var posts = await query
-            .Include(p => p.User)
             .Take(postPagination.Limit + 1)
             .Select(p => new PostResponse
             {
@@ -61,9 +60,19 @@ public class PostService(AppDbContext dbContext, CurrentUserService currentUser)
                 Content = p.Content,
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt,
-                User = UserResponse.CreateFromUser(p.User),
+                User = new UserResponse
+                {
+                    Id = p.User.Id,
+                    UserName = p.User.UserName,
+                    UserTag = p.User.UserTag
+                },
                 LikesCount = p.Likes.Count,
-                IsLikedByMe = userId != null && p.Likes.Any(l => l.UserId == userId)
+                IsLikedByMe = userId != null && p.Likes.Any(l => l.UserId == userId),
+                Tags = p.Tags.Select(pt => new TagResponse
+                {
+                    Id = pt.Tag.Id,
+                    Name = pt.Tag.Name
+                }).ToList()
             })
             .ToListAsync();
 

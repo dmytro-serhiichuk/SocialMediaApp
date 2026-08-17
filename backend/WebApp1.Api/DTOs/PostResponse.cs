@@ -9,4 +9,5 @@ public class PostResponse
     public DateTimeOffset? UpdatedAt { get; set; }
     public int LikesCount { get; set; }
     public bool IsLikedByMe { get; set; }
+    public List<TagResponse> Tags { get; set; } = null!;
 }

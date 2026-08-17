@@ -9,4 +9,5 @@ public class Post
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
     public ICollection<PostLike> Likes { get; set; } = [];
+    public ICollection<PostTag> Tags { get; set; } = [];
 }

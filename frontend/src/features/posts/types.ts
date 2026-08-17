@@ -1,4 +1,5 @@
 import type { User } from "../auth/types";
+import type { Tag } from "../tag/types";
 
 export interface PostForm {
     content: string
@@ -11,5 +12,6 @@ export interface Post {
     createdAt: string,
     updatedAt: string | null,
     likesCount: number,
-    isLikedByMe: boolean
+    isLikedByMe: boolean,
+    tags: Tag[]
 }

@@ -9,6 +9,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<PostLike> PostLikes => Set<PostLike>();
     public DbSet<UserFollow> UserFollows => Set<UserFollow>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<PostTag> PostTags => Set<PostTag>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

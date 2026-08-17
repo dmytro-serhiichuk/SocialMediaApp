@@ -68,6 +68,42 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("postLikes", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.PostTag", b =>
+                {
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PostId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("postTags", (string)null);
+                });
+
+            modelBuilder.Entity("WebApp1.Api.Models.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("tags", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -151,6 +187,25 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.PostTag", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.Post", "Post")
+                        .WithMany("Tags")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp1.Api.Models.Tag", "Tag")
+                        .WithMany("Posts")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.UserFollow", b =>
                 {
                     b.HasOne("WebApp1.Api.Models.User", "Follower")
@@ -173,6 +228,13 @@ namespace WebApp1.Api.Migrations
             modelBuilder.Entity("WebApp1.Api.Models.Post", b =>
                 {
                     b.Navigation("Likes");
+
+                    b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("WebApp1.Api.Models.Tag", b =>
+                {
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("WebApp1.Api.Models.User", b =>
