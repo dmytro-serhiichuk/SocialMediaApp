@@ -2,7 +2,8 @@ import type { User } from "../auth/types";
 import type { Tag } from "../tag/types";
 
 export interface PostForm {
-    content: string
+    content: string,
+    tags: string[]
 }
 
 export interface Post {

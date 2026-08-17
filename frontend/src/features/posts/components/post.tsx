@@ -55,6 +55,10 @@ export default function PostComponent({ post }: { post: Post }) {
                 <p>{post.content}</p>
             </div>
 
+            {post.tags.map(t => (
+                <div className="tag-container">{t.name}</div>
+            ))}
+
             <p>Likes: {likesCount}</p>
             {currentUser && 
                 <button onClick={handleLike} disabled={isBusy}>{likedByMe ? "Unlike" : "Like"}</button>

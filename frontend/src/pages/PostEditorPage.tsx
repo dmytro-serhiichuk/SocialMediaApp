@@ -1,8 +1,12 @@
 import { Form, useActionData } from "react-router";
 import type { createPostAction } from "../features/posts/actions";
+import { useState } from "react";
+import { TagInput } from "../features/tag/components/tagInput";
 
 export default function PostEditorPage() {
     const actionData = useActionData<typeof createPostAction>();
+
+    const [tags, setTags] = useState<string[]>([]);
 
     return (
         <>
@@ -14,6 +18,12 @@ export default function PostEditorPage() {
                 {actionData?.error && (
                     <p>{actionData.error}</p>
                 )}
+
+                {tags.map(tag => (
+                    <input key={tag} type="hidden" name="tags" value={tag}/>
+                ))}
+
+                <TagInput tags={tags} onChange={setTags}/>
 
                 <button type="submit">Publish</button>
             </Form>

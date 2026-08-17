@@ -6,15 +6,18 @@ using WebApp1.Api.Utils;
 
 namespace WebApp1.Api.Services;
 
-public class PostService(AppDbContext dbContext, CurrentUserService currentUser)
+public class PostService(AppDbContext dbContext, CurrentUserService currentUser, TagService tagService)
 {
     public async Task Create(PostCreationRequest creationRequest, int userId)
     {
+        var tags = await tagService.CreateOrGetTagsByName(creationRequest.Tags);
+
         dbContext.Posts.Add(new Post
         {
             UserId = userId,
             Content = creationRequest.Content,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            Tags = tags.Select(t => new PostTag { Tag = t }).ToList()
         });
         await dbContext.SaveChangesAsync();
     }

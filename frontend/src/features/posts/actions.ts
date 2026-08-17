@@ -1,5 +1,5 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
-import { getFormString } from "../../utils/formDataUtils";
+import { getFormString, getFormStrings } from "../../utils/formDataUtils";
 import type { PostForm } from "./types";
 import { apiClient, ApiError } from "../../api/client";
 import { ROUTES } from "../../constants/routes";
@@ -8,7 +8,8 @@ export async function createPostAction({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
 
     const requestBody: PostForm = {
-        content: getFormString(formData, "content")
+        content: getFormString(formData, "content"),
+        tags:    getFormStrings(formData, "tags")
     }
 
     try {
@@ -17,7 +18,7 @@ export async function createPostAction({ request }: ActionFunctionArgs) {
             body: JSON.stringify(requestBody)
         });
 
-        return redirect(ROUTES.PROFILE);
+        return redirect(ROUTES.HOME);
     } catch (err) {
         if (err instanceof ApiError) {
             return {
