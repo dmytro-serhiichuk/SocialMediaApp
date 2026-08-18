@@ -1,0 +1,19 @@
+using System.Text.RegularExpressions;
+
+namespace WebApp1.Api.Validation;
+
+public static class TagRules
+{
+    public const int MaxLength = 32;
+    private static readonly Regex TagRegex = new(@"^[a-z0-9_]+$", RegexOptions.Compiled);
+
+    public static string Normalize(string value)
+    {
+        return value.Trim().ToLowerInvariant();
+    }
+
+    public static bool IsValid(string value)
+    {
+        return value.Length <= MaxLength && TagRegex.IsMatch(value);
+    }
+}

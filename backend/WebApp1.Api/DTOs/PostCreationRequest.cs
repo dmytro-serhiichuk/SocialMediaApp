@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using WebApp1.Api.Validation;
 
 namespace WebApp1.Api.DTOs;
 
@@ -11,12 +12,10 @@ public class PostCreationRequest : IValidatableObject
 
     public List<string> Tags { get; set; } = [];
 
-    private static readonly Regex TagRegex = new(@"^[a-z0-9_]+$", RegexOptions.Compiled);
-
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         Tags = Tags
-            .Select(t => t.Trim().ToLowerInvariant())
+            .Select(t => TagRules.Normalize(t))
             .Where(t => t.Length > 0)
             .Distinct()
             .ToList();
@@ -30,16 +29,10 @@ public class PostCreationRequest : IValidatableObject
 
         foreach (var tag in Tags)
         {
-            if (tag.Length > 32)
+            if (!TagRules.IsValid(tag))
             {
                 yield return new ValidationResult(
-                    $"Tag '{tag}' is too long (maximum 64 characters).",
-                    [nameof(Tags)]);
-            }
-            else if (!TagRegex.IsMatch(tag))
-            {
-                yield return new ValidationResult(
-                    $"Tag '{tag}' contains invalid characters. Only Latin letters, numbers and '_' are allowed.",
+                    $"Tag '{tag}' is too long (maximum 32 characters) or contains invalid characters (only Latin letters, numbers and '_' are allowed).",
                     [nameof(Tags)]);
             }
         }

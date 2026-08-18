@@ -47,13 +47,13 @@ public class TagService(AppDbContext dbContext)
         }
     }
 
-    public async Task<List<TagQueryResponse>> FindTagsByName(string query, int limit = 5)
+    public async Task<List<TagSearchResponse>> FindTagsByName(TagSearchRequest searchRequest, int limit = 5)
     {
         return await dbContext.Tags
-            .Where(t => EF.Functions.Like(t.Name, $"{query}%"))
+            .Where(t => EF.Functions.Like(t.Name, $"{searchRequest.Query}%"))
             .OrderBy(t => t.Name)
             .Take(limit)
-            .Select(t => new TagQueryResponse
+            .Select(t => new TagSearchResponse
             {
                 Name = t.Name,
                 UseCount = t.Posts.Count

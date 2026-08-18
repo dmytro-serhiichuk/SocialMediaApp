@@ -3,7 +3,11 @@ export interface Tag {
     name: string
 };
 
-export interface TagQueryResponse {
+export interface TagSearchResponse {
     name: string,
     useCount: number
+};
+
+export interface TagSearchRequest {
+    query: string
 };

@@ -1,4 +1,6 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { TagSearchResponse } from "../types";
+import { apiClient } from "../../../api/client";
 
 export interface TagInputProps {
     tags: string[];
@@ -7,6 +9,8 @@ export interface TagInputProps {
 
 export function TagInput({tags, onChange}: TagInputProps) {
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const [query, setQuery] = useState("");
+    const [suggestions, setSuggestions] = useState<TagSearchResponse[]>([]);
 
     const regex = /^[a-z0-9_]+$/i;
 
@@ -20,10 +24,36 @@ export function TagInput({tags, onChange}: TagInputProps) {
         if (!input) return;
 
         const value = input.value.trim().toLocaleLowerCase();
-        if (!regex.test(value)) return;
+        if (value.length > 32 || !regex.test(value)) return;
 
         if (!tags.includes(value)) {
             onChange([...tags, value]);
+        }
+    }
+
+    useEffect(() => {
+        const q = query.trim().toLocaleLowerCase();
+
+        if (q.length <= 2 || !regex.test(q)) {
+            setSuggestions([]);
+            return;
+        } else {
+            const timeoutId = setTimeout(async () => {
+                try {
+                    const response = await apiClient<TagSearchResponse[]>(`tags/?query=${q}`);
+                    setSuggestions(response.sort((a, b) => b.useCount - a.useCount));
+                } catch {
+                    return;
+                }
+            }, 300);
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [query]);
+
+    const handleInputChanged = () => {
+        if (inputRef.current) {
+            setQuery(inputRef.current.value);
         }
     }
     
@@ -38,8 +68,11 @@ export function TagInput({tags, onChange}: TagInputProps) {
 
             {tags.length < 5 &&
                 <>
-                {/* TODO: get list of existing similar tags from API */}
-                    <input type="text" ref={inputRef} maxLength={32} />
+                    <input type="text" ref={inputRef} maxLength={32} onChange={handleInputChanged} />
+                    {suggestions.length > 0 && <p>Suggestions:</p>}
+                    {suggestions.map(s => (
+                        <p>{s.name} - used {s.useCount} times</p>
+                    ))}
                     <button type="button" onClick={handleAdd}>Add Tag</button>
                 </>
             }
