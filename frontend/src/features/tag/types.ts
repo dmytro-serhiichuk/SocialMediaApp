@@ -11,3 +11,9 @@ export interface TagSearchResponse {
 export interface TagSearchRequest {
     query: string
 };
+
+export interface TagFullResponse {
+    id: number,
+    name: string,
+    useCount: number
+};

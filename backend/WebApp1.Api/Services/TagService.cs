@@ -60,4 +60,17 @@ public class TagService(AppDbContext dbContext)
             })
             .ToListAsync();
     }
+
+    public async Task<TagFullResponse?> GetTagByName(string tagName)
+    {
+        return await dbContext.Tags
+            .Where(t => t.Name == tagName)
+            .Select(t => new TagFullResponse
+            {
+                Id = t.Id,
+                Name = t.Name,
+                UseCount = t.Posts.Count
+            })
+            .FirstOrDefaultAsync();
+    }
 }

@@ -33,6 +33,12 @@ public class PostsController(PostService postService) : ControllerBase
         return Ok(await postService.GetPostsByUser(postPagination, userId));
     }
 
+    [HttpGet("tags/{tagId}/[controller]")]
+    public async Task<IActionResult> GetPostsByTag([FromQuery] PostPaginationRequest postPagination, [FromRoute] int tagId)
+    {
+        return Ok(await postService.GetPostsByTag(postPagination, tagId));
+    }
+
     [Authorize]
     [HttpPost("[controller]/{id}/likes")]
     public async Task<IActionResult> LikePost([FromRoute] int id)

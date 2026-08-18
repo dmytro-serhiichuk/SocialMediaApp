@@ -14,6 +14,8 @@ import RootErrorBoundary from "./components/rootErrorBoundary";
 import PostEditorPage from "./pages/PostEditorPage";
 import { createPostAction } from "./features/posts/actions";
 import { userLoader } from "./features/user/loaders";
+import TagPage from "./pages/TagPage";
+import { tagLoader } from "./features/tag/loaders";
 
 const router = createBrowserRouter([
     {
@@ -31,6 +33,11 @@ const router = createBrowserRouter([
                 path: ROUTES.USER,
                 Component: UserPage,
                 loader: userLoader
+            },
+            {
+                path: ROUTES.TAG,
+                Component: TagPage,
+                loader: tagLoader
             },
             {
                 Component: ProtectedLayout,

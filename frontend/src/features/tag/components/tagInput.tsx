@@ -40,7 +40,7 @@ export function TagInput({tags, onChange}: TagInputProps) {
         } else {
             const timeoutId = setTimeout(async () => {
                 try {
-                    const response = await apiClient<TagSearchResponse[]>(`tags/?query=${q}`);
+                    const response = await apiClient<TagSearchResponse[]>(`tags/search?query=${q}`);
                     setSuggestions(response.sort((a, b) => b.useCount - a.useCount));
                 } catch {
                     return;

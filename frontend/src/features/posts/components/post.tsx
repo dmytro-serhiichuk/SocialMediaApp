@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import type { Post } from "../types";
-import { getUserPagePath } from "../../../utils/routerUtils";
+import { getTagPagePath, getUserPagePath } from "../../../utils/routerUtils";
 import { useState } from "react";
 import { apiClient } from "../../../api/client";
 import { useUser } from "../../auth/hooks";
@@ -56,7 +56,9 @@ export default function PostComponent({ post }: { post: Post }) {
             </div>
 
             {post.tags.map(t => (
-                <div className="tag-container">{t.name}</div>
+                <div className="tag-container" key={t.id}>
+                    <Link to={getTagPagePath(t.name)}>{t.name}</Link>
+                </div>
             ))}
 
             <p>Likes: {likesCount}</p>
