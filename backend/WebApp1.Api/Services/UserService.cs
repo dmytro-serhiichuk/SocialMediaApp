@@ -131,4 +131,14 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
             await dbContext.SaveChangesAsync();
         }
     }
+
+    public async Task<List<UserResponse>> FindUsersByTag(UserSearchRequest searchRequest, int limit = 5)
+    {
+        return await dbContext.Users
+            .Where(u => EF.Functions.Like(u.UserTag, $"%{searchRequest.Query}%"))
+            .OrderByDescending(u => u.Followers.Count)
+            .Take(limit)
+            .Select(u => UserResponse.CreateFromUser(u))
+            .ToListAsync();
+    }
 }

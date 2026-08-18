@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { TagSearchResponse } from "../types";
 import { apiClient } from "../../../api/client";
+import { isTagNameValid, normalizeTagName } from "../validation";
 
 export interface TagInputProps {
     tags: string[];
@@ -12,8 +13,6 @@ export function TagInput({tags, onChange}: TagInputProps) {
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState<TagSearchResponse[]>([]);
 
-    const regex = /^[a-z0-9_]+$/i;
-
     const handleRemove = (tag: string) => {
         onChange(tags.filter(t => t !== tag));
     }
@@ -23,8 +22,8 @@ export function TagInput({tags, onChange}: TagInputProps) {
 
         if (!input) return;
 
-        const value = input.value.trim().toLocaleLowerCase();
-        if (value.length > 32 || !regex.test(value)) return;
+        const value = normalizeTagName(input.value);
+        if (!isTagNameValid(value)) return;
 
         if (!tags.includes(value)) {
             onChange([...tags, value]);
@@ -32,9 +31,9 @@ export function TagInput({tags, onChange}: TagInputProps) {
     }
 
     useEffect(() => {
-        const q = query.trim().toLocaleLowerCase();
+        const q = normalizeTagName(query);
 
-        if (q.length <= 2 || !regex.test(q)) {
+        if (!isTagNameValid(q)) {
             setSuggestions([]);
             return;
         } else {

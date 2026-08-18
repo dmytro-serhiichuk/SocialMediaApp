@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApp1.Api.DTOs;
 using WebApp1.Api.Extensions;
 using WebApp1.Api.Services;
 
@@ -35,5 +36,11 @@ public class UsersController(UserService userService) : ControllerBase
         var userId = User.GetUserId();
         await userService.UnfollowUser(id, userId);
         return NoContent();
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> FindUsersWithQuery([FromQuery] UserSearchRequest searchRequest)
+    {
+        return Ok(await userService.FindUsersByTag(searchRequest));
     }
 }

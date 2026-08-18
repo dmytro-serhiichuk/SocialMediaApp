@@ -51,7 +51,7 @@ public class TagService(AppDbContext dbContext)
     {
         return await dbContext.Tags
             .Where(t => EF.Functions.Like(t.Name, $"{searchRequest.Query}%"))
-            .OrderBy(t => t.Name)
+            .OrderByDescending(t => t.Posts.Count)
             .Take(limit)
             .Select(t => new TagSearchResponse
             {

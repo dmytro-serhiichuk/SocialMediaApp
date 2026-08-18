@@ -1,5 +1,5 @@
 import { Outlet, useLoaderData } from "react-router";
-import Header from "../components/header";
+import Header from "../features/header/header";
 import type { User } from "../features/auth/types";
 
 export default function RootLayout() {
