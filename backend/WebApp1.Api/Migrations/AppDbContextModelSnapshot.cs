@@ -68,6 +68,24 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("postLikes", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.PostSave", b =>
+                {
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("postSaves", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.PostTag", b =>
                 {
                     b.Property<int>("PostId")
@@ -187,6 +205,25 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.PostSave", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.Post", "Post")
+                        .WithMany("Saves")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithMany("SavedPosts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.PostTag", b =>
                 {
                     b.HasOne("WebApp1.Api.Models.Post", "Post")
@@ -229,6 +266,8 @@ namespace WebApp1.Api.Migrations
                 {
                     b.Navigation("Likes");
 
+                    b.Navigation("Saves");
+
                     b.Navigation("Tags");
                 });
 
@@ -244,6 +283,8 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("Following");
 
                     b.Navigation("LikedPosts");
+
+                    b.Navigation("SavedPosts");
                 });
 #pragma warning restore 612, 618
         }

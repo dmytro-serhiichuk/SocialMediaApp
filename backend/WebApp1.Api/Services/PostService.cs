@@ -85,7 +85,8 @@ public class PostService(AppDbContext dbContext, CurrentUserService currentUser,
                 {
                     Id = pt.Tag.Id,
                     Name = pt.Tag.Name
-                }).ToList()
+                }).ToList(),
+                IsSavedByMe = userId != null && p.Saves.Any(s => s.UserId == userId),
             })
             .ToListAsync();
 
@@ -136,6 +137,36 @@ public class PostService(AppDbContext dbContext, CurrentUserService currentUser,
         if (like is not null)
         {
             dbContext.PostLikes.Remove(like);
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task SavePost(int postId, int userId)
+    {
+        var alreadySaved = await dbContext.PostSaves
+            .AnyAsync(x => x.PostId == postId && x.UserId == userId);
+
+        if (!alreadySaved)
+        {
+            dbContext.PostSaves.Add(new PostSave
+            {
+                PostId = postId,
+                UserId = userId,
+                CreatedAt = DateTimeOffset.UtcNow,
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UnsavePost(int postId, int userId)
+    {
+        var savedPost = await dbContext.PostSaves
+            .FirstOrDefaultAsync(x => x.PostId == postId && x.UserId == userId);
+
+        if (savedPost is not null)
+        {
+            dbContext.PostSaves.Remove(savedPost);
             await dbContext.SaveChangesAsync();
         }
     }

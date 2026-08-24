@@ -56,4 +56,22 @@ public class PostsController(PostService postService) : ControllerBase
         await postService.UnlikePost(id, userId);
         return NoContent();
     }
+
+    [Authorize]
+    [HttpPost("[controller]/{id}/save")]
+    public async Task<IActionResult> SavePost([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        await postService.SavePost(id, userId);
+        return Created();
+    }
+
+    [Authorize]
+    [HttpDelete("[controller]/{id}/save")]
+    public async Task<IActionResult> UnsavePost([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        await postService.UnsavePost(id, userId);
+        return NoContent();
+    }
 }

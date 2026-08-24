@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<UserFollow> UserFollows => Set<UserFollow>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<PostTag> PostTags => Set<PostTag>();
+    public DbSet<PostSave> PostSaves => Set<PostSave>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

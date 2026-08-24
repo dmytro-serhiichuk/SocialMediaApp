@@ -10,27 +10,46 @@ export default function PostComponent({ post }: { post: Post }) {
 
     const [likesCount, setLikesCount] = useState<number>(post.likesCount);
     const [likedByMe, setLikedByMe] = useState<boolean>(post.isLikedByMe);
+
+    const [savedByMe, setSavedByMe] = useState<boolean>(post.isSavedByMe);
+
     const [isBusy, setIsBusy] = useState<boolean>(false); 
 
     const handleLike = async () => {
+        makeApiRequest(
+            `posts/${post.id}/likes`, 
+            likedByMe ? 'DELETE' : 'POST', 
+            () => {
+                setLikedByMe(prev => {
+                    if (post.isLikedByMe) {
+                        if (prev) setLikesCount(post.likesCount - 1);
+                        else      setLikesCount(post.likesCount);
+                    } else {
+                        if (prev) setLikesCount(post.likesCount);
+                        else      setLikesCount(post.likesCount + 1);
+                    }
+                    
+                    return !prev
+                });
+        });
+    }
+
+    const handleSave = async () => {
+        makeApiRequest(
+            `posts/${post.id}/save`, 
+            savedByMe ? 'DELETE' : 'POST', 
+            () => setSavedByMe(prev => !prev));
+    }
+
+    const makeApiRequest = async (endpoint: string, method: string, func: () => void) => {
         try {
             setIsBusy(true);
 
-            await apiClient(`posts/${post.id}/likes`, {
-                method: likedByMe ? 'DELETE' : 'POST'
+            await apiClient(endpoint, {
+                method: method
             });
-            
-            setLikedByMe(prev => {
-                if (post.isLikedByMe) {
-                    if (prev) setLikesCount(post.likesCount - 1);
-                    else      setLikesCount(post.likesCount);
-                } else {
-                    if (prev) setLikesCount(post.likesCount);
-                    else      setLikesCount(post.likesCount + 1);
-                }
-                
-                return !prev
-            });
+
+            func();
         } catch (error) {
             if (error instanceof Error) {
                 alert(error.message);
@@ -63,7 +82,11 @@ export default function PostComponent({ post }: { post: Post }) {
 
             <p>Likes: {likesCount}</p>
             {currentUser && 
-                <button onClick={handleLike} disabled={isBusy}>{likedByMe ? "Unlike" : "Like"}</button>
+                <>
+                    <button onClick={handleLike} disabled={isBusy}>{likedByMe ? "Unlike" : "Like"}</button>
+
+                    <button onClick={handleSave} disabled={isBusy}>{savedByMe ? "Unsave" : "Save"}</button>
+                </>
             }
         </div>
     );

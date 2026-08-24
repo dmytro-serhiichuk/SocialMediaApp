@@ -10,4 +10,5 @@ public class PostResponse
     public int LikesCount { get; set; }
     public bool IsLikedByMe { get; set; }
     public List<TagResponse> Tags { get; set; } = null!;
+    public bool IsSavedByMe { get; set; }
 }

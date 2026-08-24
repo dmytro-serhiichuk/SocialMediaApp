@@ -14,5 +14,6 @@ export interface Post {
     updatedAt: string | null,
     likesCount: number,
     isLikedByMe: boolean,
-    tags: Tag[]
+    tags: Tag[],
+    isSavedByMe: boolean,
 }
