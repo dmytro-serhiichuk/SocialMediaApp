@@ -51,6 +51,16 @@ public class PostService(AppDbContext dbContext, CurrentUserService currentUser,
         return await GetPostsByQuery(query, postPagination);
     }
 
+    public async Task<PaginationResponse<PostResponse>> GetSavedPosts(PostPaginationRequest postPagination, int userId)
+    {
+        IQueryable<Post>? query = dbContext.PostSaves
+            .Where(x => x.UserId == userId)
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => x.Post);
+        
+        return await GetPostsByQuery(query, postPagination);
+    }
+
     private async Task<PaginationResponse<PostResponse>> GetPostsByQuery(IQueryable<Post> query, PostPaginationRequest postPagination)
     {
         var cursor = CursorEncoder.Decode<PostPaginationCursor>(postPagination.Cursor);

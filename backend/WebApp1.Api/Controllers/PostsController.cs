@@ -40,6 +40,15 @@ public class PostsController(PostService postService) : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("[controller]/saved")]
+    public async Task<IActionResult> GetSavedPosts([FromQuery] PostPaginationRequest postPagination)
+    {
+        var userId = User.GetUserId();
+        return Ok(await postService.GetSavedPosts(postPagination, userId));
+    }
+
+
+    [Authorize]
     [HttpPost("[controller]/{id}/likes")]
     public async Task<IActionResult> LikePost([FromRoute] int id)
     {

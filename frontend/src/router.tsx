@@ -16,6 +16,7 @@ import { createPostAction } from "./features/posts/actions";
 import { userLoader } from "./features/user/loaders";
 import TagPage from "./pages/TagPage";
 import { tagLoader } from "./features/tag/loaders";
+import SavedPostsPage from "./pages/SavedPostsPage";
 
 const router = createBrowserRouter([
     {
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
                         path: ROUTES.POST_NEW,
                         Component: PostEditorPage,
                         action: createPostAction
+                    },
+                    {
+                        path: ROUTES.SAVED_POSTS,
+                        Component: SavedPostsPage
                     }
                 ]
             },

@@ -7,5 +7,6 @@ export const ROUTES = Object.freeze({
     REGISTER: "/register",
     LOGOUT: "/logout",
     POST_NEW: "/posts/new",
-    TAG: "/tags/:tagName"
+    TAG: "/tags/:tagName",
+    SAVED_POSTS: "/posts/saved"
 })

@@ -1,9 +1,10 @@
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { useUser } from "../features/auth/hooks";
 import type { UserProfile } from "../features/user/types";
 import PostList from "../features/posts/components/postList";
 import { useState } from "react";
 import { apiClient } from "../api/client";
+import { ROUTES } from "../constants/routes";
 
 export default function UserPage() {
     const currentUser = useUser();
@@ -55,7 +56,7 @@ export default function UserPage() {
             <p>Followers: {followersCount}</p>
             <p>Followings: {profileUser.followingCount}</p>
 
-            {currentUser && currentUser.id != profileUser.id && 
+            {currentUser && !isOwnProfile ? 
                 <>
                     <p>Follows Me: {profileUser.isFollowingMe ? "Yes" : "No"}</p>
 
@@ -67,6 +68,11 @@ export default function UserPage() {
                             'Follow'
                         }
                     </button>
+                </> :
+                <>
+                    <Link to={ROUTES.SAVED_POSTS}>
+                        <button>Open saved posts</button>
+                    </Link>
                 </>
             }
             
