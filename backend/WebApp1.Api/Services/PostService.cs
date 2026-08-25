@@ -6,20 +6,69 @@ using WebApp1.Api.Utils;
 
 namespace WebApp1.Api.Services;
 
-public class PostService(AppDbContext dbContext, CurrentUserService currentUser, TagService tagService)
+public class PostService(
+    AppDbContext dbContext, CurrentUserService currentUser, TagService tagService, 
+    IImageProcessor imageProcessor, IImageStorage imageStorage
+)
 {
     public async Task Create(PostCreationRequest creationRequest, int userId)
     {
         var tags = await tagService.CreateOrGetTagsByName(creationRequest.Tags);
 
-        dbContext.Posts.Add(new Post
+        var post = new Post
         {
             UserId = userId,
             Content = creationRequest.Content,
             CreatedAt = DateTimeOffset.UtcNow,
             Tags = tags.Select(t => new PostTag { Tag = t }).ToList()
-        });
-        await dbContext.SaveChangesAsync();
+        };
+
+        var savedStorageKeys = new List<string>();
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            var order = 0;
+
+            foreach (var file in creationRequest.Images)
+            {
+                var processed = await imageProcessor.ProcessAsync(file);
+                var fileId = Guid.NewGuid();
+
+                var storageKey = $"posts/{fileId}.webp";
+
+                await imageStorage.SaveAsync(processed.Content, storageKey);
+
+                savedStorageKeys.Add(storageKey);
+
+                post.Images.Add(new PostImage
+                {
+                    StorageKey = storageKey,
+                    Width = processed.Width,
+                    Height = processed.Height,
+                    Order = order++
+                });
+            }
+
+            dbContext.Posts.Add(post);
+
+            await dbContext.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+
+            foreach (var key in savedStorageKeys)
+            {
+                await imageStorage.DeleteAsync(key);
+            }
+
+            throw;
+        }
+        
     }
 
     public async Task<PaginationResponse<PostResponse>> GetPosts(PostPaginationRequest postPagination)

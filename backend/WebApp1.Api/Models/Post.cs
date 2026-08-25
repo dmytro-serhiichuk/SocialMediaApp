@@ -11,4 +11,5 @@ public class Post
     public ICollection<PostLike> Likes { get; set; } = [];
     public ICollection<PostTag> Tags { get; set; } = [];
     public ICollection<PostSave> Saves { get; set; } = [];
+    public ICollection<PostImage> Images { get; set; } = [];
 }

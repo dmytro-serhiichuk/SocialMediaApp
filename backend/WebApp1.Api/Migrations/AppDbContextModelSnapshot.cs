@@ -53,6 +53,39 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("posts", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.PostImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Height")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId", "Order")
+                        .IsUnique();
+
+                    b.ToTable("postImages", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.PostLike", b =>
                 {
                     b.Property<int>("PostId")
@@ -186,6 +219,17 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.PostImage", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.Post", "Post")
+                        .WithMany("Images")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.PostLike", b =>
                 {
                     b.HasOne("WebApp1.Api.Models.Post", "Post")
@@ -264,6 +308,8 @@ namespace WebApp1.Api.Migrations
 
             modelBuilder.Entity("WebApp1.Api.Models.Post", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("Likes");
 
                     b.Navigation("Saves");

@@ -11,6 +11,7 @@ public class PostCreationRequest : IValidatableObject
     public string Content { get; set; } = string.Empty;
 
     public List<string> Tags { get; set; } = [];
+    public List<IFormFile> Images { get; set; } = [];
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -35,6 +36,13 @@ public class PostCreationRequest : IValidatableObject
                     $"Tag '{tag}' is too long (maximum 32 characters) or contains invalid characters (only Latin letters, numbers and '_' are allowed).",
                     [nameof(Tags)]);
             }
+        }
+
+        if (Images.Count is < 1 or > 10)
+        {
+            yield return new ValidationResult(
+                "Post must have between 1 and 10 images",
+                [nameof(Images)]);
         }
     }
 }
