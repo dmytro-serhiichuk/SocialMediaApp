@@ -5,6 +5,7 @@ type ProblemDetails = {
     title?: string;
     status?: number;
     detail?: string;
+    errors?: Record<string, string[]>;
 };
 
 export class ApiError extends Error {
@@ -18,6 +19,14 @@ export class ApiError extends Error {
         super(problem?.title ?? `API request failed: ${status}`);
         this.status = status;
         this.problem = problem;
+    }
+
+    get validationErrors() {
+        return this.problem?.errors;
+    }
+
+    isValidationError() {
+        return this.problem?.title === "One or more validation errors occurred.";
     }
 }
 

@@ -2,6 +2,7 @@ import { Form, useActionData } from "react-router";
 import type { createPostAction } from "../features/posts/actions";
 import { useState } from "react";
 import { TagInput } from "../features/tag/components/tagInput";
+import ValidationErrorsList from "../components/validationErrorsList";
 
 export default function PostEditorPage() {
     const actionData = useActionData<typeof createPostAction>();
@@ -18,6 +19,7 @@ export default function PostEditorPage() {
                 {actionData?.error && (
                     <p>{actionData.error}</p>
                 )}
+                {actionData?.validationErrors && <ValidationErrorsList errors={actionData?.validationErrors} />}
 
                 {tags.map(tag => (
                     <input key={tag} type="hidden" name="tags" value={tag}/>

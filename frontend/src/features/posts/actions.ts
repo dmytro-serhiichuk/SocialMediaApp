@@ -22,7 +22,8 @@ export async function createPostAction({ request }: ActionFunctionArgs) {
     } catch (err) {
         if (err instanceof ApiError) {
             return {
-                error: err.message
+                error: err.message,
+                validationErrors: err.validationErrors
             };
         }
         throw err;
