@@ -43,6 +43,7 @@ builder.Services.AddScoped<CurrentUserService>();
 
 builder.Services.AddScoped<IImageStorage, FileSystemImageStorage>();
 builder.Services.AddScoped<IImageProcessor, ImageProcessor>();
+builder.Services.AddScoped<ImageService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<UserService>();

@@ -11,4 +11,5 @@ public class PostResponse
     public bool IsLikedByMe { get; set; }
     public List<TagResponse> Tags { get; set; } = null!;
     public bool IsSavedByMe { get; set; }
+    public List<ImageResponse> Images { get; set; } = null!;
 }

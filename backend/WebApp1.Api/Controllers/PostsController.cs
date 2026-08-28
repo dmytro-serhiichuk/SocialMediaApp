@@ -12,7 +12,7 @@ public class PostsController(PostService postService) : ControllerBase
 {
     [Authorize]
     [HttpPost("[controller]/create")]
-    public async Task<IActionResult> Create([FromBody] PostCreationRequest creationRequest)
+    public async Task<IActionResult> Create([FromForm] PostCreationRequest creationRequest)
     {
         var userId = User.GetUserId();
 

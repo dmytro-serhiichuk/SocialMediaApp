@@ -22,6 +22,31 @@ namespace WebApp1.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("WebApp1.Api.Models.Image", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StorageKey")
+                        .IsUnique();
+
+                    b.ToTable("images", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -61,8 +86,8 @@ namespace WebApp1.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Height")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ImageId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Order")
                         .HasColumnType("integer");
@@ -70,15 +95,9 @@ namespace WebApp1.Api.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("StorageKey")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)");
-
-                    b.Property<int>("Width")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("PostId", "Order")
                         .IsUnique();
@@ -221,11 +240,19 @@ namespace WebApp1.Api.Migrations
 
             modelBuilder.Entity("WebApp1.Api.Models.PostImage", b =>
                 {
+                    b.HasOne("WebApp1.Api.Models.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebApp1.Api.Models.Post", "Post")
                         .WithMany("Images")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Image");
 
                     b.Navigation("Post");
                 });

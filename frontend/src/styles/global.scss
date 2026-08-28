@@ -30,3 +30,15 @@ form {
 .tag-container {
     border: 1px solid black;
 }
+
+.image-input-item {
+    max-width: 100%;
+    
+    img {
+        max-width: 100%;
+    }
+}
+
+.post-image {
+    max-width: 100%;
+}

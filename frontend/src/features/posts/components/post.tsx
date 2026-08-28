@@ -4,6 +4,7 @@ import { getTagPagePath, getUserPagePath } from "../../../utils/routerUtils";
 import { useState } from "react";
 import { apiClient } from "../../../api/client";
 import { useUser } from "../../auth/hooks";
+import { getFullImageUrl } from "../../image/utils";
 
 export default function PostComponent({ post }: { post: Post }) {
     const currentUser = useUser();
@@ -63,6 +64,10 @@ export default function PostComponent({ post }: { post: Post }) {
 
     return (
         <div className="post-container">
+            {post.images.map((img, index) => (
+                <img src={getFullImageUrl(img.url)} alt="" key={index} className="post-image" width={img.width}  />
+            ))}
+
             <Link to={getUserPagePath(post.user.userTag)}>
                 <p>{post.user.userName}</p>
                 <p>{post.user.userTag}</p>

@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<PostTag> PostTags => Set<PostTag>();
     public DbSet<PostSave> PostSaves => Set<PostSave>();
+    public DbSet<Image> Images => Set<Image>();
     public DbSet<PostImage> PostImages => Set<PostImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -7,9 +7,8 @@ public class PostImage
     public int PostId { get; set; }
     public Post Post { get; set; } = null!;
 
-    public string StorageKey { get; set; } = null!;
-    public int Width { get; set; }
-    public int Height { get; set; }
+    public Guid ImageId { get; set; }
+    public Image Image { get; set; } = null!;
 
     public int Order { get; set; }
 }

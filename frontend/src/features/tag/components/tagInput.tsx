@@ -69,8 +69,8 @@ export function TagInput({tags, onChange}: TagInputProps) {
                 <>
                     <input type="text" ref={inputRef} maxLength={32} onChange={handleInputChanged} />
                     {suggestions.length > 0 && <p>Suggestions:</p>}
-                    {suggestions.map(s => (
-                        <p>{s.name} - used {s.useCount} times</p>
+                    {suggestions.map((s, index) => (
+                        <p key={index}>{s.name} - used {s.useCount} times</p>
                     ))}
                     <button type="button" onClick={handleAdd}>Add Tag</button>
                 </>

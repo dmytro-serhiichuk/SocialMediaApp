@@ -3,6 +3,7 @@ import type { createPostAction } from "../features/posts/actions";
 import { useState } from "react";
 import { TagInput } from "../features/tag/components/tagInput";
 import ValidationErrorsList from "../components/validationErrorsList";
+import ImageInput from "../features/postImage/imageInput";
 
 export default function PostEditorPage() {
     const actionData = useActionData<typeof createPostAction>();
@@ -13,7 +14,9 @@ export default function PostEditorPage() {
         <>
             <h1>Post Editor</h1>
 
-            <Form method="post">
+            <Form method="post" encType="multipart/form-data">
+                <ImageInput />
+
                 <textarea name="content" placeholder="Enter your text..."/>
 
                 {actionData?.error && (

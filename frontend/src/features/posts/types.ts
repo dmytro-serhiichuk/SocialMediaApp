@@ -1,10 +1,6 @@
 import type { User } from "../auth/types";
+import type { Image } from "../image/types";
 import type { Tag } from "../tag/types";
-
-export interface PostForm {
-    content: string,
-    tags: string[]
-}
 
 export interface Post {
     id: number,
@@ -16,4 +12,5 @@ export interface Post {
     isLikedByMe: boolean,
     tags: Tag[],
     isSavedByMe: boolean,
+    images: Image[]
 }

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5126/api/";
+import { API_URL } from "../constants";
 
 type ProblemDetails = {
     type?: string;

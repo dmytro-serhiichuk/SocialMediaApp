@@ -31,7 +31,7 @@ public class ImageProcessor : IImageProcessor
             });
         });
 
-        await using var output = new MemoryStream();
+        var output = new MemoryStream();
 
         await image.SaveAsWebpAsync(output, new WebpEncoder
         {

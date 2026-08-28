@@ -11,16 +11,6 @@ public class PostImageConfiguration : IEntityTypeConfiguration<PostImage>
         
         builder.HasKey(p => p.Id);
 
-        builder.Property(p => p.StorageKey)
-            .IsRequired()
-            .HasMaxLength(512);
-
-        builder.Property(p => p.Width)
-            .IsRequired();
-
-        builder.Property(p => p.Height)
-            .IsRequired();
-
         builder.Property(p => p.Order)
             .IsRequired();
 
@@ -31,5 +21,9 @@ public class PostImageConfiguration : IEntityTypeConfiguration<PostImage>
             .WithMany(x => x.Images)
             .HasForeignKey(x => x.PostId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.Image)
+            .WithMany()
+            .HasForeignKey(x => x.ImageId);
     }
 }

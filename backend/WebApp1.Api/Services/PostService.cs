@@ -8,7 +8,7 @@ namespace WebApp1.Api.Services;
 
 public class PostService(
     AppDbContext dbContext, CurrentUserService currentUser, TagService tagService, 
-    IImageProcessor imageProcessor, IImageStorage imageStorage
+    ImageService imageService
 )
 {
     public async Task Create(PostCreationRequest creationRequest, int userId)
@@ -23,7 +23,7 @@ public class PostService(
             Tags = tags.Select(t => new PostTag { Tag = t }).ToList()
         };
 
-        var savedStorageKeys = new List<string>();
+        var createdImages = new List<Image>();
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
 
@@ -33,20 +33,12 @@ public class PostService(
 
             foreach (var file in creationRequest.Images)
             {
-                var processed = await imageProcessor.ProcessAsync(file);
-                var fileId = Guid.NewGuid();
-
-                var storageKey = $"posts/{fileId}.webp";
-
-                await imageStorage.SaveAsync(processed.Content, storageKey);
-
-                savedStorageKeys.Add(storageKey);
+                var image = await imageService.CreateAsync(file);
+                createdImages.Add(image);
 
                 post.Images.Add(new PostImage
                 {
-                    StorageKey = storageKey,
-                    Width = processed.Width,
-                    Height = processed.Height,
+                    Image = image,
                     Order = order++
                 });
             }
@@ -61,14 +53,13 @@ public class PostService(
         {
             await transaction.RollbackAsync();
 
-            foreach (var key in savedStorageKeys)
+            foreach (var image in createdImages)
             {
-                await imageStorage.DeleteAsync(key);
+                await imageService.DeleteStorageFileAsync(image);
             }
 
             throw;
-        }
-        
+        }  
     }
 
     public async Task<PaginationResponse<PostResponse>> GetPosts(PostPaginationRequest postPagination)
@@ -146,6 +137,13 @@ public class PostService(
                     Name = pt.Tag.Name
                 }).ToList(),
                 IsSavedByMe = userId != null && p.Saves.Any(s => s.UserId == userId),
+                Images = p.Images.OrderBy(i => i.Order).Select(i => new ImageResponse
+                {
+                    Id = i.Image.Id,
+                    Url = $"/api/images/{i.Image.Id}",
+                    Width = i.Image.Width,
+                    Height = i.Image.Height
+                }).ToList()
             })
             .ToListAsync();
 

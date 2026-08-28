@@ -1,9 +1,9 @@
 
 namespace WebApp1.Api.Services;
 
-public class FileSystemImageStorage(IConfiguration configuration) : IImageStorage
+public class FileSystemImageStorage(IConfiguration configuration, IWebHostEnvironment environment) : IImageStorage
 {
-    private readonly string _rootPath = configuration["Storage:RootPath"]
+    private readonly string _rootPath = Path.Combine(environment.ContentRootPath, configuration["Storage:RootPath"])
             ?? throw new InvalidOperationException(
                 "Storage root path is not configured.");
 
@@ -27,5 +27,10 @@ public class FileSystemImageStorage(IConfiguration configuration) : IImageStorag
         if (File.Exists(path)) File.Delete(path);
 
         return Task.CompletedTask;
+    }
+
+    public string GetPath(string storageKey)
+    {
+        return Path.Combine(_rootPath, storageKey);
     }
 }
