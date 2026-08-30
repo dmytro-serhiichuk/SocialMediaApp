@@ -64,7 +64,7 @@ public class PostService(
 
     public async Task<PaginationResponse<PostResponse>> GetPosts(PostPaginationRequest postPagination)
     {
-        IQueryable<Post>? query = dbContext.Posts
+        IQueryable<Post> query = dbContext.Posts
             .OrderByDescending(p => p.CreatedAt)
             .ThenByDescending(p => p.Id);
         
@@ -73,7 +73,7 @@ public class PostService(
 
     public async Task<PaginationResponse<PostResponse>> GetPostsByUser(PostPaginationRequest postPagination, int userId)
     {
-        IQueryable<Post>? query = dbContext.Posts
+        IQueryable<Post> query = dbContext.Posts
             .Where(p => p.UserId == userId)
             .OrderByDescending(p => p.CreatedAt)
             .ThenByDescending(p => p.Id);
@@ -83,7 +83,7 @@ public class PostService(
 
     public async Task<PaginationResponse<PostResponse>> GetPostsByTag(PostPaginationRequest postPagination, int tagId)
     {
-        IQueryable<Post>? query = dbContext.Posts
+        IQueryable<Post> query = dbContext.Posts
             .Where(p => p.Tags.Any(t => t.TagId == tagId))
             .OrderByDescending(p => p.CreatedAt)
             .ThenByDescending(p => p.Id);
@@ -93,10 +93,21 @@ public class PostService(
 
     public async Task<PaginationResponse<PostResponse>> GetSavedPosts(PostPaginationRequest postPagination, int userId)
     {
-        IQueryable<Post>? query = dbContext.PostSaves
+        IQueryable<Post> query = dbContext.PostSaves
             .Where(x => x.UserId == userId)
             .OrderByDescending(x => x.CreatedAt)
             .Select(x => x.Post);
+        
+        return await GetPostsByQuery(query, postPagination);
+    }
+
+    public async Task<PaginationResponse<PostResponse>> GetFollowingPosts(PostPaginationRequest postPagination, int userId)
+    {
+        IQueryable<Post> query = dbContext.UserFollows
+            .Where(x => x.FollowerId == userId)
+            .SelectMany(x => x.Following.Posts)
+            .OrderByDescending(x => x.CreatedAt)
+            .ThenByDescending(p => p.Id);
         
         return await GetPostsByQuery(query, postPagination);
     }

@@ -47,6 +47,14 @@ public class PostsController(PostService postService) : ControllerBase
         return Ok(await postService.GetSavedPosts(postPagination, userId));
     }
 
+    [Authorize]
+    [HttpGet("[controller]/following")]
+    public async Task<IActionResult> GetFollowingUsersPosts([FromQuery] PostPaginationRequest postPagination)
+    {
+        var userId = User.GetUserId();
+        return Ok(await postService.GetFollowingPosts(postPagination, userId));
+    }
+
 
     [Authorize]
     [HttpPost("[controller]/{id}/likes")]

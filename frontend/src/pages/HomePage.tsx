@@ -1,11 +1,41 @@
+import { useState } from "react";
 import PostList from "../features/posts/components/postList";
+import { useUser } from "../features/auth/hooks";
+
+export type FeedOption =
+    | "recent"
+    | "following";
+
+const feedEndpoints: Record<FeedOption, string> = {
+    recent: "posts",
+    following: "posts/following",
+};
+
 
 export default function HomePage() {
+    const user = useUser();
+
+    const [feedOption, setFeedOption] = useState<FeedOption>("recent");
+
     return (
         <>
-            <p>home page</p>
+            <h1>Home page</h1>
 
-            <PostList endpoint="posts/" />
+            {user &&
+                <>
+                    <button onClick={() => setFeedOption("recent")}>
+                        Recent
+                    </button>
+                    <button onClick={() => setFeedOption("following")}>
+                        Following
+                    </button>
+                </>
+            }
+
+            <PostList 
+                endpoint={feedEndpoints[feedOption]} 
+                key={feedOption}
+            />
         </>
     );
 }
