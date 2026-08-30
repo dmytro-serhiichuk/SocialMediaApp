@@ -48,6 +48,8 @@ export default function UserPage() {
 
     return(
         <>
+            {isOwnProfile && <Link to={ROUTES.SETTINGS}>Settings</Link>}
+
             <p>UserName: {profileUser.userName}</p>
             <p>Tag: {profileUser.userTag}</p>
 

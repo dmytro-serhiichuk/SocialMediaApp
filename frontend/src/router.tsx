@@ -17,6 +17,8 @@ import { userLoader } from "./features/user/loaders";
 import TagPage from "./pages/TagPage";
 import { tagLoader } from "./features/tag/loaders";
 import SavedPostsPage from "./pages/SavedPostsPage";
+import SettingsPage from "./pages/SettingsPage";
+import { settingsLoader } from "./features/settings/loaders";
 
 const router = createBrowserRouter([
     {
@@ -55,6 +57,11 @@ const router = createBrowserRouter([
                     {
                         path: ROUTES.SAVED_POSTS,
                         Component: SavedPostsPage
+                    },
+                    {
+                        path: ROUTES.SETTINGS,
+                        Component: SettingsPage,
+                        loader: settingsLoader
                     }
                 ]
             },
