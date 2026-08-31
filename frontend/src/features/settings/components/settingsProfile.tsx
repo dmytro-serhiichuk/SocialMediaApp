@@ -1,4 +1,6 @@
-import { Form } from "react-router";
+import { Form, useActionData, useNavigation } from "react-router";
+import type { settingsAction } from "../actions";
+import { SETTINGS_INTENTS } from "../types";
 
 export interface SettingProfileProps {
     userName: string,
@@ -6,22 +8,36 @@ export interface SettingProfileProps {
 }
 
 export function SettingsProfile({userName, userTag}: SettingProfileProps) {
+    const actionData = useActionData<typeof settingsAction>();
+    const navigation = useNavigation();
+
+    const isSubmitting = navigation.state === "submitting";
+    
     return (
         <>
             <h3>Profile:</h3>
 
-            {/* TODO: implement form */}
-            <Form>
+            <Form method="post">
+                <input type="hidden" name="intent" value={SETTINGS_INTENTS.PROFILE_CHANGE} />
+
                 <label>
                     User Name
-                    <input name="userName" value={userName}/>
+                    <input name="userName" defaultValue={userName}/>
                 </label>
                 <label>
                     User Tag
-                    <input name="userTag" value={userTag}/>
+                    <input name="userTag" defaultValue={userTag}/>
                 </label>
 
-                <button type="submit">Update</button>
+                {
+                    actionData?.intent === SETTINGS_INTENTS.PROFILE_CHANGE && 
+                    actionData?.error && 
+                    <p>{actionData.error}</p>
+                }
+
+                <button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Updating..." : "Update"}
+                </button>
             </Form>
         </>
     );

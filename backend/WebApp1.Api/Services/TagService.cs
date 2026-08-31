@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using WebApp1.Api.Data;
 using WebApp1.Api.DTOs;
+using WebApp1.Api.Extensions;
 using WebApp1.Api.Models;
 
 namespace WebApp1.Api.Services;
@@ -30,11 +31,7 @@ public class TagService(AppDbContext dbContext)
             await dbContext.SaveChangesAsync();
             return existing.Concat(newTags).ToList();
         }
-        catch (DbUpdateException ex) 
-        when (ex.InnerException is PostgresException
-            {
-                SqlState: PostgresErrorCodes.UniqueViolation
-            })
+        catch (DbUpdateException ex) when (ex.IsUniqueViolation())
         {
             foreach (var t in newTags)
                 dbContext.Entry(t).State = EntityState.Detached;

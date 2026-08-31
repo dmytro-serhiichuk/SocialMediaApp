@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using WebApp1.Api.DTOs;
+using WebApp1.Api.Extensions;
 
 namespace WebApp1.Api.Services;
 
@@ -70,11 +71,7 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
             await dbContext.SaveChangesAsync();
             return user;
         }
-        catch (DbUpdateException ex)
-            when (ex.InnerException is PostgresException
-            {
-                SqlState: PostgresErrorCodes.UniqueViolation
-            })
+        catch (DbUpdateException ex) when (ex.IsUniqueViolation())
         {
             return null;
         }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApp1.Api.DTOs;
 using WebApp1.Api.Extensions;
 using WebApp1.Api.Services;
 
@@ -20,5 +21,15 @@ public class SettingsController(SettingsService settingsService) : ControllerBas
         if (res is null) return NotFound();
 
         return Ok(res);
+    }
+
+    [HttpPatch("profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] SettingsProfileRequest profileRequest)
+    {
+        var userId = User.GetUserId();
+
+        await settingsService.UpdateProfile(userId, profileRequest);
+
+        return NoContent();
     }
 }
