@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebApp1.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
 
 builder.Services
     .AddOptions<JwtOptions>()
@@ -37,6 +39,16 @@ builder.Services
         options.AccessTokenLifetimeMinutes > 0,
         "Access token lifetime must be greater than zero.")
     .ValidateOnStart();
+
+builder.Services
+    .AddOptions<EmailChangeOptions>()
+    .Bind(builder.Configuration.GetSection(EmailChangeOptions.SectionName))
+    .Validate(options =>
+        options.TokenLifetimeMinutes > 0,
+        "Email change request lifetime must be greater than zero.")
+    .ValidateOnStart();
+
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUserService>();

@@ -53,6 +53,8 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         return exception switch
         {
             UserTagAlreadyTakenException => StatusCodes.Status409Conflict,
+            InvalidConfirmationTokenException => StatusCodes.Status400BadRequest,
+            EmailAlreadyExistsException => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError
         };
     }

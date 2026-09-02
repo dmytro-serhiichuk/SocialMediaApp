@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using WebApp1.Api.Configuration;
 using WebApp1.Api.Models;
 
 namespace WebApp1.Api.Services;

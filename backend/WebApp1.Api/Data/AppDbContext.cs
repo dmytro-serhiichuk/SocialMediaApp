@@ -14,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<PostSave> PostSaves => Set<PostSave>();
     public DbSet<Image> Images => Set<Image>();
     public DbSet<PostImage> PostImages => Set<PostImage>();
+    public DbSet<EmailChangeRequest> EmailChangeRequests => Set<EmailChangeRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

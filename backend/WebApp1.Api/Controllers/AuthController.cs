@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using WebApp1.Api.Configuration;
 using WebApp1.Api.DTOs;
 using WebApp1.Api.Extensions;
-using WebApp1.Api.Models;
 using WebApp1.Api.Services;
 
 namespace WebApp1.Api.Controllers;

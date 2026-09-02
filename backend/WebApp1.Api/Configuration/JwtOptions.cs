@@ -1,3 +1,5 @@
+namespace WebApp1.Api.Configuration;
+
 public class JwtOptions
 {
     public const string SectionName = "Jwt";

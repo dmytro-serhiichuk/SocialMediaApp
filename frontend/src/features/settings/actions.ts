@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { SETTINGS_INTENTS, type SettingsProfileUpdateRequest } from "./types";
+import { SETTINGS_INTENTS, type EmailChangeRequest, type SettingsProfileUpdateRequest } from "./types";
 import { getFormString } from "../../utils/formDataUtils";
 import { apiClient, ApiError } from "../../api/client";
 
@@ -9,7 +9,9 @@ export async function settingsAction({ request }: ActionFunctionArgs) {
 
     switch (intent) {
         case SETTINGS_INTENTS.PROFILE_CHANGE:
-            return profileAction(formData)
+            return profileAction(formData);
+        case SETTINGS_INTENTS.EMAIL_CHANGE:
+            return emailAction(formData);
         default:
             throw new Response("Invalid settingsintent", { status: 400 });
     }
@@ -27,11 +29,33 @@ async function profileAction(formData: FormData) {
             body: JSON.stringify(req)
         });
     } catch (err) {
-        if (err instanceof ApiError && err.status == 409) {
+        if (err instanceof ApiError && err.status === 409) {
             return {
                 intent: SETTINGS_INTENTS.PROFILE_CHANGE,
                 error: err.message
             };
         }
+        throw err;
     } 
+}
+
+async function emailAction(formData: FormData) {
+    const req: EmailChangeRequest = {
+        newEmail: getFormString(formData, "email"),
+    };
+
+    try {
+        await apiClient('settings/email-change', {
+            method: "POST",
+            body: JSON.stringify(req)
+        });
+    } catch (err) {
+        if (err instanceof ApiError && err.status === 409) {
+            return {
+                intent: SETTINGS_INTENTS.EMAIL_CHANGE,
+                error: err.message
+            };
+        }
+        throw err;
+    }
 }

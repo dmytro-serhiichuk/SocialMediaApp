@@ -20,6 +20,7 @@ import SavedPostsPage from "./pages/SavedPostsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { settingsLoader } from "./features/settings/loaders";
 import { settingsAction } from "./features/settings/actions";
+import EmailChangeConfirmationPage from "./pages/EmailChangeConfirmationPage";
 
 const router = createBrowserRouter([
     {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
                 path: ROUTES.TAG,
                 Component: TagPage,
                 loader: tagLoader
+            },
+            {
+                path: ROUTES.EMAIL_CHANGE,
+                Component: EmailChangeConfirmationPage
             },
             {
                 Component: ProtectedLayout,

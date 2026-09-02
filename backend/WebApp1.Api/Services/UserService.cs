@@ -51,6 +51,7 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
 
     public async Task<User?> Create(RegisterRequest registerRequest)
     {
+        // TODO: send confirmation letter to user's email
         try
         {
             var exists = await dbContext.Users

@@ -9,5 +9,6 @@ export const ROUTES = Object.freeze({
     POST_NEW: "/posts/new",
     TAG: "/tags/:tagName",
     SAVED_POSTS: "/posts/saved",
-    SETTINGS: "/settings"
+    SETTINGS: "/settings",
+    EMAIL_CHANGE: "/settings/email/confirm"
 })

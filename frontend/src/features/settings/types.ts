@@ -10,6 +10,14 @@ export interface SettingsProfileUpdateRequest {
     userTag: string
 }
 
+export interface EmailChangeRequest {
+    newEmail: string
+}
+
+export interface EmailChangeConfirmation {
+    token: string
+}
+
 export const SETTINGS_INTENTS = {
     PROFILE_CHANGE:  "profile-change",
     EMAIL_CHANGE:    "email-change",

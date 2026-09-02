@@ -22,6 +22,30 @@ namespace WebApp1.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("WebApp1.Api.Models.EmailChangeRequest", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NewEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("emailChangeRequests", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.Image", b =>
                 {
                     b.Property<Guid>("Id")
@@ -227,10 +251,21 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("userFollows", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.EmailChangeRequest", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithOne()
+                        .HasForeignKey("WebApp1.Api.Models.EmailChangeRequest", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.Post", b =>
                 {
                     b.HasOne("WebApp1.Api.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Posts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -356,6 +391,8 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("Following");
 
                     b.Navigation("LikedPosts");
+
+                    b.Navigation("Posts");
 
                     b.Navigation("SavedPosts");
                 });
