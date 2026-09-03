@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebApp1.Api.Configuration;
+using WebApp1.Api.Services.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services
+    .AddOptions<FrontendOptions>()
+    .Bind(builder.Configuration.GetSection(FrontendOptions.SectionName))
+    .Validate(options =>
+        !string.IsNullOrWhiteSpace(options.Url),
+        "Frontend Url is missing.")
+    .ValidateOnStart();
 
 builder.Services
     .AddOptions<JwtOptions>()
@@ -48,7 +56,12 @@ builder.Services
         "Email change request lifetime must be greater than zero.")
     .ValidateOnStart();
 
+builder.Services
+    .AddOptions<EmailOptions>()
+    .Bind(builder.Configuration.GetSection(EmailOptions.SectionName));
 
+
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUserService>();
@@ -101,21 +114,18 @@ builder.Services
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
-{
-    if (builder.Environment.IsDevelopment())
-    {
-        var frontendUrl = builder.Configuration["FrontendUrl"] 
-            ?? throw new InvalidOperationException("Frontend Url is missing");
+{   
+    var frontendUrl = builder.Configuration["Frontend:Url"] 
+        ?? throw new InvalidOperationException("Frontend Url is missing");
 
-        options.AddPolicy("Frontend", policy =>
-        {
-            policy
-                .WithOrigins(frontendUrl)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
-    }
+    options.AddPolicy(FrontendOptions.SectionName, policy =>
+    {
+        policy
+            .WithOrigins(frontendUrl)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 builder.Services.AddControllers();
@@ -126,8 +136,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseCors("Frontend");
 }
+
+app.UseCors(FrontendOptions.SectionName);
 
 app.UseExceptionHandler();
 

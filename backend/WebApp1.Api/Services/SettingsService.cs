@@ -5,12 +5,12 @@ using WebApp1.Api.Data;
 using WebApp1.Api.DTOs;
 using WebApp1.Api.Exceptions;
 using WebApp1.Api.Extensions;
-using WebApp1.Api.Models;
+using WebApp1.Api.Services.Email;
 using WebApp1.Api.Utils;
 
 namespace WebApp1.Api.Services;
 
-public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions> options)
+public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions> options, IEmailService emailService)
 {
     private readonly EmailChangeOptions emailChangeOptions = options.Value;
 
@@ -74,9 +74,10 @@ public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions
         
         await dbContext.SaveChangesAsync();
 
+        // TODO: remove
         System.Console.WriteLine(token);
-        
-        // TODO: send an email with the token
+
+        await emailService.SendEmailConfirmationMessageAsync(emailChangeRequest.NewEmail, token);
     }
 
     public async Task ConfirmEmailChange(EmailChangeConfirmation confirmation)

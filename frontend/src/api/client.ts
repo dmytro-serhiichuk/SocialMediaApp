@@ -31,10 +31,10 @@ export class ApiError extends Error {
 }
 
 export async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    console.log("API CALL");
-
     const isFormData = options?.body instanceof FormData;
     const url = new URL(endpoint.replace(/^\//, ""), API_URL);
+
+    console.log(`API CALL: ${url}`);
 
     try {
         const response = await fetch(url, {
