@@ -18,6 +18,11 @@ export interface EmailChangeConfirmation {
     token: string
 }
 
+export interface PasswrodChangeRequest {
+    oldPassword: string
+    newPassword: string
+}
+
 export const SETTINGS_INTENTS = {
     PROFILE_CHANGE:  "profile-change",
     EMAIL_CHANGE:    "email-change",

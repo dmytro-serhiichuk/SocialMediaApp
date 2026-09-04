@@ -52,4 +52,17 @@ public class SettingsController(SettingsService settingsService) : ControllerBas
 
         return NoContent();
     }
+
+    [Authorize]
+    [HttpPost("password-change")]
+    public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeRequest passwordChangeRequest)
+    {
+        var userId = User.GetUserId();
+
+        await settingsService.ChangePassword(userId, passwordChangeRequest);
+
+        // TODO: add revoking of all other sessions after implementing refresh tokens
+
+        return NoContent();
+    }
 }

@@ -15,6 +15,7 @@ public class RegisterRequest : IValidatableObject
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
     [Required]
+    // TODO: add password validation
     public string Password { get; set; } = string.Empty;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

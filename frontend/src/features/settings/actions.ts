@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { SETTINGS_INTENTS, type EmailChangeRequest, type SettingsProfileUpdateRequest } from "./types";
+import { SETTINGS_INTENTS, type EmailChangeRequest, type PasswrodChangeRequest, type SettingsProfileUpdateRequest } from "./types";
 import { getFormString } from "../../utils/formDataUtils";
 import { apiClient, ApiError } from "../../api/client";
 import { authStore } from "../auth/store";
@@ -13,6 +13,8 @@ export async function settingsAction({ request }: ActionFunctionArgs) {
             return profileAction(formData);
         case SETTINGS_INTENTS.EMAIL_CHANGE:
             return emailAction(formData);
+        case SETTINGS_INTENTS.PASSWORD_CHANGE:
+            return passwordAction(formData);
         default:
             throw new Response("Invalid settingsintent", { status: 400 });
     }
@@ -59,6 +61,28 @@ async function emailAction(formData: FormData) {
         if (err instanceof ApiError && err.status === 409) {
             return {
                 intent: SETTINGS_INTENTS.EMAIL_CHANGE,
+                error: err.message
+            };
+        }
+        throw err;
+    }
+}
+
+async function passwordAction(formData: FormData) {
+    const req: PasswrodChangeRequest = {
+        oldPassword: getFormString(formData, "old-password"),
+        newPassword: getFormString(formData, "new-password"),
+    };
+
+    try {
+        await apiClient('settings/password-change', {
+            method: "POST",
+            body: JSON.stringify(req)
+        });
+    } catch (err) {
+        if (err instanceof ApiError && err.status === 400) {
+            return {
+                intent: SETTINGS_INTENTS.PASSWORD_CHANGE,
                 error: err.message
             };
         }

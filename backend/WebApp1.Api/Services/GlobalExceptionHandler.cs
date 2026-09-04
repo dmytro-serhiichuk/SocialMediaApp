@@ -55,6 +55,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             UserTagAlreadyTakenException => StatusCodes.Status409Conflict,
             InvalidConfirmationTokenException => StatusCodes.Status400BadRequest,
             EmailAlreadyExistsException => StatusCodes.Status409Conflict,
+            IncorrectPasswordException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
     }

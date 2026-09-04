@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using WebApp1.Api.Configuration;
@@ -5,12 +6,13 @@ using WebApp1.Api.Data;
 using WebApp1.Api.DTOs;
 using WebApp1.Api.Exceptions;
 using WebApp1.Api.Extensions;
+using WebApp1.Api.Models;
 using WebApp1.Api.Services.Email;
 using WebApp1.Api.Utils;
 
 namespace WebApp1.Api.Services;
 
-public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions> options, IEmailService emailService)
+public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions> options, IEmailService emailService, IPasswordHasher<User> passwordHasher)
 {
     private readonly EmailChangeOptions emailChangeOptions = options.Value;
 
@@ -111,5 +113,25 @@ public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions
         {
             throw new EmailAlreadyExistsException();
         }
+    }
+
+    public async Task ChangePassword(int userId, PasswordChangeRequest passwordChangeRequest)
+    {
+        var user = await dbContext.Users.SingleAsync(x => x.Id == userId);
+
+        var passwordVerificationResult = passwordHasher.VerifyHashedPassword(
+            user, user.PasswordHash, passwordChangeRequest.OldPassword
+        );
+
+        if (passwordVerificationResult == PasswordVerificationResult.Failed)
+        {
+            throw new IncorrectPasswordException();
+        }
+
+        user.PasswordHash = passwordHasher.HashPassword(user, passwordChangeRequest.NewPassword);
+        
+        await dbContext.SaveChangesAsync();
+
+        // TODO: send an email with a recovery link
     }
 }
