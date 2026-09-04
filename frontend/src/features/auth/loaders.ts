@@ -1,5 +1,7 @@
 import { getCurrentUser } from "./api";
+import { authStore } from "./store";
 
 export async function authLoader() {
-    return getCurrentUser();
+    const user = await getCurrentUser();
+    authStore.setUser(user);
 }

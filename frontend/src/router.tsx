@@ -28,6 +28,7 @@ const router = createBrowserRouter([
         path: ROUTES.HOME,
         Component: RootLayout,
         loader: authLoader,
+        shouldRevalidate: () => false,
         ErrorBoundary: RootErrorBoundary,
         children: [
             {

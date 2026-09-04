@@ -2,6 +2,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { SETTINGS_INTENTS, type EmailChangeRequest, type SettingsProfileUpdateRequest } from "./types";
 import { getFormString } from "../../utils/formDataUtils";
 import { apiClient, ApiError } from "../../api/client";
+import { authStore } from "../auth/store";
 
 export async function settingsAction({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
@@ -27,6 +28,11 @@ async function profileAction(formData: FormData) {
         await apiClient('settings/profile', {
             method: "PATCH",
             body: JSON.stringify(req)
+        });
+
+        authStore.updateUser({
+            userName: req.userName,
+            userTag: req.userTag
         });
     } catch (err) {
         if (err instanceof ApiError && err.status === 409) {

@@ -44,7 +44,7 @@ public class AuthController(UserService userService, JwtTokenService jwtService,
 
         SetAccessTokenCookie(accessToken);
 
-        return StatusCode(StatusCodes.Status201Created);
+        return StatusCode(StatusCodes.Status201Created, UserResponse.CreateFromUser(user));
     }
 
     [HttpPost("login")]
@@ -62,7 +62,7 @@ public class AuthController(UserService userService, JwtTokenService jwtService,
 
         SetAccessTokenCookie(accessToken);
 
-        return Ok();
+        return Ok(UserResponse.CreateFromUser(user));
     }
 
     private void SetAccessTokenCookie(string accessToken)

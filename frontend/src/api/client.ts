@@ -1,4 +1,5 @@
 import { API_URL } from "../constants";
+import { authStore } from "../features/auth/store";
 
 type ProblemDetails = {
     type?: string;
@@ -64,6 +65,9 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
         }
 
         if (!response.ok) {
+            if (response.status === 401) {
+                authStore.clearUser();
+            }
             throw new ApiError(response.status, body as ProblemDetails | undefined);
         }
 

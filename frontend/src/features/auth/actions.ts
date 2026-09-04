@@ -1,8 +1,8 @@
-import { redirect, type ActionFunctionArgs } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import { apiClient, ApiError } from "../../api/client";
-import { ROUTES } from "../../constants/routes";
-import type { LoginRequest, RegisterRequest } from "./types";
+import type { LoginRequest, RegisterRequest, User } from "./types";
 import { getFormString } from "../../utils/formDataUtils";
+import { authStore } from "./store";
 
 export async function registerAction({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
@@ -15,10 +15,12 @@ export async function registerAction({ request }: ActionFunctionArgs) {
     };
 
     try {
-        await apiClient('auth/register', {
+        const user = await apiClient<User>('auth/register', {
             method: "POST",
             body: JSON.stringify(registerRequest)
         });
+
+        authStore.setUser(user);
     } catch (err) {
         if (err instanceof ApiError && err.status == 409) {
             return {
@@ -37,10 +39,12 @@ export async function loginAction({ request }: ActionFunctionArgs) {
     };
 
     try {
-        await apiClient('auth/login', {
+        const user = await apiClient<User>('auth/login', {
             method: "POST",
             body: JSON.stringify(loginRequest)
         });
+
+        authStore.setUser(user);
     } catch (err) {
         if (err instanceof ApiError && err.status == 401) {
             return {
@@ -54,7 +58,7 @@ export async function logoutAction() {
     try {
         await apiClient('auth/logout', { method: "POST" });
 
-        return redirect(ROUTES.LOGIN);
+        authStore.clearUser();
     } catch (err) {
         // TODO: handle refresh token errors
         console.log(err);
