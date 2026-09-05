@@ -15,8 +15,9 @@ public class SettingsController(SettingsService settingsService) : ControllerBas
     public async Task<IActionResult> GetData()
     {
         var userId = User.GetUserId();
+        var sessionId = User.GetSessionId();
 
-        var res = await settingsService.GetData(userId);
+        var res = await settingsService.GetData(userId, sessionId);
 
         if (res is null) return NotFound();
 

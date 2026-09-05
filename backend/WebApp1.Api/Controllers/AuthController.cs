@@ -41,14 +41,14 @@ public class AuthController(UserService userService, SessionService sessionServi
             Detail = "A user with the provided user tag or email already exists."
         });
 
-        var refreshToken = await sessionService.CreateSession(
+        var sessionCreationResult = await sessionService.CreateSession(
             user.Id, 
             Request.Headers.UserAgent.ToString(),
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
-        var accessToken = jwtService.CreateAccessToken(user.Id);
+        var accessToken = jwtService.CreateAccessToken(user.Id, sessionCreationResult.Session.Id);
 
-        SetTokenCookies(accessToken, refreshToken);
+        SetTokenCookies(accessToken, sessionCreationResult.Token);
 
         return StatusCode(StatusCodes.Status201Created, UserResponse.CreateFromUser(user));
     }
@@ -64,14 +64,14 @@ public class AuthController(UserService userService, SessionService sessionServi
             Title = "Invalid credentials."
         });
 
-        var refreshToken = await sessionService.CreateSession(
+        var sessionCreationResult = await sessionService.CreateSession(
             user.Id, 
             Request.Headers.UserAgent.ToString(),
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
-        var accessToken = jwtService.CreateAccessToken(user.Id);
+        var accessToken = jwtService.CreateAccessToken(user.Id, sessionCreationResult.Session.Id);
 
-        SetTokenCookies(accessToken, refreshToken);
+        SetTokenCookies(accessToken, sessionCreationResult.Token);
 
         return Ok(UserResponse.CreateFromUser(user));
     }
@@ -138,7 +138,7 @@ public class AuthController(UserService userService, SessionService sessionServi
             return Unauthorized();
         }
 
-        var accessToken = jwtService.CreateAccessToken(rotationResult.UserId);
+        var accessToken = jwtService.CreateAccessToken(rotationResult.Session.UserId, rotationResult.Session.Id);
 
         SetTokenCookies(accessToken, rotationResult.Token);
 

@@ -16,7 +16,7 @@ public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions
 {
     private readonly EmailChangeOptions emailChangeOptions = options.Value;
 
-    public async Task<SettingsDataResponse?> GetData(int userId)
+    public async Task<SettingsDataResponse?> GetData(int userId, int sessionId)
     {
         return await dbContext.Users
             .Where(x => x.Id == userId)
@@ -32,7 +32,8 @@ public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions
                     FirstLogin = s.CreatedAt,
                     LastLogin = s.LastUsedAt,
                     DeviceInfo = s.LastDeviceInfo,
-                    Ip = s.LastIpAddress
+                    Ip = s.LastIpAddress,
+                    IsCurrentSession = s.Id == sessionId
                 }).ToList()
             })
             .FirstOrDefaultAsync();

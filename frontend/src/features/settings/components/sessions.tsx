@@ -17,6 +17,8 @@ export function Sessions({userSessions}: {userSessions: SessionInfo[]}) {
                     <p>First login: {new Date(s.firstLogin).toISOString()}</p>
                     <p>Last login: {new Date(s.lastLogin).toISOString()}</p>
 
+                    {s.isCurrentSession && <p>* Current Session</p>}
+                    
                     <hr />
                 </div>
             ))}

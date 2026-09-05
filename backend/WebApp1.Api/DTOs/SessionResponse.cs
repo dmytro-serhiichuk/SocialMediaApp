@@ -7,4 +7,5 @@ public class SessionResponse
     public DateTimeOffset LastLogin { get; set; }
     public string? DeviceInfo { get; set; }
     public string? Ip { get; set; }
+    public bool IsCurrentSession { get; set; }
 }

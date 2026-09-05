@@ -4,7 +4,6 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WebApp1.Api.Configuration;
-using WebApp1.Api.Models;
 
 namespace WebApp1.Api.Services;
 
@@ -12,14 +11,12 @@ public class JwtTokenService(IOptions<JwtOptions> options)
 {
     private readonly JwtOptions jwtOptions = options.Value;
 
-    public string CreateAccessToken(int userId)
+    public string CreateAccessToken(int userId, int sessionId)
     {
         var claims = new[]
         {
-            new Claim(
-                ClaimTypes.NameIdentifier,
-                userId.ToString()
-            )
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim("sid", sessionId.ToString())
         };
 
         var credentials = new SigningCredentials(

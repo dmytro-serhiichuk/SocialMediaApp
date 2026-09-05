@@ -12,6 +12,7 @@ export interface SessionInfo {
     lastLogin: string,
     deviceInfo: string | null,
     ip: string | null,
+    isCurrentSession: boolean
 }
 
 export interface SettingsProfileUpdateRequest {

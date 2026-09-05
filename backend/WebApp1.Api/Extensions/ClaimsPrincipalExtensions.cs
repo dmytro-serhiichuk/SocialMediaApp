@@ -14,4 +14,15 @@ public static class ClaimsPrincipalExtensions
 
         return id;
     }
+
+    public static int GetSessionId(this ClaimsPrincipal user)
+    {
+        var value = user.FindFirstValue("sid") 
+            ?? throw new InvalidOperationException("Session ID claim is missing.");
+        
+        if (!int.TryParse(value, out int sessionId))
+            throw new InvalidOperationException("Session ID claim type is incorrect.");
+
+        return sessionId;
+    }
 }

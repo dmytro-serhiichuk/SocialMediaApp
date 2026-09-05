@@ -12,7 +12,7 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
 {
     private readonly RefreshTokenOptions tokenOptions = tokenOptions.Value;
 
-    public async Task<string> CreateSession(int userId, string? userAgent, string? ip)
+    public async Task<SessionCreationResult> CreateSession(int userId, string? userAgent, string? ip)
     {
         var refreshToken = OpaqueTokenManager.Generate();
         var refreshTokenHash = OpaqueTokenManager.HashToken(refreshToken);
@@ -38,7 +38,7 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
         dbContext.Sessions.Add(session);
         await dbContext.SaveChangesAsync();
 
-        return refreshToken;
+        return new SessionCreationResult(refreshToken, session);
     }
 
     private string ParseUserAgent(string userAgent)
@@ -70,7 +70,7 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
         }
     }
 
-    public async Task<RefreshTokenRotationResult?> RotateRefreshToken(string refreshToken, string? userAgent, string? ip)
+    public async Task<SessionCreationResult?> RotateRefreshToken(string refreshToken, string? userAgent, string? ip)
     {
         var tokenHash = OpaqueTokenManager.HashToken(refreshToken);
 
@@ -79,7 +79,7 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
 
         if (session is not null)
         {
-            return new RefreshTokenRotationResult(await RotateAsync(session, userAgent, ip), session.UserId);
+            return new SessionCreationResult(await RotateAsync(session, userAgent, ip), session);
         }
 
         var reused = await dbContext.Sessions
@@ -90,7 +90,7 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
             return null;
         }
         
-        return new RefreshTokenRotationResult(await RotateAsync(reused, userAgent, ip), reused.UserId);
+        return new SessionCreationResult(await RotateAsync(reused, userAgent, ip), reused);
     }
 
     private async Task<string> RotateAsync(Session session, string? userAgent, string? ip)
