@@ -112,4 +112,29 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
 
         return refreshToken;
     }
+
+    public async Task<bool> TerminateSessionById(int userId, int sessionId)
+    {
+        var session = await dbContext.Sessions
+            .SingleOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId);
+
+        if (session is null)
+        {
+            return false;
+        }
+
+        dbContext.Sessions.Remove(session);
+        await dbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task TerminateAllSessionsButCurrent(int userId, int sessionId)
+    {
+        var sessions = await dbContext.Sessions
+            .Where(s => s.Id != sessionId && s.UserId == userId)
+            .ToListAsync();
+
+        dbContext.Sessions.RemoveRange(sessions);
+        await dbContext.SaveChangesAsync();
+    }
 }

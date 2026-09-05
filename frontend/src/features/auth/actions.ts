@@ -3,6 +3,7 @@ import { apiClient, ApiError } from "../../api/client";
 import type { LoginRequest, RegisterRequest, User } from "./types";
 import { getFormString } from "../../utils/formDataUtils";
 import { authStore } from "./store";
+import { logout } from "./api";
 
 export async function registerAction({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
@@ -55,12 +56,5 @@ export async function loginAction({ request }: ActionFunctionArgs) {
 }
 
 export async function logoutAction() {
-    try {
-        await apiClient('auth/logout', { method: "POST" });
-
-        authStore.clearUser();
-    } catch (err) {
-        // TODO: handle refresh token errors
-        console.log(err);
-    }
+    await logout();
 }

@@ -8,7 +8,7 @@ namespace WebApp1.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]/")]
-public class SettingsController(SettingsService settingsService) : ControllerBase
+public class SettingsController(SettingsService settingsService, SessionService sessionService) : ControllerBase
 {
     [Authorize]
     [HttpGet]
@@ -59,10 +59,36 @@ public class SettingsController(SettingsService settingsService) : ControllerBas
     public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeRequest passwordChangeRequest)
     {
         var userId = User.GetUserId();
+        var sessionId = User.GetSessionId();
 
         await settingsService.ChangePassword(userId, passwordChangeRequest);
+        
+        await sessionService.TerminateAllSessionsButCurrent(userId, sessionId);
 
-        // TODO: add revoking of all other sessions after implementing refresh tokens
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("sessions/{sessionId:int}")]
+    public async Task<IActionResult> TerminateSession([FromRoute] int sessionId)
+    {
+        var userId = User.GetUserId();
+
+        var res = await sessionService.TerminateSessionById(userId, sessionId);
+
+        if (!res) return NotFound();
+
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("sessions")]
+    public async Task<IActionResult> TerminateAllOtherSession()
+    {
+        var userId = User.GetUserId();
+        var sessionId = User.GetSessionId();
+
+        await sessionService.TerminateAllSessionsButCurrent(userId, sessionId);
 
         return NoContent();
     }
