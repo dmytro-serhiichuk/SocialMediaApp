@@ -177,6 +177,60 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("postTags", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.Session", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastIpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)");
+
+                    b.Property<DateTimeOffset>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastUserAgent")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PreviousRefreshTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("PreviousTokenGraceUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("RefreshTokenExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreviousRefreshTokenHash");
+
+                    b.HasIndex("RefreshTokenExpiresAt");
+
+                    b.HasIndex("RefreshTokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("sessions", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.Tag", b =>
                 {
                     b.Property<int>("Id")
@@ -349,6 +403,17 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.Session", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithMany("Sessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.UserFollow", b =>
                 {
                     b.HasOne("WebApp1.Api.Models.User", "Follower")
@@ -395,6 +460,8 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("Posts");
 
                     b.Navigation("SavedPosts");
+
+                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

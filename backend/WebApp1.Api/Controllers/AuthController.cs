@@ -10,9 +10,10 @@ namespace WebApp1.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(UserService userService, JwtTokenService jwtService, IOptions<JwtOptions> options) : ControllerBase
+public class AuthController(UserService userService, SessionService sessionService, JwtTokenService jwtService, IOptions<JwtOptions> accessTokenOptions, IOptions<RefreshTokenOptions> refreshTokenOptions) : ControllerBase
 {
-    private readonly JwtOptions jwtOptions = options.Value;
+    private readonly JwtOptions accessTokenOptions = accessTokenOptions.Value;
+    private readonly RefreshTokenOptions refreshTokenOptions = refreshTokenOptions.Value;
 
     [Authorize]
     [HttpGet("me")]
@@ -40,9 +41,14 @@ public class AuthController(UserService userService, JwtTokenService jwtService,
             Detail = "A user with the provided user tag or email already exists."
         });
 
+        var refreshToken = await sessionService.CreateSession(
+            user.Id, 
+            Request.Headers.UserAgent.ToString(),
+            HttpContext.Connection.RemoteIpAddress?.ToString());
+
         var accessToken = jwtService.CreateAccessToken(user);
 
-        SetAccessTokenCookie(accessToken);
+        SetTokenCookies(accessToken, refreshToken);
 
         return StatusCode(StatusCodes.Status201Created, UserResponse.CreateFromUser(user));
     }
@@ -58,24 +64,40 @@ public class AuthController(UserService userService, JwtTokenService jwtService,
             Title = "Invalid credentials."
         });
 
+        var refreshToken = await sessionService.CreateSession(
+            user.Id, 
+            Request.Headers.UserAgent.ToString(),
+            HttpContext.Connection.RemoteIpAddress?.ToString());
+
         var accessToken = jwtService.CreateAccessToken(user);
 
-        SetAccessTokenCookie(accessToken);
+        SetTokenCookies(accessToken, refreshToken);
 
         return Ok(UserResponse.CreateFromUser(user));
     }
 
-    private void SetAccessTokenCookie(string accessToken)
+    private void SetTokenCookies(string accessToken, string refreshToken)
     {
         Response.Cookies.Append(
-            jwtOptions.AccessTokenCookieName,
+            accessTokenOptions.AccessTokenCookieName,
             accessToken,
             new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                MaxAge = TimeSpan.FromMinutes(jwtOptions.AccessTokenLifetimeMinutes)
+                MaxAge = TimeSpan.FromMinutes(accessTokenOptions.AccessTokenLifetimeMinutes)
+            });
+        
+        Response.Cookies.Append(
+            refreshTokenOptions.TokenCookieName,
+            refreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                MaxAge = TimeSpan.FromDays(refreshTokenOptions.TokenLifetimeDays)
             });
     }
 
@@ -83,11 +105,12 @@ public class AuthController(UserService userService, JwtTokenService jwtService,
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        // TODO: handle refresh tokens
-        var userId = User.GetUserId();
-        var user = await userService.GetById(userId);
+        var refreshToken = Request.Cookies[refreshTokenOptions.TokenCookieName];
 
-        Response.Cookies.Delete(jwtOptions.AccessTokenCookieName);
+        if (refreshToken != null) await sessionService.DeleteByToken(refreshToken);
+
+        Response.Cookies.Delete(accessTokenOptions.AccessTokenCookieName);
+        Response.Cookies.Delete(refreshTokenOptions.TokenCookieName);
         
         return NoContent();
     }

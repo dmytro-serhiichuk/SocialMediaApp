@@ -49,6 +49,17 @@ builder.Services
     .ValidateOnStart();
 
 builder.Services
+    .AddOptions<RefreshTokenOptions>()
+    .Bind(builder.Configuration.GetSection(RefreshTokenOptions.SectionName))
+    .Validate(options =>
+        options.TokenLifetimeDays > 0,
+        "Refresh token lifetime must be greater than zero.")
+    .Validate(options =>
+        options.GraceTimeSeconds > 0,
+        "Refresh token grace time must be greater than zero.")
+    .ValidateOnStart();
+
+builder.Services
     .AddOptions<EmailChangeOptions>()
     .Bind(builder.Configuration.GetSection(EmailChangeOptions.SectionName))
     .Validate(options =>
@@ -73,6 +84,7 @@ builder.Services.AddScoped<ImageService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtTokenService>();
+builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<SettingsService>();

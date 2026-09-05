@@ -26,6 +26,8 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
 
     public async Task<User?> Login(LoginRequest loginRequest)
     {
+        // TODO: send email with a message about new login
+
         var login = loginRequest.Login.Trim();
 
         User? user;
