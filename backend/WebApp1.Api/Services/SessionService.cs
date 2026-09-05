@@ -53,4 +53,47 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
             await dbContext.SaveChangesAsync();
         }
     }
+
+    public async Task<RefreshTokenRotationResult?> RotateRefreshToken(string refreshToken, string? userAgent, string? ip)
+    {
+        var tokenHash = OpaqueTokenManager.HashToken(refreshToken);
+
+        var session = await dbContext.Sessions
+            .SingleOrDefaultAsync(s => s.RefreshTokenHash == tokenHash);
+
+        if (session is not null)
+        {
+            return new RefreshTokenRotationResult(await RotateAsync(session, userAgent, ip), session.UserId);
+        }
+
+        var reused = await dbContext.Sessions
+            .SingleOrDefaultAsync(s => s.PreviousRefreshTokenHash == tokenHash);
+
+        if (reused is null || reused.PreviousTokenGraceUntil < DateTime.UtcNow)
+        {
+            return null;
+        }
+        
+        return new RefreshTokenRotationResult(await RotateAsync(reused, userAgent, ip), reused.UserId);
+    }
+
+    private async Task<string> RotateAsync(Session session, string? userAgent, string? ip)
+    {
+        var refreshToken = OpaqueTokenManager.Generate();
+        var refreshTokenHash = OpaqueTokenManager.HashToken(refreshToken);
+
+        var now = DateTimeOffset.UtcNow;
+
+        session.PreviousRefreshTokenHash = session.RefreshTokenHash;
+        session.RefreshTokenHash = refreshTokenHash;
+        session.RefreshTokenExpiresAt = now.AddDays(tokenOptions.TokenLifetimeDays);
+        session.PreviousTokenGraceUntil = now.AddSeconds(tokenOptions.GraceTimeSeconds);
+        session.LastUsedAt = now;
+        session.LastUserAgent = userAgent;
+        session.LastIpAddress = ip;
+
+        await dbContext.SaveChangesAsync();
+
+        return refreshToken;
+    }
 }

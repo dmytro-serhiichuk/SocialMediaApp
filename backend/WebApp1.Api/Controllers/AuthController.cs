@@ -46,7 +46,7 @@ public class AuthController(UserService userService, SessionService sessionServi
             Request.Headers.UserAgent.ToString(),
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
-        var accessToken = jwtService.CreateAccessToken(user);
+        var accessToken = jwtService.CreateAccessToken(user.Id);
 
         SetTokenCookies(accessToken, refreshToken);
 
@@ -69,7 +69,7 @@ public class AuthController(UserService userService, SessionService sessionServi
             Request.Headers.UserAgent.ToString(),
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
-        var accessToken = jwtService.CreateAccessToken(user);
+        var accessToken = jwtService.CreateAccessToken(user.Id);
 
         SetTokenCookies(accessToken, refreshToken);
 
@@ -107,11 +107,41 @@ public class AuthController(UserService userService, SessionService sessionServi
     {
         var refreshToken = Request.Cookies[refreshTokenOptions.TokenCookieName];
 
-        if (refreshToken != null) await sessionService.DeleteByToken(refreshToken);
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            await sessionService.DeleteByToken(refreshToken);
+        }
 
         Response.Cookies.Delete(accessTokenOptions.AccessTokenCookieName);
         Response.Cookies.Delete(refreshTokenOptions.TokenCookieName);
         
+        return NoContent();
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh()
+    {
+        var refreshToken = Request.Cookies[refreshTokenOptions.TokenCookieName];
+
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized();
+        }
+
+        var rotationResult = await sessionService.RotateRefreshToken(
+            refreshToken,
+            Request.Headers.UserAgent.ToString(),
+            HttpContext.Connection.RemoteIpAddress?.ToString());
+
+        if (rotationResult is null)
+        {
+            return Unauthorized();
+        }
+
+        var accessToken = jwtService.CreateAccessToken(rotationResult.UserId);
+
+        SetTokenCookies(accessToken, rotationResult.Token);
+
         return NoContent();
     }
 }

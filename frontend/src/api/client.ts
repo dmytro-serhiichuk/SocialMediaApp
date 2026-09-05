@@ -31,7 +31,41 @@ export class ApiError extends Error {
     }
 }
 
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshTokens(): Promise<boolean> {
+    if (refreshPromise) {
+        return refreshPromise;
+    }
+
+    return (async () => {
+        try {
+            const url = new URL("auth/refresh", API_URL);
+
+            const response = await fetch(url, {
+                method: "POST",
+                credentials: "include",
+                signal: AbortSignal.timeout(5000),
+            });
+
+            return response.ok;
+        } catch {
+            return false;
+        } finally {
+            refreshPromise = null;
+        }
+    })();
+}
+
 export async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    return apiClientInternal<T>(endpoint, options, false);
+}
+
+export async function apiClientInternal<T>(
+    endpoint: string, 
+    options: RequestInit | undefined, 
+    isRetry: boolean
+): Promise<T> {
     const isFormData = options?.body instanceof FormData;
     const url = new URL(endpoint.replace(/^\//, ""), API_URL);
 
@@ -47,6 +81,16 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
             },
             signal: AbortSignal.timeout(5000)
         });
+
+        if (response.status === 401 && !isRetry) {
+            const refreshed = await refreshTokens();
+
+            if (refreshed) {
+                return apiClientInternal<T>(endpoint, options, true);
+            }
+
+            authStore.clearUser();
+        }
 
         const text = await response.text();
 
@@ -65,9 +109,6 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
         }
 
         if (!response.ok) {
-            if (response.status === 401) {
-                authStore.clearUser();
-            }
             throw new ApiError(response.status, body as ProblemDetails | undefined);
         }
 
