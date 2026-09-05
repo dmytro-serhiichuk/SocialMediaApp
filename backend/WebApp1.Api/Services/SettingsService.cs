@@ -25,7 +25,15 @@ public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions
                 Id = x.Id,
                 UserName = x.UserName,
                 UserTag = x.UserTag,
-                Email = x.Email
+                Email = x.Email,
+                Sessions = x.Sessions.Select(s => new SessionResponse
+                {
+                    Id = s.Id,
+                    FirstLogin = s.CreatedAt,
+                    LastLogin = s.LastUsedAt,
+                    DeviceInfo = s.LastDeviceInfo,
+                    Ip = s.LastIpAddress
+                }).ToList()
             })
             .FirstOrDefaultAsync();
     }

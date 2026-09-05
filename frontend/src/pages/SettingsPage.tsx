@@ -3,6 +3,7 @@ import type { SettingsDataResponse } from "../features/settings/types";
 import { SettingsProfile } from "../features/settings/components/settingsProfile";
 import { SettingsEmail } from "../features/settings/components/settingsEmail";
 import { SettingsPassword } from "../features/settings/components/settingsPassword";
+import { Sessions } from "../features/settings/components/sessions";
 
 
 export default function SettingsPage() {
@@ -26,6 +27,10 @@ export default function SettingsPage() {
             <hr />
             
             <SettingsPassword />
+
+            <hr />
+
+            <Sessions userSessions={settingsData.sessions} />
         </>
     );
 }

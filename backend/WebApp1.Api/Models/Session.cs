@@ -15,6 +15,6 @@ public class Session
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset LastUsedAt { get; set; }
 
-    public string? LastUserAgent { get; set; }
+    public string? LastDeviceInfo { get; set; }
     public string? LastIpAddress { get; set; }
 }

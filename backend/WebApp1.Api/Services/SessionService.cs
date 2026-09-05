@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using UAParser;
 using WebApp1.Api.Configuration;
 using WebApp1.Api.Data;
 using WebApp1.Api.Models;
@@ -30,7 +31,7 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
             CreatedAt = now,
             LastUsedAt = now,
 
-            LastUserAgent = userAgent,
+            LastDeviceInfo = userAgent != null ? ParseUserAgent(userAgent) : null,
             LastIpAddress = ip
         };
 
@@ -38,6 +39,21 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
         await dbContext.SaveChangesAsync();
 
         return refreshToken;
+    }
+
+    private string ParseUserAgent(string userAgent)
+    {
+        var parser = Parser.GetDefault();
+
+        var clientInfo = parser.Parse(userAgent);
+
+        var browser = clientInfo.UA.Family;
+        var browserVersion = clientInfo.UA.Major;
+
+        var os = clientInfo.OS.Family;
+        var osVersion = clientInfo.OS.Major;
+
+        return $"{browser} {browserVersion}, {os} {osVersion}";
     }
 
     public async Task DeleteByToken(string refreshToken)
@@ -89,7 +105,7 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
         session.RefreshTokenExpiresAt = now.AddDays(tokenOptions.TokenLifetimeDays);
         session.PreviousTokenGraceUntil = now.AddSeconds(tokenOptions.GraceTimeSeconds);
         session.LastUsedAt = now;
-        session.LastUserAgent = userAgent;
+        session.LastDeviceInfo = userAgent != null ? ParseUserAgent(userAgent) : null;
         session.LastIpAddress = ip;
 
         await dbContext.SaveChangesAsync();

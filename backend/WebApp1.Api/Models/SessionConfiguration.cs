@@ -19,7 +19,7 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
             .HasMaxLength(64);
 
         builder.Property(s => s.LastIpAddress).HasMaxLength(45);
-        builder.Property(s => s.LastUserAgent).HasMaxLength(256);
+        builder.Property(s => s.LastDeviceInfo).HasMaxLength(128);
 
         builder.HasOne(x => x.User)
             .WithMany(t => t.Sessions)

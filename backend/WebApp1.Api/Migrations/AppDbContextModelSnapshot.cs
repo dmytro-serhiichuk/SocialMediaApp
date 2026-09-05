@@ -188,16 +188,16 @@ namespace WebApp1.Api.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("LastDeviceInfo")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<string>("LastIpAddress")
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
                     b.Property<DateTimeOffset>("LastUsedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastUserAgent")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("PreviousRefreshTokenHash")
                         .HasMaxLength(64)

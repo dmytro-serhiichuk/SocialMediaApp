@@ -3,6 +3,15 @@ export interface SettingsDataResponse {
     userName: string,
     userTag: string,
     email: string,
+    sessions: SessionInfo[]
+}
+
+export interface SessionInfo {
+    id: number,
+    firstLogin: string,
+    lastLogin: string,
+    deviceInfo: string | null,
+    ip: string | null,
 }
 
 export interface SettingsProfileUpdateRequest {
