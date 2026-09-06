@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using WebApp1.Api.Configuration;
 using WebApp1.Api.DTOs;
 using WebApp1.Api.Extensions;
+using WebApp1.Api.Models;
 using WebApp1.Api.Services;
 
 namespace WebApp1.Api.Controllers;
@@ -32,15 +33,29 @@ public class AuthController(UserService userService, SessionService sessionServi
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
-        var user = await userService.Create(registerRequest);
+        await userService.HandleRegisterRequest(registerRequest);
 
-        if (user is null) return Conflict(new ProblemDetails
-        {
-            Status = StatusCodes.Status409Conflict,
-            Title = "User already exists.",
-            Detail = "A user with the provided user tag or email already exists."
-        });
+        return StatusCode(StatusCodes.Status201Created);
+    }
 
+    [HttpPost("register/confirm")]
+    public async Task<IActionResult> ConfirmRegister([FromBody] ConfirmationRequest confirmationRequest)
+    {
+        var user = await userService.ConfirmRegister(confirmationRequest);
+
+        return await SendRegisterRequest(user);
+    }
+
+    [HttpPost("register/complete")]
+    public async Task<IActionResult> CompleteRegister([FromBody] RegisterCompletionRequest completionRequest)
+    {
+        var user = await userService.CompleteRegister(completionRequest);
+
+        return await SendRegisterRequest(user);
+    }
+
+    private async Task<IActionResult> SendRegisterRequest(User user)
+    {
         var sessionCreationResult = await sessionService.CreateSession(
             user.Id, 
             Request.Headers.UserAgent.ToString(),

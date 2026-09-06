@@ -7,7 +7,9 @@ using WebApp1.Api.Configuration;
 
 namespace WebApp1.Api.Services.Email;
 
-public class EmailService(IOptions<EmailOptions> emailOptions, IOptions<FrontendOptions> frontendOptions) : IEmailService
+public class EmailService(
+    IOptions<EmailOptions> emailOptions, 
+    IOptions<FrontendOptions> frontendOptions) : IEmailService
 {
     private readonly EmailOptions emailOptions = emailOptions.Value;
     private readonly FrontendOptions frontendOptions = frontendOptions.Value;
@@ -46,6 +48,30 @@ public class EmailService(IOptions<EmailOptions> emailOptions, IOptions<Frontend
             <p>
                 <a href="{confirmationUrl}">
                     Confirm email change
+                </a>
+            </p>
+            """,
+            cancellationToken
+        );
+    }
+
+    public async Task SendRegistrationConfirmationMessageAsync(string email, string token, CancellationToken cancellationToken = default)
+    {
+        var confirmationUrl = $"{frontendOptions.Url}/register/confirm#token={token}";
+
+        await SendAsync(
+            email, 
+            "Confirm your registration", 
+            $"""
+            <h1>Confirm your registration</h1>
+
+            <p>
+                Click the link below to confirm your email address.
+            </p>
+
+            <p>
+                <a href="{confirmationUrl}">
+                    Confirm email
                 </a>
             </p>
             """,

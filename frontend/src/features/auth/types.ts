@@ -15,3 +15,8 @@ export interface RegisterRequest {
     email: string,
     password: string
 }
+
+export interface RegisterCompletionRequest {
+    userTag: string,
+    token: string
+}

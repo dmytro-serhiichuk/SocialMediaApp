@@ -47,7 +47,7 @@ public class SettingsController(SettingsService settingsService, SessionService 
     }
 
     [HttpPost("email-change/confirm")]
-    public async Task<IActionResult> ConfirmEmailChange([FromBody] EmailChangeConfirmation confirmation)
+    public async Task<IActionResult> ConfirmEmailChange([FromBody] ConfirmationRequest confirmation)
     {
         await settingsService.ConfirmEmailChange(confirmation);
 

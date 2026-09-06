@@ -16,7 +16,7 @@ public class SettingsProfileRequest : IValidatableObject
         if (!UserTagRules.IsValid(UserTag))
         {
             yield return new ValidationResult(
-                $"UserTag is too long (maximum 50 characters) or contains invalid characters (only Latin letters, numbers and '_' are allowed).",
+                UserTagRules.ErrorMessage,
                 [nameof(UserTag)]);
         }
     }

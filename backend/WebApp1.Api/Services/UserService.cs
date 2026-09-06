@@ -5,11 +5,24 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using WebApp1.Api.DTOs;
 using WebApp1.Api.Extensions;
+using WebApp1.Api.Exceptions;
+using WebApp1.Api.Utils;
+using Microsoft.Extensions.Options;
+using WebApp1.Api.Configuration;
+using WebApp1.Api.Services.Email;
 
 namespace WebApp1.Api.Services;
 
-public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordHasher, CurrentUserService currentUser)
+public class UserService(
+    AppDbContext dbContext,
+    IPasswordHasher<User> userPasswordHasher, 
+    IPasswordHasher<PendingRegistration> registerPasswordHasher, 
+    CurrentUserService currentUser, 
+    IOptions<ConfiramtionTokenOptions> confiramtionTokenOptions,
+    IEmailService emailService)
 {
+    private readonly ConfiramtionTokenOptions confiramtionTokenOptions = confiramtionTokenOptions.Value;
+
     public async Task<User?> GetById(int id)
     {
         return await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -41,7 +54,7 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
         if (user is null)
             return null;
 
-        var passwordVerificationResult = passwordHasher.VerifyHashedPassword(
+        var passwordVerificationResult = userPasswordHasher.VerifyHashedPassword(
             user, user.PasswordHash, loginRequest.Password
         );
 
@@ -51,32 +64,137 @@ public class UserService(AppDbContext dbContext, IPasswordHasher<User> passwordH
         return user;
     }
 
-    public async Task<User?> Create(RegisterRequest registerRequest)
+    public async Task HandleRegisterRequest(RegisterRequest request, CancellationToken cancellationToken = default)
     {
-        // TODO: send confirmation letter to user's email
+        var errors = await ValidatePendingRegister(request.Email, request.UserTag, cancellationToken);
+        if (errors.Count > 0) throw new ConflictException(errors);
+
+        var token = OpaqueTokenManager.Generate();
+        var tokenHash = OpaqueTokenManager.HashToken(token);
+
+        var pendingRegistration = new PendingRegistration
+        {
+            Id = Guid.NewGuid(),
+            Email = request.Email,
+            UserName = request.UserName,
+            UserTag = request.UserTag,
+            TokenHash = tokenHash,
+            ExpiresAt = DateTime.UtcNow.AddHours(confiramtionTokenOptions.EmailConfirmationLifetimeHours)
+        };
+
+        pendingRegistration.PasswordHash = registerPasswordHasher.HashPassword(
+            pendingRegistration, 
+            request.Password
+        );
+
+        dbContext.PendingRegistrations.Add(pendingRegistration);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        await emailService.SendRegistrationConfirmationMessageAsync(
+            request.Email, 
+            token,
+            cancellationToken
+        );
+    }
+
+    public async Task<User> ConfirmRegister(ConfirmationRequest confirmation, CancellationToken cancellationToken = default)
+    {
+        var tokenHash = OpaqueTokenManager.HashToken(confirmation.Token);
+
+        var req = await dbContext.PendingRegistrations
+            .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
+
+        if (req == null)
+        {
+            throw new InvalidConfirmationTokenException();
+        }
+        else if (req.ExpiresAt <= DateTime.UtcNow)
+        {
+            dbContext.PendingRegistrations.Remove(req);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            throw new InvalidConfirmationTokenException();
+        }
+
+        var errors = await ValidatePendingRegister(req.Email, req.UserTag, cancellationToken);
+        if (errors.ContainsKey("email"))
+        {
+            dbContext.PendingRegistrations.Remove(req);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        if (errors.Count > 0) throw new ConflictException(errors);
+
+        return await CreateFromPendingRequest(req, req.UserTag, cancellationToken);
+    }
+
+    public async Task<User> CompleteRegister(RegisterCompletionRequest completionRequest, CancellationToken cancellationToken = default)
+    {
+        var tokenHash = OpaqueTokenManager.HashToken(completionRequest.Token);
+
+        var req = await dbContext.PendingRegistrations
+            .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
+
+        if (req == null)
+        {
+            throw new InvalidConfirmationTokenException();
+        }
+        else if (req.ExpiresAt <= DateTime.UtcNow)
+        {
+            dbContext.PendingRegistrations.Remove(req);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            throw new InvalidConfirmationTokenException();
+        }
+
+        var errors = await ValidatePendingRegister(req.Email, completionRequest.UserTag, cancellationToken);
+
+        if (errors.ContainsKey("email"))
+        {
+            dbContext.PendingRegistrations.Remove(req);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        if (errors.Count > 0) throw new ConflictException(errors);
+
+        return await CreateFromPendingRequest(req, completionRequest.UserTag, cancellationToken);
+    }
+
+    private async Task<Dictionary<string, string[]>> ValidatePendingRegister(string email, string tag, CancellationToken cancellationToken = default)
+    {
+        var existingUsers = await dbContext.Users
+            .Where(u => u.Email == email || u.UserTag == tag)
+            .ToListAsync(cancellationToken);
+
+        var emailExists = existingUsers.Any(u => u.Email == email);
+        var tagExists = existingUsers.Any(u => u.UserTag == tag);
+
+        var errors = new Dictionary<string, string[]>();
+
+        if (emailExists) errors["email"] = ["This email is already in use."];
+        if (tagExists) errors["tag"] = ["This tag is already taken."];
+
+        return errors;
+    }
+
+    private async Task<User> CreateFromPendingRequest(PendingRegistration request, string tag, CancellationToken cancellationToken = default)
+    {
+        var user = new User
+        {
+            UserName = request.UserName,
+            UserTag = tag,
+            Email = request.Email,
+            PasswordHash = request.PasswordHash
+        };
+
+        dbContext.Users.Add(user);
+        dbContext.PendingRegistrations.Remove(request);
+
         try
         {
-            var exists = await dbContext.Users
-                        .AnyAsync(u => u.Email == registerRequest.Email);
-
-            if (exists)
-                return null;
-
-            var user = new User
-            {
-                UserName = registerRequest.UserName,
-                UserTag = registerRequest.UserTag,
-                Email = registerRequest.Email
-            };
-            user.PasswordHash = passwordHasher.HashPassword(user, registerRequest.Password);
-
-            dbContext.Users.Add(user);
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
             return user;
         }
         catch (DbUpdateException ex) when (ex.IsUniqueViolation())
         {
-            return null;
+            // TODO: specify the exact error
+            throw new UserTagAlreadyTakenException();
         }
     }
 

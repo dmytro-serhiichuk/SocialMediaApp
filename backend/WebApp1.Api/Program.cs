@@ -60,11 +60,14 @@ builder.Services
     .ValidateOnStart();
 
 builder.Services
-    .AddOptions<EmailChangeOptions>()
-    .Bind(builder.Configuration.GetSection(EmailChangeOptions.SectionName))
+    .AddOptions<ConfiramtionTokenOptions>()
+    .Bind(builder.Configuration.GetSection(ConfiramtionTokenOptions.SectionName))
     .Validate(options =>
-        options.TokenLifetimeMinutes > 0,
-        "Email change request lifetime must be greater than zero.")
+        options.EmailChangeLifetimeMinutes > 0,
+        "Email change token lifetime must be greater than zero.")
+    .Validate(options =>
+        options.EmailConfirmationLifetimeHours > 0,
+        "Email confirmation token lifetime must be greater than zero.")
     .ValidateOnStart();
 
 builder.Services
@@ -81,6 +84,7 @@ builder.Services.AddScoped<IImageStorage, FileSystemImageStorage>();
 builder.Services.AddScoped<IImageProcessor, ImageProcessor>();
 builder.Services.AddScoped<ImageService>();
 
+builder.Services.AddScoped<IPasswordHasher<PendingRegistration>, PasswordHasher<PendingRegistration>>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtTokenService>();

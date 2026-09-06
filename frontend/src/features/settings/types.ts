@@ -24,10 +24,6 @@ export interface EmailChangeRequest {
     newEmail: string
 }
 
-export interface EmailChangeConfirmation {
-    token: string
-}
-
 export interface PasswrodChangeRequest {
     oldPassword: string
     newPassword: string

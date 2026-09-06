@@ -1,8 +1,8 @@
 import { apiClient } from "../../api/client";
-import type { EmailChangeConfirmation } from "./types";
+import type { ConfirmationRequest } from "../confirmation/types";
 
 export async function confirmEmailChange(token: string) {
-    var req: EmailChangeConfirmation = {
+    var req: ConfirmationRequest = {
         token: token,
     };
 

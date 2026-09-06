@@ -9,7 +9,6 @@ public class RegisterRequest : IValidatableObject
     [MaxLength(256)]
     public string UserName { get; set; } = string.Empty;
     [Required]
-
     public string UserTag { get; set; } = string.Empty;
     [Required]
     [EmailAddress]
@@ -23,7 +22,7 @@ public class RegisterRequest : IValidatableObject
         if (!UserTagRules.IsValid(UserTag))
         {
             yield return new ValidationResult(
-                $"UserTag is too long (maximum 50 characters) or contains invalid characters (only Latin letters, numbers and '_' are allowed).",
+                UserTagRules.ErrorMessage,
                 [nameof(UserTag)]);
         }
     }

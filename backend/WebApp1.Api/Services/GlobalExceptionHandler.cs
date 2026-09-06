@@ -17,15 +17,26 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             var status = GetStatusCode(exception);
             httpContext.Response.StatusCode = status;
 
-            var problemDetails = new ProblemDetails
+            if (exception is ConflictException conflictException)
             {
-                Status = status,
-                Title = exception.Message,
-            };
+                var problemDetails = new ValidationProblemDetails(conflictException.Errors)
+                {
+                    Status = status,
+                    Title = exception.Message,
+                };
 
-            await httpContext.Response.WriteAsJsonAsync(
-                problemDetails,
-                cancellationToken);
+                await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            }
+            else
+            {
+                var problemDetails = new ProblemDetails
+                {
+                    Status = status,
+                    Title = exception.Message,
+                };
+
+                await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            }
         } 
         else
         {
@@ -56,6 +67,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             InvalidConfirmationTokenException => StatusCodes.Status400BadRequest,
             EmailAlreadyExistsException => StatusCodes.Status409Conflict,
             IncorrectPasswordException => StatusCodes.Status400BadRequest,
+            ConflictException => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError
         };
     }

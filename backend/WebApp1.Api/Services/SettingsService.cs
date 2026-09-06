@@ -12,9 +12,13 @@ using WebApp1.Api.Utils;
 
 namespace WebApp1.Api.Services;
 
-public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions> options, IEmailService emailService, IPasswordHasher<User> passwordHasher)
+public class SettingsService(
+    AppDbContext dbContext, 
+    IOptions<ConfiramtionTokenOptions> options, 
+    IEmailService emailService, 
+    IPasswordHasher<User> passwordHasher)
 {
-    private readonly EmailChangeOptions emailChangeOptions = options.Value;
+    private readonly ConfiramtionTokenOptions confiramtionTokenOptions = options.Value;
 
     public async Task<SettingsDataResponse?> GetData(int userId, int sessionId)
     {
@@ -83,7 +87,7 @@ public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions
         }
 
         req.NewEmail = emailChangeRequest.NewEmail;
-        req.ExpiresAt = DateTime.UtcNow.AddMinutes(emailChangeOptions.TokenLifetimeMinutes);
+        req.ExpiresAt = DateTime.UtcNow.AddMinutes(confiramtionTokenOptions.EmailChangeLifetimeMinutes);
         req.TokenHash = tokenHash;
         
         await dbContext.SaveChangesAsync();
@@ -94,7 +98,7 @@ public class SettingsService(AppDbContext dbContext, IOptions<EmailChangeOptions
         await emailService.SendEmailConfirmationMessageAsync(emailChangeRequest.NewEmail, token);
     }
 
-    public async Task ConfirmEmailChange(EmailChangeConfirmation confirmation)
+    public async Task ConfirmEmailChange(ConfirmationRequest confirmation)
     {
         var tokenHash = OpaqueTokenManager.HashToken(confirmation.Token);
 
