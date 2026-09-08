@@ -9,7 +9,7 @@ import { ROOT_ID, ROUTES } from "./constants/routes";
 import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import { completeRegisterAction, loginAction, logoutAction, registerAction } from "./features/auth/actions";
+import { completePasswordResetAction, completeRegisterAction, loginAction, logoutAction, registerAction, requestPasswordResetAction } from "./features/auth/actions";
 import RootErrorBoundary from "./components/rootErrorBoundary";
 import PostEditorPage from "./pages/PostEditorPage";
 import { createPostAction } from "./features/posts/actions";
@@ -22,6 +22,8 @@ import { settingsLoader } from "./features/settings/loaders";
 import { settingsAction } from "./features/settings/actions";
 import EmailChangeConfirmationPage from "./pages/EmailChangeConfirmationPage";
 import RegisterConfirmationPage from "./pages/RegisterConfirmationPage";
+import PasswordResetRequestPage from "./pages/PasswordResetRequestPage";
+import CompletePasswordResetPage from "./pages/CompletePasswordResetPage";
 
 const router = createBrowserRouter([
     {
@@ -91,6 +93,16 @@ const router = createBrowserRouter([
                         path: ROUTES.REGISTER_CONFIRM,
                         Component: RegisterConfirmationPage,
                         action: completeRegisterAction
+                    },
+                    {
+                        path: ROUTES.PASSWORD_RESET_REQUEST,
+                        Component: PasswordResetRequestPage,
+                        action: requestPasswordResetAction
+                    },
+                    {
+                        path: ROUTES.PASSWORD_RESET_COMPLETE,
+                        Component: CompletePasswordResetPage,
+                        action: completePasswordResetAction
                     }
                 ]
             },

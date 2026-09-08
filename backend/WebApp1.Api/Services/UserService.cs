@@ -212,6 +212,62 @@ public class UserService(
         }
     }
 
+    public async Task RequestPasswordReset(RequestPasswordResetRequest request, CancellationToken cancellationToken = default)
+    {
+        var user = await dbContext.Users
+            .SingleOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
+
+        if (user is null) return;
+
+        var passwordReset = await dbContext.PasswordResets
+            .SingleOrDefaultAsync(x => x.UserId == user.Id, cancellationToken);
+
+        if (passwordReset is null)
+        {
+            passwordReset = new PasswordReset
+            {
+                UserId = user.Id
+            };
+            dbContext.PasswordResets.Add(passwordReset);
+        }
+
+        var token = OpaqueTokenManager.Generate();
+        var tokenHash = OpaqueTokenManager.HashToken(token);
+
+        passwordReset.TokenHash = tokenHash;
+        passwordReset.ExpiresAt = DateTime.UtcNow.AddMinutes(confiramtionTokenOptions.PasswordResetLifetimeMinutes);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        // Remove
+        System.Console.WriteLine();
+
+        await emailService.SendPasswordResetMessageAsync(request.Email, token, cancellationToken);
+    }
+
+    public async Task<User> ConfirmPasswordReset(ResetPasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        var tokenHash = OpaqueTokenManager.HashToken(request.Token);
+
+        var resetRequest = await dbContext.PasswordResets
+            .Include(x => x.User)
+            .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
+
+        if (resetRequest == null || resetRequest.ExpiresAt <= DateTime.UtcNow)
+        {
+            throw new InvalidConfirmationTokenException();
+        }
+
+        var user = resetRequest.User;
+
+        user.PasswordHash = userPasswordHasher.HashPassword(user, request.NewPassword);
+
+        dbContext.PasswordResets.Remove(resetRequest);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return user;
+    }
+
     public async Task<UserProfileResponse?> GetUserProfile(string tag)
     {
         var currentUserId = currentUser.UserId;

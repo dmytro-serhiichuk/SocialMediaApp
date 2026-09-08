@@ -1,9 +1,10 @@
-import type { ActionFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { apiClient, ApiError } from "../../api/client";
-import type { LoginRequest, RegisterCompletionRequest, RegisterRequest, User } from "./types";
+import type { LoginRequest, RegisterCompletionRequest, RegisterRequest, RequestPasswordResetRequest, ResetPasswordRequest, User } from "./types";
 import { getFormString } from "../../utils/formDataUtils";
 import { authStore } from "./store";
 import { logout } from "./api";
+import { ROUTES } from "../../constants/routes";
 
 export async function registerAction({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
@@ -82,6 +83,59 @@ export async function completeRegisterAction({ request }: ActionFunctionArgs) {
         authStore.setUser(user);
     } catch (err) {
         if (err instanceof ApiError && (err.status == 409 || err.status === 400)) {
+            return {
+                error: err.message,
+                validationErrors: err.validationErrors
+            };
+        }
+        throw err;
+    }
+}
+
+export async function requestPasswordResetAction({ request }: ActionFunctionArgs) {
+    const formData = await request.formData();
+
+    const registerRequest: RequestPasswordResetRequest = {
+        email: getFormString(formData, "email"),
+    };
+
+    try {
+        await apiClient<User>('auth/password-reset/request', {
+            method: "POST",
+            body: JSON.stringify(registerRequest)
+        });
+
+        return {
+            success: true
+        };
+    } catch (err) {
+        if (err instanceof ApiError && err.status === 400) {
+            return {
+                success: false,
+                error: err.message
+            };
+        }
+        throw err;
+    }
+}
+
+export async function completePasswordResetAction({ request }: ActionFunctionArgs) {
+    const formData = await request.formData();
+
+    const registerRequest: ResetPasswordRequest = {
+        token: getFormString(formData, "token"),
+        newPassword: getFormString(formData, "new-password")
+    };
+
+    try {
+        await apiClient<User>('auth/password-reset/confirm', {
+            method: "POST",
+            body: JSON.stringify(registerRequest)
+        });
+
+        return redirect(ROUTES.LOGIN);
+    } catch (err) {
+        if (err instanceof ApiError && err.status === 400) {
             return {
                 error: err.message,
                 validationErrors: err.validationErrors

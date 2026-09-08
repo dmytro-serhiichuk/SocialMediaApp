@@ -1,5 +1,6 @@
-import { Form, useActionData } from "react-router";
+import { Form, Link, useActionData } from "react-router";
 import type { loginAction } from "../features/auth/actions";
+import { ROUTES } from "../constants/routes";
 
 export default function LoginPage() {
     const actionData = useActionData<typeof loginAction>();
@@ -25,6 +26,8 @@ export default function LoginPage() {
 
                 <button type="submit">Login</button>
             </Form>
+
+            <Link to={ROUTES.PASSWORD_RESET_REQUEST}>Forgot password</Link>
         </>
     );
 }

@@ -20,3 +20,12 @@ export interface RegisterCompletionRequest {
     userTag: string,
     token: string
 }
+
+export interface RequestPasswordResetRequest {
+    email: string
+}
+
+export interface ResetPasswordRequest {
+    token: string,
+    newPassword: string
+}

@@ -159,4 +159,22 @@ public class AuthController(UserService userService, SessionService sessionServi
 
         return NoContent();
     }
+
+    [HttpPost("password-reset/request")]
+    public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetRequest request)
+    {
+        await userService.RequestPasswordReset(request);
+        
+        return NoContent();
+    }
+
+    [HttpPost("password-reset/confirm")]
+    public async Task<IActionResult> ConfirmPasswordReset([FromBody] ResetPasswordRequest request)
+    {
+        var user = await userService.ConfirmPasswordReset(request);
+
+        await sessionService.TerminateAllSessions(user.Id);
+        
+        return NoContent();
+    }
 }

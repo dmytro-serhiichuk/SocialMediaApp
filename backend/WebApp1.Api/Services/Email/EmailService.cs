@@ -55,6 +55,30 @@ public class EmailService(
         );
     }
 
+    public async Task SendPasswordResetMessageAsync(string email, string token, CancellationToken cancellationToken = default)
+    {
+        var confirmationUrl = $"{frontendOptions.Url}/password-reset/complete#token={token}";
+
+        await SendAsync(
+            email, 
+            "Password reset request", 
+            $"""
+            <h1>Password reset request</h1>
+
+            <p>
+                You have requested a password reset for your profile. Click the link below to confirm and continue you request.
+            </p>
+
+            <p>
+                <a href="{confirmationUrl}">
+                    Confirm email
+                </a>
+            </p>
+            """,
+            cancellationToken
+        );
+    }
+
     public async Task SendRegistrationConfirmationMessageAsync(string email, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/register/confirm#token={token}";

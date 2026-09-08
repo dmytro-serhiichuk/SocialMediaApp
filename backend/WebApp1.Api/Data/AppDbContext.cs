@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<EmailChangeRequest> EmailChangeRequests => Set<EmailChangeRequest>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<PendingRegistration> PendingRegistrations => Set<PendingRegistration>();
+    public DbSet<PasswordReset> PasswordResets => Set<PasswordReset>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

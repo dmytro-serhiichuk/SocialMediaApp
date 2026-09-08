@@ -6,4 +6,5 @@ public class ConfiramtionTokenOptions
 
     public int EmailChangeLifetimeMinutes { get; set; }
     public int EmailConfirmationLifetimeHours { get; set; }
+    public int PasswordResetLifetimeMinutes { get; set; }
 }

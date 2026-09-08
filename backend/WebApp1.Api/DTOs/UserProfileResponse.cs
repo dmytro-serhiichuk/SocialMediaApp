@@ -1,5 +1,3 @@
-using WebApp1.Api.Models;
-
 namespace WebApp1.Api.DTOs;
 
 public class UserProfileResponse

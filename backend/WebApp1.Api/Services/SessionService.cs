@@ -137,4 +137,14 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
         dbContext.Sessions.RemoveRange(sessions);
         await dbContext.SaveChangesAsync();
     }
+
+    public async Task TerminateAllSessions(int userId)
+    {
+        var sessions = await dbContext.Sessions
+            .Where(s => s.UserId == userId)
+            .ToListAsync();
+
+        dbContext.Sessions.RemoveRange(sessions);
+        await dbContext.SaveChangesAsync();
+    }
 }

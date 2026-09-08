@@ -68,6 +68,9 @@ builder.Services
     .Validate(options =>
         options.EmailConfirmationLifetimeHours > 0,
         "Email confirmation token lifetime must be greater than zero.")
+    .Validate(options =>
+        options.PasswordResetLifetimeMinutes > 0,
+        "Password reset token lifetime must be greater than zero.")
     .ValidateOnStart();
 
 builder.Services

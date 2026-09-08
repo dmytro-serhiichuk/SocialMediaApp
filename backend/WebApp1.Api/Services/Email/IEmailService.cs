@@ -20,4 +20,10 @@ public interface IEmailService
         string token, 
         CancellationToken cancellationToken = default
     );
+
+    Task SendPasswordResetMessageAsync(
+        string email, 
+        string token, 
+        CancellationToken cancellationToken = default
+    );
 }
