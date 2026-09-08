@@ -71,6 +71,9 @@ builder.Services
     .Validate(options =>
         options.PasswordResetLifetimeMinutes > 0,
         "Password reset token lifetime must be greater than zero.")
+    .Validate(options =>
+        options.NewLoginTokenLifetimeMinutes > 0,
+        "New login token lifetime must be greater than zero.")
     .ValidateOnStart();
 
 builder.Services

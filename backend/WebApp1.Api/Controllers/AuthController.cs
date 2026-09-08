@@ -57,7 +57,7 @@ public class AuthController(UserService userService, SessionService sessionServi
     private async Task<IActionResult> SendRegisterRequest(User user)
     {
         var sessionCreationResult = await sessionService.CreateSession(
-            user.Id, 
+            user, 
             Request.Headers.UserAgent.ToString(),
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
@@ -80,7 +80,7 @@ public class AuthController(UserService userService, SessionService sessionServi
         });
 
         var sessionCreationResult = await sessionService.CreateSession(
-            user.Id, 
+            user, 
             Request.Headers.UserAgent.ToString(),
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
@@ -175,6 +175,24 @@ public class AuthController(UserService userService, SessionService sessionServi
 
         await sessionService.TerminateAllSessions(user.Id);
         
+        return NoContent();
+    }
+
+    [HttpPost("acccount-recovery/secure")]
+    public async Task<IActionResult> SecureAccount([FromBody] ConfirmationRequest confirmation)
+    {
+        var user = await userService.StartRecoveryProcess(confirmation);
+
+        await sessionService.TerminateAllSessions(user.Id);
+        
+        return NoContent();
+    }
+
+    [HttpPost("acccount-recovery/complete")]
+    public async Task<IActionResult> SecureAccount([FromBody] ResetPasswordRequest resetPassword)
+    {
+        await userService.CompleteAccountRecovery(resetPassword);
+                
         return NoContent();
     }
 }

@@ -40,27 +40,35 @@ public class UserService(
 
     public async Task<User?> Login(LoginRequest loginRequest)
     {
-        // TODO: send email with a message about new login
-
         var login = loginRequest.Login.Trim();
 
         User? user;
 
         // TODO: add actual email validation
         if (login.Contains('@'))
+        {
             user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == login);
+        }
         else
+        {
             user = await dbContext.Users.FirstOrDefaultAsync(u => u.UserTag == login);
+        }
 
-        if (user is null)
-            return null;
+        if (user is null) return null;
+
+        if (user.Status != AccountStatus.Active)
+        {
+            throw new AccountRecoveryInProgressException();
+        }
 
         var passwordVerificationResult = userPasswordHasher.VerifyHashedPassword(
             user, user.PasswordHash, loginRequest.Password
         );
 
         if (passwordVerificationResult == PasswordVerificationResult.Failed)
-            return null;
+        {
+            return null;            
+        }
 
         return user;
     }
@@ -239,9 +247,6 @@ public class UserService(
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        // Remove
-        System.Console.WriteLine();
-
         await emailService.SendPasswordResetMessageAsync(request.Email, token, cancellationToken);
     }
 
@@ -260,12 +265,75 @@ public class UserService(
 
         var user = resetRequest.User;
 
+        // TODO: add checking if user is not suspend (if the feature is implemented)
+        user.Status = AccountStatus.Active;
+
         user.PasswordHash = userPasswordHasher.HashPassword(user, request.NewPassword);
 
         dbContext.PasswordResets.Remove(resetRequest);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return user;
+    }
+
+    public async Task<User> StartRecoveryProcess(ConfirmationRequest confirmation)
+    {
+        var tokenHash = OpaqueTokenManager.HashToken(confirmation.Token);
+
+        var securityRequest = await dbContext.NewLoginSecurityRequests
+            .Include(x => x.User)
+            .SingleOrDefaultAsync(x => x.TokenHash == tokenHash);
+
+        if (securityRequest is null)
+        {
+            throw new InvalidConfirmationTokenException();
+        }
+        else if (securityRequest.ExpiresAt <= DateTime.UtcNow)
+        {
+            throw new ConfirmationTokenExpiredException();
+        }
+
+        if (securityRequest.User.Status != AccountStatus.Active || 
+            securityRequest.User.Status != AccountStatus.RecoveryRequired)
+        {
+            throw new AccountRecoveryNotAvailableException();
+        }
+
+        securityRequest.User.Status = AccountStatus.RecoveryRequired;
+
+        return securityRequest.User;
+    }
+
+    public async Task CompleteAccountRecovery(ResetPasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        var tokenHash = OpaqueTokenManager.HashToken(request.Token);
+
+        var securityRequest = await dbContext.NewLoginSecurityRequests
+            .Include(x => x.User)
+            .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
+
+        if (securityRequest is null)
+        {
+            throw new InvalidConfirmationTokenException();
+        }
+        else if (securityRequest.ExpiresAt <= DateTime.UtcNow)
+        {
+            throw new ConfirmationTokenExpiredException();
+        }
+
+        var user = securityRequest.User;
+
+        if (user.Status != AccountStatus.RecoveryRequired)
+        {
+            throw new AccountRecoveryNotAvailableException();
+        }
+
+        user.Status = AccountStatus.Active;
+
+        user.PasswordHash = userPasswordHasher.HashPassword(user, request.NewPassword);
+
+        dbContext.NewLoginSecurityRequests.Remove(securityRequest);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<UserProfileResponse?> GetUserProfile(string tag)

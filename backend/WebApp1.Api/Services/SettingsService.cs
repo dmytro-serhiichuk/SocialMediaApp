@@ -92,9 +92,6 @@ public class SettingsService(
         
         await dbContext.SaveChangesAsync();
 
-        // TODO: remove
-        System.Console.WriteLine(token);
-
         await emailService.SendEmailConfirmationMessageAsync(emailChangeRequest.NewEmail, token);
     }
 

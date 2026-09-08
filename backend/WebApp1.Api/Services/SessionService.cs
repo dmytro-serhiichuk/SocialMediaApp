@@ -4,15 +4,21 @@ using UAParser;
 using WebApp1.Api.Configuration;
 using WebApp1.Api.Data;
 using WebApp1.Api.Models;
+using WebApp1.Api.Services.Email;
 using WebApp1.Api.Utils;
 
 namespace WebApp1.Api.Services;
 
-public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions> tokenOptions)
+public class SessionService(
+    AppDbContext dbContext, 
+    IOptions<RefreshTokenOptions> tokenOptions,
+    IOptions<ConfiramtionTokenOptions> confiramtionTokenOptions,
+    IEmailService emailService)
 {
     private readonly RefreshTokenOptions tokenOptions = tokenOptions.Value;
+    private readonly ConfiramtionTokenOptions confiramtionTokenOptions = confiramtionTokenOptions.Value;
 
-    public async Task<SessionCreationResult> CreateSession(int userId, string? userAgent, string? ip)
+    public async Task<SessionCreationResult> CreateSession(User user, string? userAgent, string? ip)
     {
         var refreshToken = OpaqueTokenManager.Generate();
         var refreshTokenHash = OpaqueTokenManager.HashToken(refreshToken);
@@ -21,7 +27,7 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
 
         var session = new Session
         {
-            UserId = userId,
+            UserId = user.Id,
 
             RefreshTokenHash = refreshTokenHash,
             RefreshTokenExpiresAt = now.AddDays(tokenOptions.TokenLifetimeDays),
@@ -36,7 +42,29 @@ public class SessionService(AppDbContext dbContext, IOptions<RefreshTokenOptions
         };
 
         dbContext.Sessions.Add(session);
+
+        var token = OpaqueTokenManager.Generate();
+        var tokenHash = OpaqueTokenManager.HashToken(token);
+
+        var securityRequest = await dbContext.NewLoginSecurityRequests
+            .SingleOrDefaultAsync(x => x.UserId == user.Id);
+        
+        if (securityRequest is null)
+        {
+            securityRequest = new NewLoginSecurityRequest { UserId = user.Id };
+            dbContext.NewLoginSecurityRequests.Add(securityRequest);
+        }
+
+        securityRequest.TokenHash = tokenHash;
+        securityRequest.ExpiresAt = now.AddMinutes(confiramtionTokenOptions.NewLoginTokenLifetimeMinutes);
+
         await dbContext.SaveChangesAsync();
+
+        await emailService.SendNewLoginNotificationMessageAsync(
+            user.Email,
+            session,
+            token
+        );
 
         return new SessionCreationResult(refreshToken, session);
     }

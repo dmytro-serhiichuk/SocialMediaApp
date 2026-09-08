@@ -18,6 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<PendingRegistration> PendingRegistrations => Set<PendingRegistration>();
     public DbSet<PasswordReset> PasswordResets => Set<PasswordReset>();
+    public DbSet<NewLoginSecurityRequest> NewLoginSecurityRequests => Set<NewLoginSecurityRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

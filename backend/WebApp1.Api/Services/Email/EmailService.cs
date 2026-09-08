@@ -4,6 +4,7 @@ using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using WebApp1.Api.Configuration;
+using WebApp1.Api.Models;
 
 namespace WebApp1.Api.Services.Email;
 
@@ -48,6 +49,36 @@ public class EmailService(
             <p>
                 <a href="{confirmationUrl}">
                     Confirm email change
+                </a>
+            </p>
+            """,
+            cancellationToken
+        );
+    }
+
+    public async Task SendNewLoginNotificationMessageAsync(string email, Session session, string token, CancellationToken cancellationToken = default)
+    {
+        var confirmationUrl = $"{frontendOptions.Url}/account-security/complete#token={token}";
+
+        System.Console.WriteLine(confirmationUrl);
+
+        await SendAsync(
+            email, 
+            "New login to your account", 
+            $"""
+            <h1>New login to your account</h1>
+
+            <p>
+                New login to your account was made from {session.LastDeviceInfo}, at {session.CreatedAt}.
+            </p>
+
+            <p>
+                If it was you, you can ignore this message. Otherwise - follow the link immediately to protect your data
+            </p>
+
+            <p>
+                <a href="{confirmationUrl}">
+                    Reset password
                 </a>
             </p>
             """,

@@ -71,6 +71,26 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("images", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.NewLoginSecurityRequest", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("newLoginSecurityRequests", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.PasswordReset", b =>
                 {
                     b.Property<int>("UserId")
@@ -326,6 +346,11 @@ namespace WebApp1.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -369,6 +394,17 @@ namespace WebApp1.Api.Migrations
                     b.HasOne("WebApp1.Api.Models.User", "User")
                         .WithOne()
                         .HasForeignKey("WebApp1.Api.Models.EmailChangeRequest", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApp1.Api.Models.NewLoginSecurityRequest", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithOne()
+                        .HasForeignKey("WebApp1.Api.Models.NewLoginSecurityRequest", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

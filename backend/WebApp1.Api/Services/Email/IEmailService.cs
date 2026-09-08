@@ -1,3 +1,5 @@
+using WebApp1.Api.Models;
+
 namespace WebApp1.Api.Services.Email;
 
 public interface IEmailService
@@ -23,6 +25,13 @@ public interface IEmailService
 
     Task SendPasswordResetMessageAsync(
         string email, 
+        string token, 
+        CancellationToken cancellationToken = default
+    );
+
+    Task SendNewLoginNotificationMessageAsync(
+        string email, 
+        Session session,
         string token, 
         CancellationToken cancellationToken = default
     );

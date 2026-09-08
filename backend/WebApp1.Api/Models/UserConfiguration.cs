@@ -34,5 +34,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.UserTag)
             .IsUnique()
             .HasDatabaseName(UserIndexes.UserTag);
+
+        builder.Property(u => u.Status)
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .IsRequired();
     }
 }
