@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using WebApp1.Api.Data.Constants;
 
 namespace WebApp1.Api.Models;
 
@@ -18,7 +19,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(320);
 
-        builder.HasIndex(u => u.Email).IsUnique();
+        builder.HasIndex(u => u.Email)
+            .IsUnique()
+            .HasDatabaseName(UserIndexes.Email);
 
         builder.Property(u => u.UserName)
             .IsRequired()
@@ -28,6 +31,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.HasIndex(u => u.UserTag).IsUnique();
+        builder.HasIndex(u => u.UserTag)
+            .IsUnique()
+            .HasDatabaseName(UserIndexes.UserTag);
     }
 }

@@ -319,10 +319,12 @@ namespace WebApp1.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_Users_Email");
 
                     b.HasIndex("UserTag")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_Users_UserTag");
 
                     b.ToTable("users", (string)null);
                 });

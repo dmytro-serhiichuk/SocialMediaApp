@@ -10,6 +10,7 @@ using WebApp1.Api.Utils;
 using Microsoft.Extensions.Options;
 using WebApp1.Api.Configuration;
 using WebApp1.Api.Services.Email;
+using WebApp1.Api.Data.Constants;
 
 namespace WebApp1.Api.Services;
 
@@ -191,10 +192,23 @@ public class UserService(
             await dbContext.SaveChangesAsync(cancellationToken);
             return user;
         }
-        catch (DbUpdateException ex) when (ex.IsUniqueViolation())
+        catch (DbUpdateException ex) when (ex.TryGetUniqueViolation(out var pex))
         {
-            // TODO: specify the exact error
-            throw new UserTagAlreadyTakenException();
+            switch(pex.ConstraintName)
+            {
+                case UserIndexes.Email:
+                    throw new ConflictException(new Dictionary<string, string[]>
+                    {
+                       ["email"] = ["This email is already in use."]
+                    });
+                case UserIndexes.UserTag:
+                    throw new ConflictException(new Dictionary<string, string[]>
+                    {
+                       ["tag"] = ["This tag is already taken."]
+                    });
+                default:
+                    throw;
+            }
         }
     }
 
