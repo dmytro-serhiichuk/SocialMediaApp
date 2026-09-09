@@ -46,17 +46,13 @@ public class SessionService(
         var token = OpaqueTokenManager.Generate();
         var tokenHash = OpaqueTokenManager.HashToken(token);
 
-        var securityRequest = await dbContext.NewLoginSecurityRequests
-            .SingleOrDefaultAsync(x => x.UserId == user.Id);
-        
-        if (securityRequest is null)
+        dbContext.NewLoginSecurityRequests.Add(new NewLoginSecurityRequest
         {
-            securityRequest = new NewLoginSecurityRequest { UserId = user.Id };
-            dbContext.NewLoginSecurityRequests.Add(securityRequest);
-        }
-
-        securityRequest.TokenHash = tokenHash;
-        securityRequest.ExpiresAt = now.AddMinutes(confiramtionTokenOptions.NewLoginTokenLifetimeMinutes);
+            UserId = user.Id,
+            Session = session,
+            TokenHash = tokenHash,
+            ExpiresAt = now.AddMinutes(confiramtionTokenOptions.NewLoginTokenLifetimeMinutes)
+        });
 
         await dbContext.SaveChangesAsync();
 

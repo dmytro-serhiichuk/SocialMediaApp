@@ -27,7 +27,7 @@ export class ApiError extends Error {
     }
 
     isValidationError() {
-        return this.problem?.title === "One or more validation errors occurred.";
+        return this.problem?.errors !== undefined;
     }
 }
 
@@ -38,7 +38,7 @@ async function refreshTokens(): Promise<boolean> {
         return refreshPromise;
     }
 
-    return (async () => {
+    refreshPromise = (async () => {
         try {
             const url = new URL("auth/refresh", API_URL);
 
@@ -55,6 +55,8 @@ async function refreshTokens(): Promise<boolean> {
             refreshPromise = null;
         }
     })();
+
+    return refreshPromise;
 }
 
 export async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -120,6 +122,8 @@ export async function apiClientInternal<T>(
         if (error instanceof ApiError) {
             throw error;
         }
-        throw new Error("Server is not responding");
+        throw new Error("Server is not responding", {
+            cause: error
+        });
     }
 }

@@ -58,9 +58,7 @@ public class EmailService(
 
     public async Task SendNewLoginNotificationMessageAsync(string email, Session session, string token, CancellationToken cancellationToken = default)
     {
-        var confirmationUrl = $"{frontendOptions.Url}/account-security/complete#token={token}";
-
-        System.Console.WriteLine(confirmationUrl);
+        var confirmationUrl = $"{frontendOptions.Url}/account-recovery#token={token}";
 
         await SendAsync(
             email, 

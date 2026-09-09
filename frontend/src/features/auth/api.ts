@@ -31,3 +31,14 @@ export async function logout() {
     await apiClient('auth/logout', { method: "POST" });
     authStore.clearUser();
 }
+
+export async function secureAccount(token: string) {
+    var req: ConfirmationRequest = {
+        token: token,
+    };
+
+    await apiClient<User>("auth/acccount-recovery/secure", { 
+        method: "POST",
+        body: JSON.stringify(req)
+    });
+}

@@ -73,20 +73,34 @@ namespace WebApp1.Api.Migrations
 
             modelBuilder.Entity("WebApp1.Api.Models.NewLoginSecurityRequest", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("SessionId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TokenHash")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId")
+                        .IsUnique();
 
                     b.HasIndex("TokenHash")
                         .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("newLoginSecurityRequests", (string)null);
                 });
@@ -402,11 +416,18 @@ namespace WebApp1.Api.Migrations
 
             modelBuilder.Entity("WebApp1.Api.Models.NewLoginSecurityRequest", b =>
                 {
-                    b.HasOne("WebApp1.Api.Models.User", "User")
+                    b.HasOne("WebApp1.Api.Models.Session", "Session")
                         .WithOne()
-                        .HasForeignKey("WebApp1.Api.Models.NewLoginSecurityRequest", "UserId")
+                        .HasForeignKey("WebApp1.Api.Models.NewLoginSecurityRequest", "SessionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Session");
 
                     b.Navigation("User");
                 });

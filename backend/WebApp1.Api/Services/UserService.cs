@@ -189,7 +189,8 @@ public class UserService(
             UserName = request.UserName,
             UserTag = tag,
             Email = request.Email,
-            PasswordHash = request.PasswordHash
+            PasswordHash = request.PasswordHash,
+            Status = AccountStatus.Active
         };
 
         dbContext.Users.Add(user);
@@ -284,16 +285,12 @@ public class UserService(
             .Include(x => x.User)
             .SingleOrDefaultAsync(x => x.TokenHash == tokenHash);
 
-        if (securityRequest is null)
+        if (securityRequest is null || securityRequest.ExpiresAt <= DateTime.UtcNow)
         {
             throw new InvalidConfirmationTokenException();
         }
-        else if (securityRequest.ExpiresAt <= DateTime.UtcNow)
-        {
-            throw new ConfirmationTokenExpiredException();
-        }
 
-        if (securityRequest.User.Status != AccountStatus.Active || 
+        if (securityRequest.User.Status != AccountStatus.Active && 
             securityRequest.User.Status != AccountStatus.RecoveryRequired)
         {
             throw new AccountRecoveryNotAvailableException();
@@ -312,13 +309,9 @@ public class UserService(
             .Include(x => x.User)
             .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
 
-        if (securityRequest is null)
+        if (securityRequest is null || securityRequest.ExpiresAt <= DateTime.UtcNow)
         {
             throw new InvalidConfirmationTokenException();
-        }
-        else if (securityRequest.ExpiresAt <= DateTime.UtcNow)
-        {
-            throw new ConfirmationTokenExpiredException();
         }
 
         var user = securityRequest.User;

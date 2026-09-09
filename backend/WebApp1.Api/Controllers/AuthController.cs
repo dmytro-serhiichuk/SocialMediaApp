@@ -189,7 +189,7 @@ public class AuthController(UserService userService, SessionService sessionServi
     }
 
     [HttpPost("acccount-recovery/complete")]
-    public async Task<IActionResult> SecureAccount([FromBody] ResetPasswordRequest resetPassword)
+    public async Task<IActionResult> CompleteAccountRecovery([FromBody] ResetPasswordRequest resetPassword)
     {
         await userService.CompleteAccountRecovery(resetPassword);
                 

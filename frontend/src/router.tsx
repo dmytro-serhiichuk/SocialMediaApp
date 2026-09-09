@@ -3,13 +3,13 @@ import RootLayout from "./layouts/RootLayout";
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import ProtectedLayout from "./layouts/ProtectedLayout";
-import { authLoader } from "./features/auth/loaders";
+import { accountRecoveryLoader, authLoader } from "./features/auth/loaders";
 import UserPage from "./pages/UserPage";
 import { ROOT_ID, ROUTES } from "./constants/routes";
 import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import { completePasswordResetAction, completeRegisterAction, loginAction, logoutAction, registerAction, requestPasswordResetAction } from "./features/auth/actions";
+import { completePasswordResetAction, completeRegisterAction, loginAction, logoutAction, recoverAccountAction, registerAction, requestPasswordResetAction } from "./features/auth/actions";
 import RootErrorBoundary from "./components/rootErrorBoundary";
 import PostEditorPage from "./pages/PostEditorPage";
 import { createPostAction } from "./features/posts/actions";
@@ -24,6 +24,7 @@ import EmailChangeConfirmationPage from "./pages/EmailChangeConfirmationPage";
 import RegisterConfirmationPage from "./pages/RegisterConfirmationPage";
 import PasswordResetRequestPage from "./pages/PasswordResetRequestPage";
 import CompletePasswordResetPage from "./pages/CompletePasswordResetPage";
+import AccountRecoveryPage from "./pages/AccountRecoveryPage";
 
 const router = createBrowserRouter([
     {
@@ -103,6 +104,12 @@ const router = createBrowserRouter([
                         path: ROUTES.PASSWORD_RESET_COMPLETE,
                         Component: CompletePasswordResetPage,
                         action: completePasswordResetAction
+                    },
+                    {
+                        path: ROUTES.ACCOUNT_RECOVERY,
+                        Component: AccountRecoveryPage,
+                        loader: accountRecoveryLoader,
+                        action: recoverAccountAction
                     }
                 ]
             },
