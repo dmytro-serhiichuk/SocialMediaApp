@@ -3,7 +3,7 @@ import RootLayout from "./layouts/RootLayout";
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import ProtectedLayout from "./layouts/ProtectedLayout";
-import { accountRecoveryLoader, authLoader } from "./features/auth/loaders";
+import { accountRecoveryLoader, authLoader, completePasswordResetLoader, registerConfirmationLoader } from "./features/auth/loaders";
 import UserPage from "./pages/UserPage";
 import { ROOT_ID, ROUTES } from "./constants/routes";
 import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
@@ -18,7 +18,7 @@ import TagPage from "./pages/TagPage";
 import { tagLoader } from "./features/tag/loaders";
 import SavedPostsPage from "./pages/SavedPostsPage";
 import SettingsPage from "./pages/SettingsPage";
-import { settingsLoader } from "./features/settings/loaders";
+import { emailChangeConfirmLoader, settingsLoader } from "./features/settings/loaders";
 import { settingsAction } from "./features/settings/actions";
 import EmailChangeConfirmationPage from "./pages/EmailChangeConfirmationPage";
 import RegisterConfirmationPage from "./pages/RegisterConfirmationPage";
@@ -51,7 +51,8 @@ const router = createBrowserRouter([
             },
             {
                 path: ROUTES.EMAIL_CHANGE,
-                Component: EmailChangeConfirmationPage
+                Component: EmailChangeConfirmationPage,
+                loader: emailChangeConfirmLoader
             },
             {
                 Component: ProtectedLayout,
@@ -93,6 +94,7 @@ const router = createBrowserRouter([
                     {
                         path: ROUTES.REGISTER_CONFIRM,
                         Component: RegisterConfirmationPage,
+                        loader: registerConfirmationLoader,
                         action: completeRegisterAction
                     },
                     {
@@ -103,6 +105,7 @@ const router = createBrowserRouter([
                     {
                         path: ROUTES.PASSWORD_RESET_COMPLETE,
                         Component: CompletePasswordResetPage,
+                        loader: completePasswordResetLoader,
                         action: completePasswordResetAction
                     },
                     {

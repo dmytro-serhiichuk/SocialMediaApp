@@ -1,9 +1,10 @@
 import { redirect } from "react-router";
-import { apiClient } from "../../api/client";
+import { apiClient, ApiError } from "../../api/client";
 import { authStore } from "../auth/store";
 import type { SettingsDataResponse } from "./types";
 import { ROUTES } from "../../constants/routes";
 import { logout } from "../auth/api";
+import { confirmEmailChange } from "./api";
 
 export async function settingsLoader() {
     const data = await apiClient<SettingsDataResponse>(`settings`);
@@ -23,4 +24,24 @@ export async function settingsLoader() {
     }
 
     return data;
+}
+
+export async function emailChangeConfirmLoader(): Promise<boolean> {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const token = params.get("token");
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+
+    if (!token) return false;
+
+    const expectedErrors = [400, 409];
+
+    try {
+        await confirmEmailChange(token);
+        return true;
+    } catch (error) {
+        if (error instanceof ApiError && expectedErrors.includes(error.status)) {
+            return false;
+        }
+        throw error;
+    }
 }

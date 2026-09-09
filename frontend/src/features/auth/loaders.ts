@@ -1,10 +1,51 @@
 import { ApiError } from "../../api/client";
-import { getCurrentUser, secureAccount } from "./api";
+import { confirmRegister, getCurrentUser, secureAccount } from "./api";
 import { authStore } from "./store";
 
 export async function authLoader() {
     const user = await getCurrentUser();
     authStore.setUser(user);
+}
+
+type RegisterConfirmationLoaderData = 
+    | { type: "success" }
+    | { type: "invalid-token" }
+    | { type: "email-conflict" }
+    | { type: "tag-conflict"; token: string };
+
+export async function registerConfirmationLoader(): Promise<RegisterConfirmationLoaderData> {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const token = params.get("token");
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+
+    if (!token) return { type: "invalid-token" };
+
+    const expectedStatuses = [400, 409];
+
+    try {
+        await confirmRegister(token);
+
+        return { type: "success" };
+    } catch (error) {
+        if (error instanceof ApiError && expectedStatuses.includes(error.status)) {
+            if (error.validationErrors?.email) {
+                return { type: "email-conflict" };
+            } else if (error.validationErrors?.tag) {
+                return { type: "tag-conflict", token: token };
+            } else {
+                return { type: "invalid-token" };
+            }
+        }
+        throw error;
+    }
+}
+
+export function completePasswordResetLoader(): string | null {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const token = params.get("token");
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+
+    return token;
 }
 
 type AccountRecoveryLoaderData = {
