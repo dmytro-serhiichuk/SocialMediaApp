@@ -46,6 +46,35 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("emailChangeRequests", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.ExternalLogin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Provider")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProviderUserId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Provider", "ProviderUserId")
+                        .IsUnique();
+
+                    b.ToTable("externalLogins", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.Image", b =>
                 {
                     b.Property<Guid>("Id")
@@ -357,7 +386,6 @@ namespace WebApp1.Api.Migrations
                         .HasColumnType("character varying(320)");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
@@ -408,6 +436,17 @@ namespace WebApp1.Api.Migrations
                     b.HasOne("WebApp1.Api.Models.User", "User")
                         .WithOne()
                         .HasForeignKey("WebApp1.Api.Models.EmailChangeRequest", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApp1.Api.Models.ExternalLogin", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithMany("ExternalLogins")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -578,6 +617,8 @@ namespace WebApp1.Api.Migrations
 
             modelBuilder.Entity("WebApp1.Api.Models.User", b =>
                 {
+                    b.Navigation("ExternalLogins");
+
                     b.Navigation("Followers");
 
                     b.Navigation("Following");

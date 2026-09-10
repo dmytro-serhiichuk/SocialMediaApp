@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -6,15 +8,23 @@ using WebApp1.Api.DTOs;
 using WebApp1.Api.Extensions;
 using WebApp1.Api.Models;
 using WebApp1.Api.Services;
+using WebApp1.Api.Utils;
 
 namespace WebApp1.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(UserService userService, SessionService sessionService, JwtTokenService jwtService, IOptions<JwtOptions> accessTokenOptions, IOptions<RefreshTokenOptions> refreshTokenOptions) : ControllerBase
+public class AuthController(
+    UserService userService, 
+    SessionService sessionService, 
+    JwtTokenService jwtService, 
+    IOptions<JwtOptions> accessTokenOptions, 
+    IOptions<RefreshTokenOptions> refreshTokenOptions,
+    IOptions<FrontendOptions> frontendOptions) : ControllerBase
 {
     private readonly JwtOptions accessTokenOptions = accessTokenOptions.Value;
     private readonly RefreshTokenOptions refreshTokenOptions = refreshTokenOptions.Value;
+    private readonly FrontendOptions frontendOptions = frontendOptions.Value;
 
     [Authorize]
     [HttpGet("me")]
@@ -194,5 +204,57 @@ public class AuthController(UserService userService, SessionService sessionServi
         await userService.CompleteAccountRecovery(resetPassword);
                 
         return NoContent();
+    }
+
+    [HttpGet("google")]
+    public IActionResult GoogleLogin()
+    {
+        return Challenge(new AuthenticationProperties
+            {
+                RedirectUri = "/api/auth/google-success"
+            },
+            "Google");
+    }
+    
+    [ServiceFilter(typeof(ExternalLoginExceptionFilter))]
+    [Authorize(AuthenticationSchemes = "External")]
+    [HttpGet("google-success")]
+    public async Task<IActionResult> GoogleSuccess()
+    {
+        var providerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userName = User.FindFirstValue(ClaimTypes.Name);
+        var email = User.FindFirstValue(ClaimTypes.Email);
+
+        if (providerUserId is null || userName is null || email is null)
+        {
+            throw new InvalidOperationException("Google authentication did not provide required claims");
+        }
+
+        var result = await userService.HandleExternalLogin(new ExternalLoginInfo(
+            ExternalLoginProvider.Google, providerUserId, email, userName)
+        );
+
+        return result switch
+        {
+            ExternalLoginResult.Success s => await CompleteProviderLogin(s.User),
+            ExternalLoginResult.EmailAlreadyTaken => Redirect($"{frontendOptions.Url}/login?error=email_taken&provider={ExternalLoginProvider.Google}"),
+            _ => Redirect($"{frontendOptions.Url}/login?error=unknown")
+        };
+    }
+
+    private async Task<IActionResult> CompleteProviderLogin(User user)
+    {
+        var sessionCreationResult = await sessionService.CreateSession(
+            user, 
+            Request.Headers.UserAgent.ToString(),
+            HttpContext.Connection.RemoteIpAddress?.ToString());
+
+        var accessToken = jwtService.CreateAccessToken(user.Id, sessionCreationResult.Session.Id);
+
+        SetTokenCookies(accessToken, sessionCreationResult.Token);
+
+        await HttpContext.SignOutAsync("External");
+
+        return Redirect($"{frontendOptions.Url}/profile");
     }
 }

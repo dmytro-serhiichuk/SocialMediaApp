@@ -13,7 +13,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(u => u.Id);
 
         builder.Property(u => u.PasswordHash)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(u => u.Email)
             .IsRequired()

@@ -2,7 +2,6 @@ using WebApp1.Api.Data;
 using WebApp1.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using WebApp1.Api.DTOs;
 using WebApp1.Api.Extensions;
 using WebApp1.Api.Exceptions;
@@ -54,7 +53,7 @@ public class UserService(
             user = await dbContext.Users.FirstOrDefaultAsync(u => u.UserTag == login);
         }
 
-        if (user is null) return null;
+        if (user is null || user.PasswordHash is null) return null;
 
         if (user.Status != AccountStatus.Active)
         {
@@ -327,6 +326,71 @@ public class UserService(
 
         dbContext.NewLoginSecurityRequests.Remove(securityRequest);
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<ExternalLoginResult> HandleExternalLogin(Utils.ExternalLoginInfo externalLoginInfo)
+    {
+        var existingLogin = await dbContext.ExternalLogins
+            .Include(x => x.User)
+            .SingleOrDefaultAsync(x => 
+                x.Provider == externalLoginInfo.Provider && 
+                x.ProviderUserId == externalLoginInfo.ProviderUserId);
+
+        if (existingLogin is not null)
+        {
+            return new ExternalLoginResult.Success(existingLogin.User);
+        }
+
+        var existingUser = await dbContext.Users
+            .SingleOrDefaultAsync(x => x.Email == externalLoginInfo.Email);
+
+        if (existingUser is not null)
+        {
+            return new ExternalLoginResult.EmailAlreadyTaken(externalLoginInfo.Email);
+        }
+
+        var user = new User
+        {
+            UserName = externalLoginInfo.Name,
+            UserTag = UserTagGenerator.GenerateTag(externalLoginInfo.Name),
+            Email = externalLoginInfo.Email,
+            PasswordHash = null,
+            Status = AccountStatus.Active
+        };
+
+        var login = new ExternalLogin
+        {
+            User = user,
+            Provider = externalLoginInfo.Provider,
+            ProviderUserId = externalLoginInfo.ProviderUserId
+        };
+
+        dbContext.Users.Add(user);
+        dbContext.ExternalLogins.Add(login);
+
+        for (var attempt = 0; attempt < 5; attempt++)
+        {
+            try
+            {
+                await dbContext.SaveChangesAsync();
+                return new ExternalLoginResult.Success(user);
+            }
+            catch (DbUpdateException ex) when (ex.TryGetUniqueViolation(out var pex))
+            {
+                switch(pex.ConstraintName)
+                {
+                    case UserIndexes.Email:
+                        return new ExternalLoginResult.EmailAlreadyTaken(externalLoginInfo.Email);
+                    case UserIndexes.UserTag:
+                        user.UserTag = UserTagGenerator.GenerateTag(externalLoginInfo.Name);
+                        break;
+                    default:
+                        throw;
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Failed to generate a unique user tag.");
     }
 
     public async Task<UserProfileResponse?> GetUserProfile(string tag)

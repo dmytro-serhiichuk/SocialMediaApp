@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebApp1.Api.Configuration;
 using WebApp1.Api.Services.Email;
+using Microsoft.AspNetCore.Authentication.OAuth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,9 +99,13 @@ builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<SettingsService>();
+builder.Services.AddScoped<ExternalLoginExceptionFilter>();
 
 var jwtKey = builder.Configuration["Jwt:SecretKey"]
     ?? throw new InvalidOperationException("JWT secret is missing.");
+
+var frontendUrl = builder.Configuration["Frontend:Url"] 
+        ?? throw new InvalidOperationException("Frontend Url is missing");
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -132,14 +137,29 @@ builder.Services
                 return Task.CompletedTask;
             }
         };
+    })
+    .AddCookie("External")
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Auth:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"];
+
+        options.SignInScheme = "External";
+
+        options.Events = new OAuthEvents
+        {
+            OnRemoteFailure = context =>
+            {
+                context.HandleResponse();
+                context.Response.Redirect($"{frontendUrl}/login?error=oauth_failed");
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
 {   
-    var frontendUrl = builder.Configuration["Frontend:Url"] 
-        ?? throw new InvalidOperationException("Frontend Url is missing");
-
     options.AddPolicy(FrontendOptions.SectionName, policy =>
     {
         policy

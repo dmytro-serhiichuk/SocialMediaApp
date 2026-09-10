@@ -7,4 +7,5 @@ public class SettingsDataResponse
     public string UserTag { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public List<SessionResponse> Sessions { get; set; } = null!;
+    // TODO: check if password exist
 }

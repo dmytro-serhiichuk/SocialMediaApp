@@ -1,9 +1,9 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, redirect } from "react-router";
 import RootLayout from "./layouts/RootLayout";
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import ProtectedLayout from "./layouts/ProtectedLayout";
-import { accountRecoveryLoader, authLoader, completePasswordResetLoader, registerConfirmationLoader } from "./features/auth/loaders";
+import { accountRecoveryLoader, authLoader, completePasswordResetLoader, oauthLoader, registerConfirmationLoader } from "./features/auth/loaders";
 import UserPage from "./pages/UserPage";
 import { ROOT_ID, ROUTES } from "./constants/routes";
 import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
@@ -13,7 +13,7 @@ import { completePasswordResetAction, completeRegisterAction, loginAction, logou
 import RootErrorBoundary from "./components/rootErrorBoundary";
 import PostEditorPage from "./pages/PostEditorPage";
 import { createPostAction } from "./features/posts/actions";
-import { userLoader } from "./features/user/loaders";
+import { profileLoader, userLoader } from "./features/user/loaders";
 import TagPage from "./pages/TagPage";
 import { tagLoader } from "./features/tag/loaders";
 import SavedPostsPage from "./pages/SavedPostsPage";
@@ -58,6 +58,10 @@ const router = createBrowserRouter([
                 Component: ProtectedLayout,
                 children: [
                     {
+                        path: ROUTES.PROFILE,
+                        loader: profileLoader
+                    },
+                    {
                         path: ROUTES.LOGOUT,
                         action: logoutAction
                     },
@@ -84,6 +88,7 @@ const router = createBrowserRouter([
                     {
                         path: ROUTES.LOGIN,
                         Component: LoginPage,
+                        loader: oauthLoader,
                         action: loginAction
                     },
                     {

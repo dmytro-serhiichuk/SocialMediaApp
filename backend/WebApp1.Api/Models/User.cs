@@ -6,8 +6,9 @@ public class User
     public string UserName { get; set; } = string.Empty;
     public string UserTag { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
+    public string? PasswordHash { get; set; } = null;
     public AccountStatus Status { get; set; }
+    public ICollection<ExternalLogin> ExternalLogins { get; set; } = [];
     public ICollection<Session> Sessions { get; set; } = [];
     public ICollection<Post> Posts { get; set; } = [];
     public ICollection<PostLike> LikedPosts { get; set; } = [];
