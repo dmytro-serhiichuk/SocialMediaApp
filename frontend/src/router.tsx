@@ -1,4 +1,4 @@
-import { createBrowserRouter, redirect } from "react-router";
+import { createBrowserRouter } from "react-router";
 import RootLayout from "./layouts/RootLayout";
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
@@ -19,12 +19,13 @@ import { tagLoader } from "./features/tag/loaders";
 import SavedPostsPage from "./pages/SavedPostsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { emailChangeConfirmLoader, settingsLoader } from "./features/settings/loaders";
-import { settingsAction } from "./features/settings/actions";
+import { completePasswordCreationAction, settingsAction } from "./features/settings/actions";
 import EmailChangeConfirmationPage from "./pages/EmailChangeConfirmationPage";
 import RegisterConfirmationPage from "./pages/RegisterConfirmationPage";
 import PasswordResetRequestPage from "./pages/PasswordResetRequestPage";
 import CompletePasswordResetPage from "./pages/CompletePasswordResetPage";
 import AccountRecoveryPage from "./pages/AccountRecoveryPage";
+import CompletePasswordCreationPage from "./pages/CompletePasswordCreationPage";
 
 const router = createBrowserRouter([
     {
@@ -79,6 +80,12 @@ const router = createBrowserRouter([
                         Component: SettingsPage,
                         loader: settingsLoader,
                         action: settingsAction
+                    },
+                    {
+                        path: ROUTES.PASSWORD_CREATE_COMPLETE,
+                        Component: CompletePasswordCreationPage,
+                        loader: completePasswordResetLoader,
+                        action: completePasswordCreationAction
                     }
                 ]
             },

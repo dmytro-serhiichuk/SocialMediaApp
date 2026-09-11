@@ -21,8 +21,11 @@ export interface RegisterCompletionRequest {
     token: string
 }
 
+export type RequestPasswordResetType = "Reset" | "Create";
+
 export interface RequestPasswordResetRequest {
-    email: string
+    email: string,
+    requestType: RequestPasswordResetType
 }
 
 export interface ResetPasswordRequest {

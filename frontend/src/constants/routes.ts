@@ -15,5 +15,6 @@ export const ROUTES = Object.freeze({
     EMAIL_CHANGE: "/settings/email-change/confirm",
     PASSWORD_RESET_REQUEST: "/password-reset",
     PASSWORD_RESET_COMPLETE: "/password-reset/complete",
-    ACCOUNT_RECOVERY: "/account-recovery/"
+    ACCOUNT_RECOVERY: "/account-recovery",
+    PASSWORD_CREATE_COMPLETE: "settings/password-create"
 })

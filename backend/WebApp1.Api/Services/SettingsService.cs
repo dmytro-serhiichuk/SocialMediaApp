@@ -41,7 +41,8 @@ public class SettingsService(
                         DeviceInfo = s.LastDeviceInfo,
                         Ip = s.LastIpAddress,
                         IsCurrentSession = s.Id == sessionId
-                    }).ToList()
+                    }).ToList(),
+                HasPassword = x.PasswordHash != null
             })
             .FirstOrDefaultAsync();
     }

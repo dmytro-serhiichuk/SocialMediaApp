@@ -3,7 +3,8 @@ export interface SettingsDataResponse {
     userName: string,
     userTag: string,
     email: string,
-    sessions: SessionInfo[]
+    sessions: SessionInfo[],
+    hasPassword: boolean,
 }
 
 export interface SessionInfo {
@@ -32,5 +33,6 @@ export interface PasswrodChangeRequest {
 export const SETTINGS_INTENTS = {
     PROFILE_CHANGE:  "profile-change",
     EMAIL_CHANGE:    "email-change",
-    PASSWORD_CHANGE: "password-change"
+    PASSWORD_CHANGE: "password-change",
+    PASSWORD_CREATE: "password-create"
 } as const;

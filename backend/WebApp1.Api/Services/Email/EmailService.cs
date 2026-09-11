@@ -87,6 +87,7 @@ public class EmailService(
     public async Task SendPasswordResetMessageAsync(string email, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/password-reset/complete#token={token}";
+        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 
@@ -100,7 +101,32 @@ public class EmailService(
 
             <p>
                 <a href="{confirmationUrl}">
-                    Confirm email
+                    Reset password
+                </a>
+            </p>
+            """,
+            cancellationToken
+        );
+    }
+
+    public async Task SendPasswordCreateMessageAsync(string email, string token, CancellationToken cancellationToken = default)
+    {
+        var confirmationUrl = $"{frontendOptions.Url}/settings/password-create#token={token}";
+        System.Console.WriteLine(confirmationUrl);
+
+        await SendAsync(
+            email, 
+            "Password creation request", 
+            $"""
+            <h1>Password creation request</h1>
+
+            <p>
+                A password creation link was requested from your account. Click the link below to confirm and continue you request.
+            </p>
+
+            <p>
+                <a href="{confirmationUrl}">
+                    Create password
                 </a>
             </p>
             """,

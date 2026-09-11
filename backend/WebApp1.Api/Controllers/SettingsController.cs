@@ -8,7 +8,10 @@ namespace WebApp1.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]/")]
-public class SettingsController(SettingsService settingsService, SessionService sessionService) : ControllerBase
+public class SettingsController(
+    SettingsService settingsService, 
+    SessionService sessionService,
+    AccountSecurityService accountSecurityService) : ControllerBase
 {
     [Authorize]
     [HttpGet]
@@ -55,7 +58,7 @@ public class SettingsController(SettingsService settingsService, SessionService 
     }
 
     [Authorize]
-    [HttpPost("password-change")]
+    [HttpPost("password/change")]
     public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeRequest passwordChangeRequest)
     {
         var userId = User.GetUserId();
@@ -89,6 +92,24 @@ public class SettingsController(SettingsService settingsService, SessionService 
         var sessionId = User.GetSessionId();
 
         await sessionService.TerminateAllSessionsButCurrent(userId, sessionId);
+
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("password-create/request")]
+    public async Task<IActionResult> RequestPasswordCreation([FromBody] RequestPasswordResetRequest request)
+    {
+        await accountSecurityService.RequestPasswordReset(request);
+        
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("password-create/complete")]
+    public async Task<IActionResult> CompletePasswordCreation([FromBody] ResetPasswordRequest request)
+    {
+        await accountSecurityService.ConfirmPasswordReset(request);
 
         return NoContent();
     }

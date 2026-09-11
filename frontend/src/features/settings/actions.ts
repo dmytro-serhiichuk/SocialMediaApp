@@ -1,8 +1,10 @@
-import type { ActionFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { SETTINGS_INTENTS, type EmailChangeRequest, type PasswrodChangeRequest, type SettingsProfileUpdateRequest } from "./types";
 import { getFormString } from "../../utils/formDataUtils";
 import { apiClient, ApiError } from "../../api/client";
 import { authStore } from "../auth/store";
+import type { RequestPasswordResetRequest, ResetPasswordRequest } from "../auth/types";
+import { ROUTES } from "../../constants/routes";
 
 export async function settingsAction({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
@@ -15,8 +17,10 @@ export async function settingsAction({ request }: ActionFunctionArgs) {
             return emailAction(formData);
         case SETTINGS_INTENTS.PASSWORD_CHANGE:
             return passwordAction(formData);
+        case SETTINGS_INTENTS.PASSWORD_CREATE:
+            return passwordCreateAction(formData);
         default:
-            throw new Response("Invalid settingsintent", { status: 400 });
+            throw new Response("Invalid settings intent", { status: 400 });
     }
 }
 
@@ -75,7 +79,7 @@ async function passwordAction(formData: FormData) {
     };
 
     try {
-        await apiClient('settings/password-change', {
+        await apiClient('settings/password/change', {
             method: "POST",
             body: JSON.stringify(req)
         });
@@ -87,5 +91,59 @@ async function passwordAction(formData: FormData) {
             };
         }
         throw err;
+    }
+}
+
+async function passwordCreateAction(formData: FormData) {
+    const registerRequest: RequestPasswordResetRequest = {
+        email: getFormString(formData, "email"),
+        requestType: "Create"
+    };
+
+    try {
+        await apiClient('settings/password-create/request', {
+            method: "POST",
+            body: JSON.stringify(registerRequest)
+        });
+
+        return {
+            intent: SETTINGS_INTENTS.PASSWORD_CREATE,
+            success: true
+        };
+    } catch (err) {
+        if (err instanceof ApiError && err.status === 400) {
+            return {
+                intent: SETTINGS_INTENTS.PASSWORD_CREATE,
+                success: false,
+                error: err.message
+            };
+        }
+        throw err;
+    }
+}
+
+export async function completePasswordCreationAction({ request }: ActionFunctionArgs) {
+    const formData = await request.formData();
+
+    const registerRequest: ResetPasswordRequest = {
+        token: getFormString(formData, "token"),
+        newPassword: getFormString(formData, "new-password")
+    };
+
+    try {
+        await apiClient("settings/password-create/complete", {
+            method: "POST",
+            body: JSON.stringify(registerRequest)
+        });
+
+        return redirect(ROUTES.SETTINGS);
+    } catch (error) {
+        if (error instanceof ApiError && error.status === 400) {
+            return {
+                error: error.message,
+                validationErrors: error.validationErrors
+            };
+        }
+        throw error;
     }
 }

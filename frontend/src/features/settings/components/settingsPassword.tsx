@@ -24,8 +24,6 @@ export function SettingsPassword() {
         }
     }
 
-    // TODO: handle password creation if account doen't have a password
-
     return (
         <>
             <h3>Password:</h3>

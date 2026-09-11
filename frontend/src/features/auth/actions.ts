@@ -99,10 +99,11 @@ export async function requestPasswordResetAction({ request }: ActionFunctionArgs
 
     const registerRequest: RequestPasswordResetRequest = {
         email: getFormString(formData, "email"),
+        requestType: "Reset"
     };
 
     try {
-        await apiClient<User>('auth/password-reset/request', {
+        await apiClient('auth/password-reset/request', {
             method: "POST",
             body: JSON.stringify(registerRequest)
         });
@@ -162,7 +163,7 @@ async function resetPassword(formData: FormData, endpoint: string) {
         newPassword: getFormString(formData, "new-password")
     };
 
-    await apiClient<User>(endpoint, {
+    await apiClient(endpoint, {
         method: "POST",
         body: JSON.stringify(registerRequest)
     });

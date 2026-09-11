@@ -4,6 +4,7 @@ import { SettingsProfile } from "../features/settings/components/settingsProfile
 import { SettingsEmail } from "../features/settings/components/settingsEmail";
 import { SettingsPassword } from "../features/settings/components/settingsPassword";
 import { Sessions } from "../features/settings/components/sessions";
+import SettingsPasswordCreate from "../features/settings/components/settingsPasswordCreate";
 
 
 export default function SettingsPage() {
@@ -25,8 +26,11 @@ export default function SettingsPage() {
                 email={settingsData.email}/>
 
             <hr />
-            
-            <SettingsPassword />
+
+            {settingsData.hasPassword ?
+                <SettingsPassword /> :
+                <SettingsPasswordCreate email={settingsData.email} />
+            }
 
             <hr />
 

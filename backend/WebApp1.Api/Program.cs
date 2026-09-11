@@ -93,6 +93,7 @@ builder.Services.AddScoped<ImageService>();
 
 builder.Services.AddScoped<IPasswordHasher<PendingRegistration>, PasswordHasher<PendingRegistration>>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<SessionService>();
@@ -100,6 +101,7 @@ builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<ExternalLoginExceptionFilter>();
+builder.Services.AddScoped<AccountSecurityService>();
 
 var jwtKey = builder.Configuration["Jwt:SecretKey"]
     ?? throw new InvalidOperationException("JWT secret is missing.");

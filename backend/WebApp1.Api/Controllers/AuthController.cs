@@ -15,12 +15,13 @@ namespace WebApp1.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController(
-    UserService userService, 
+    AuthService authService, 
     SessionService sessionService, 
     JwtTokenService jwtService, 
     IOptions<JwtOptions> accessTokenOptions, 
     IOptions<RefreshTokenOptions> refreshTokenOptions,
-    IOptions<FrontendOptions> frontendOptions) : ControllerBase
+    IOptions<FrontendOptions> frontendOptions,
+    AccountSecurityService accountSecurityService) : ControllerBase
 {
     private readonly JwtOptions accessTokenOptions = accessTokenOptions.Value;
     private readonly RefreshTokenOptions refreshTokenOptions = refreshTokenOptions.Value;
@@ -32,7 +33,7 @@ public class AuthController(
     {
         var userId = User.GetUserId();
 
-        var user = await userService.GetById(userId);
+        var user = await authService.GetById(userId);
         
         if (user is null) return NotFound();
         
@@ -43,7 +44,7 @@ public class AuthController(
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
-        await userService.HandleRegisterRequest(registerRequest);
+        await authService.HandleRegisterRequest(registerRequest);
 
         return StatusCode(StatusCodes.Status201Created);
     }
@@ -51,7 +52,7 @@ public class AuthController(
     [HttpPost("register/confirm")]
     public async Task<IActionResult> ConfirmRegister([FromBody] ConfirmationRequest confirmationRequest)
     {
-        var user = await userService.ConfirmRegister(confirmationRequest);
+        var user = await authService.ConfirmRegister(confirmationRequest);
 
         return await SendRegisterRequest(user);
     }
@@ -59,7 +60,7 @@ public class AuthController(
     [HttpPost("register/complete")]
     public async Task<IActionResult> CompleteRegister([FromBody] RegisterCompletionRequest completionRequest)
     {
-        var user = await userService.CompleteRegister(completionRequest);
+        var user = await authService.CompleteRegister(completionRequest);
 
         return await SendRegisterRequest(user);
     }
@@ -81,7 +82,7 @@ public class AuthController(
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
     {
-        var user = await userService.Login(loginRequest);
+        var user = await authService.Login(loginRequest);
 
         if (user is null) return Unauthorized(new ProblemDetails
         {
@@ -173,7 +174,7 @@ public class AuthController(
     [HttpPost("password-reset/request")]
     public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetRequest request)
     {
-        await userService.RequestPasswordReset(request);
+        await accountSecurityService.RequestPasswordReset(request);
         
         return NoContent();
     }
@@ -181,7 +182,7 @@ public class AuthController(
     [HttpPost("password-reset/confirm")]
     public async Task<IActionResult> ConfirmPasswordReset([FromBody] ResetPasswordRequest request)
     {
-        var user = await userService.ConfirmPasswordReset(request);
+        var user = await accountSecurityService.ConfirmPasswordReset(request);
 
         await sessionService.TerminateAllSessions(user.Id);
         
@@ -191,7 +192,7 @@ public class AuthController(
     [HttpPost("acccount-recovery/secure")]
     public async Task<IActionResult> SecureAccount([FromBody] ConfirmationRequest confirmation)
     {
-        var user = await userService.StartRecoveryProcess(confirmation);
+        var user = await accountSecurityService.StartRecoveryProcess(confirmation);
 
         await sessionService.TerminateAllSessions(user.Id);
         
@@ -201,7 +202,7 @@ public class AuthController(
     [HttpPost("acccount-recovery/complete")]
     public async Task<IActionResult> CompleteAccountRecovery([FromBody] ResetPasswordRequest resetPassword)
     {
-        await userService.CompleteAccountRecovery(resetPassword);
+        await accountSecurityService.CompleteAccountRecovery(resetPassword);
                 
         return NoContent();
     }
@@ -230,7 +231,7 @@ public class AuthController(
             throw new InvalidOperationException("Google authentication did not provide required claims");
         }
 
-        var result = await userService.HandleExternalLogin(new ExternalLoginInfo(
+        var result = await authService.HandleExternalLogin(new ExternalLoginInfo(
             ExternalLoginProvider.Google, providerUserId, email, userName)
         );
 

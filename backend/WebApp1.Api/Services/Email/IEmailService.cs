@@ -29,6 +29,12 @@ public interface IEmailService
         CancellationToken cancellationToken = default
     );
 
+    Task SendPasswordCreateMessageAsync(
+        string email, 
+        string token, 
+        CancellationToken cancellationToken = default
+    );
+
     Task SendNewLoginNotificationMessageAsync(
         string email, 
         Session session,
