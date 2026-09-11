@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace WebApp1.Api.Models;
 
 public class ExternalLogin
@@ -9,6 +11,7 @@ public class ExternalLogin
     public string ProviderUserId { get; set; } = null!;
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ExternalLoginProvider
 {
     Google = 0

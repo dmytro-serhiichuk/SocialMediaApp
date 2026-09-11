@@ -1,4 +1,5 @@
 import { ApiError } from "../../api/client";
+import { getExternalLoginError } from "../../utils/queryUtils";
 import { confirmRegister, getCurrentUser, secureAccount } from "./api";
 import { authStore } from "./store";
 
@@ -77,19 +78,5 @@ export async function accountRecoveryLoader(): Promise<AccountRecoveryLoaderData
 }
 
 export function oauthLoader() {
-    const url = new URL(window.location.href);
-    const error = url.searchParams.get("error");
-    const provider = url.searchParams.get("provider");
-
-    window.history.replaceState(null, "", url.pathname);
-
-    if (error === "oauth_failed") {
-        return "Authentication failed. Please try again";
-    } else if (error === "email_taken") {
-        return `An account with this email already exists. Sign in to your existing account and connect ${provider} from Settings`
-    } else if (error === "unknown") {
-        throw new Error();
-    }
-
-    return null
+    return getExternalLoginError();
 }

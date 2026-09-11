@@ -1,3 +1,5 @@
+import { API_URL } from "../../constants"
+
 export interface SettingsDataResponse {
     id: number,
     userName: string,
@@ -5,6 +7,7 @@ export interface SettingsDataResponse {
     email: string,
     sessions: SessionInfo[],
     hasPassword: boolean,
+    connectedLoginProviders: string[] 
 }
 
 export interface SessionInfo {
@@ -36,3 +39,13 @@ export const SETTINGS_INTENTS = {
     PASSWORD_CHANGE: "password-change",
     PASSWORD_CREATE: "password-create"
 } as const;
+
+export const EXTERNAL_LOGIN_PROVIDERS = [
+    {
+        name: "Google",
+        signInEndpoint: `${API_URL}auth/google`,
+        connectEndpoint: `${API_URL}auth/google/connect`
+    }
+] as const;
+
+export type ExternalLoginProvider = typeof EXTERNAL_LOGIN_PROVIDERS[number];

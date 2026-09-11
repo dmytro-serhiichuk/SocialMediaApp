@@ -1,14 +1,15 @@
 import { useLoaderData } from "react-router";
-import type { SettingsDataResponse } from "../features/settings/types";
 import { SettingsProfile } from "../features/settings/components/settingsProfile";
 import { SettingsEmail } from "../features/settings/components/settingsEmail";
 import { SettingsPassword } from "../features/settings/components/settingsPassword";
 import { Sessions } from "../features/settings/components/sessions";
 import SettingsPasswordCreate from "../features/settings/components/settingsPasswordCreate";
+import ExternalLoginSettings from "../features/settings/components/externalLoginSettings ";
+import type { settingsLoader } from "../features/settings/loaders";
 
 
 export default function SettingsPage() {
-    const settingsData = useLoaderData<SettingsDataResponse>();
+    const { data, providerConnectionError } = useLoaderData<typeof settingsLoader>();
 
     return (
         <>
@@ -17,24 +18,30 @@ export default function SettingsPage() {
             <hr />
 
             <SettingsProfile 
-                userName={settingsData.userName}
-                userTag={settingsData.userTag} />
+                userName={data.userName}
+                userTag={data.userTag} />
 
             <hr />
             
             <SettingsEmail 
-                email={settingsData.email}/>
+                email={data.email}/>
 
             <hr />
 
-            {settingsData.hasPassword ?
+            {data.hasPassword ?
                 <SettingsPassword /> :
-                <SettingsPasswordCreate email={settingsData.email} />
+                <SettingsPasswordCreate email={data.email} />
             }
 
             <hr />
 
-            <Sessions userSessions={settingsData.sessions} />
+            <ExternalLoginSettings 
+                connectedProviders={data.connectedLoginProviders}
+                connectionError={providerConnectionError} />
+
+            <hr />
+
+            <Sessions userSessions={data.sessions} />
         </>
     );
 }

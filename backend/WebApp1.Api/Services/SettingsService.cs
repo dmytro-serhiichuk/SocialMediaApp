@@ -42,7 +42,8 @@ public class SettingsService(
                         Ip = s.LastIpAddress,
                         IsCurrentSession = s.Id == sessionId
                     }).ToList(),
-                HasPassword = x.PasswordHash != null
+                HasPassword = x.PasswordHash != null,
+                ConnectedLoginProviders = x.ExternalLogins.Select(l => l.Provider).ToList()
             })
             .FirstOrDefaultAsync();
     }

@@ -274,4 +274,27 @@ public class AuthService(
 
         throw new InvalidOperationException("Failed to generate a unique user tag.");
     }
+
+    public async Task<ConnectExternalLoginResult> ConnectExternalLogin(int userId, Utils.ExternalLoginInfo info)
+    {
+        var existingLogin = await dbContext.ExternalLogins
+            .SingleOrDefaultAsync(x => x.Provider == info.Provider && x.ProviderUserId == info.ProviderUserId);
+
+        if (existingLogin is not null)
+        {
+            return existingLogin.UserId == userId
+                ? new ConnectExternalLoginResult.AlreadyLinkedToThisAccount()
+                : new ConnectExternalLoginResult.AlreadyLinkedToAnotherAccount();
+        }
+
+        dbContext.ExternalLogins.Add(new ExternalLogin
+        {
+            UserId = userId,
+            Provider = info.Provider,
+            ProviderUserId = info.ProviderUserId
+        });
+
+        await dbContext.SaveChangesAsync();
+        return new ConnectExternalLoginResult.Success();
+    }
 }

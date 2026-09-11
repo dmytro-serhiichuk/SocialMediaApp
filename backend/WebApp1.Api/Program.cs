@@ -100,7 +100,6 @@ builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<SettingsService>();
-builder.Services.AddScoped<ExternalLoginExceptionFilter>();
 builder.Services.AddScoped<AccountSecurityService>();
 
 var jwtKey = builder.Configuration["Jwt:SecretKey"]
@@ -152,8 +151,13 @@ builder.Services
         {
             OnRemoteFailure = context =>
             {
+                var errorPath = "/login";
+                if (context.Properties?.Items.TryGetValue("errorRedirectPath", out var path) == true && path is not null)
+                {
+                    errorPath = path;
+                }
                 context.HandleResponse();
-                context.Response.Redirect($"{frontendUrl}/login?error=oauth_failed");
+                context.Response.Redirect($"{frontendUrl}{errorPath}?error=oauth_failed");
                 return Task.CompletedTask;
             }
         };

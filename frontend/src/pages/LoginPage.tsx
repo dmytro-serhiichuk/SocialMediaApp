@@ -1,8 +1,9 @@
 import { Form, Link, useActionData, useLoaderData } from "react-router";
 import type { loginAction } from "../features/auth/actions";
 import { ROUTES } from "../constants/routes";
-import LoginViaGoogleButton from "../features/auth/component/loginViaGoogleButton";
+import LoginViaExternalProviderButton from "../features/auth/component/loginViaExternalProviderButton";
 import { oauthLoader } from "../features/auth/loaders";
+import { EXTERNAL_LOGIN_PROVIDERS } from "../features/settings/types";
 
 export default function LoginPage() {
     const oauthError = useLoaderData<typeof oauthLoader>();
@@ -31,8 +32,12 @@ export default function LoginPage() {
             </Form>
 
             {oauthError && <p>{oauthError}</p>}
-
-            <LoginViaGoogleButton />
+                
+            {EXTERNAL_LOGIN_PROVIDERS.map((p, i) => (
+                <LoginViaExternalProviderButton
+                    key={i}
+                    provider={p} />
+            ))}
 
             <Link to={ROUTES.PASSWORD_RESET_REQUEST}>Forgot password</Link>
         </>

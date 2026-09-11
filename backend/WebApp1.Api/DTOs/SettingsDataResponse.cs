@@ -1,3 +1,5 @@
+using WebApp1.Api.Models;
+
 namespace WebApp1.Api.DTOs;
 
 public class SettingsDataResponse
@@ -8,4 +10,5 @@ public class SettingsDataResponse
     public string Email { get; set; } = string.Empty;
     public List<SessionResponse> Sessions { get; set; } = null!;
     public bool HasPassword { get; set; }
+    public List<ExternalLoginProvider> ConnectedLoginProviders { get; set; } = [];
 }

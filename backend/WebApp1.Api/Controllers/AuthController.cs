@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -212,23 +213,44 @@ public class AuthController(
     {
         return Challenge(new AuthenticationProperties
             {
-                RedirectUri = "/api/auth/google-success"
+                RedirectUri = "/api/auth/google-login-callback",
+                Items = { ["errorRedirectPath"] = "/login" }
+            },
+            "Google");
+    }
+
+    [Authorize]
+    [HttpGet("google/connect")]
+    public IActionResult GoogleConnect()
+    {
+        return Challenge(new AuthenticationProperties
+            {
+                RedirectUri = "/api/auth/google-connect-callback",
+                Items = { ["errorRedirectPath"] = "/settings" }
             },
             "Google");
     }
     
-    [ServiceFilter(typeof(ExternalLoginExceptionFilter))]
-    [Authorize(AuthenticationSchemes = "External")]
-    [HttpGet("google-success")]
-    public async Task<IActionResult> GoogleSuccess()
+    [TypeFilter(typeof(ExternalLoginExceptionFilter), Arguments = new object[] { "/login" })]
+    [HttpGet("google-login-callback")]
+    public async Task<IActionResult> GoogleLoginCallback()
     {
-        var providerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var userName = User.FindFirstValue(ClaimTypes.Name);
-        var email = User.FindFirstValue(ClaimTypes.Email);
+        var authResult = await HttpContext.AuthenticateAsync("External");
+
+        if (!authResult.Succeeded)
+        {
+            await HttpContext.SignOutAsync("External");
+            return Redirect($"{frontendOptions.Url}/login?error=login_failed");
+        }
+
+        var providerUserId = authResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userName = authResult.Principal.FindFirstValue(ClaimTypes.Name);
+        var email = authResult.Principal.FindFirstValue(ClaimTypes.Email);
 
         if (providerUserId is null || userName is null || email is null)
         {
-            throw new InvalidOperationException("Google authentication did not provide required claims");
+            await HttpContext.SignOutAsync("External");
+            return Redirect($"{frontendOptions.Url}/login?error=login_failed");
         }
 
         var result = await authService.HandleExternalLogin(new ExternalLoginInfo(
@@ -257,5 +279,45 @@ public class AuthController(
         await HttpContext.SignOutAsync("External");
 
         return Redirect($"{frontendOptions.Url}/profile");
+    }
+
+    [TypeFilter(typeof(ExternalLoginExceptionFilter), Arguments = new object[] { "/settings" })]
+    [HttpGet("google-connect-callback")]
+    public async Task<IActionResult> GoogleConnectCallback()
+    {
+        var externalAuth = await HttpContext.AuthenticateAsync("External");
+        var appAuth = await HttpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+
+        if (!externalAuth.Succeeded || !appAuth.Succeeded)
+        {
+            await HttpContext.SignOutAsync("External");
+            return Redirect($"{frontendOptions.Url}/settings?error=connect_failed");
+        }
+
+        var userId = appAuth.Principal.GetUserId();
+
+        var providerUserId = externalAuth.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userName = externalAuth.Principal.FindFirstValue(ClaimTypes.Name);
+        var email = externalAuth.Principal.FindFirstValue(ClaimTypes.Email);
+
+        if (providerUserId is null || userName is null || email is null)
+        {
+            await HttpContext.SignOutAsync("External");
+            return Redirect($"{frontendOptions.Url}/settings?error=connect_failed");
+        }
+
+        var result = await authService.ConnectExternalLogin(userId, new ExternalLoginInfo(
+            ExternalLoginProvider.Google, providerUserId, email, userName)
+        );
+
+        await HttpContext.SignOutAsync("External");
+
+        return result switch
+        {
+            ConnectExternalLoginResult.Success => Redirect($"{frontendOptions.Url}/settings"),
+            ConnectExternalLoginResult.AlreadyLinkedToThisAccount => Redirect($"{frontendOptions.Url}/settings"),
+            ConnectExternalLoginResult.AlreadyLinkedToAnotherAccount => Redirect($"{frontendOptions.Url}/settings?error=already_linked&provider={ExternalLoginProvider.Google}"),
+            _ => Redirect($"{frontendOptions.Url}/settings?error=unknown")
+        };
     }
 }

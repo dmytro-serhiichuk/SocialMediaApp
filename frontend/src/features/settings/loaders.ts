@@ -5,8 +5,14 @@ import type { SettingsDataResponse } from "./types";
 import { ROUTES } from "../../constants/routes";
 import { logout } from "../auth/api";
 import { confirmEmailChange } from "./api";
+import { getExternalLoginError } from "../../utils/queryUtils";
 
-export async function settingsLoader() {
+type SettingsLoaderData = {
+    data: SettingsDataResponse,
+    providerConnectionError: string | null
+}
+
+export async function settingsLoader(): Promise<SettingsLoaderData> {
     const data = await apiClient<SettingsDataResponse>(`settings`);
 
     let currentUser = authStore.getUser(); 
@@ -23,7 +29,9 @@ export async function settingsLoader() {
         throw redirect(ROUTES.LOGOUT);
     }
 
-    return data;
+    var providerConnectionError = getExternalLoginError();
+
+    return { data, providerConnectionError };
 }
 
 export async function emailChangeConfirmLoader(): Promise<boolean> {
