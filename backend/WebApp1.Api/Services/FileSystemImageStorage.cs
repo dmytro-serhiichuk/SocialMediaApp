@@ -10,14 +10,24 @@ public class FileSystemImageStorage(IConfiguration configuration, IWebHostEnviro
     public async Task SaveAsync(Stream stream, string storageKey, CancellationToken cancellationToken = default)
     {
         var path = Path.Combine(_rootPath, storageKey);
-
         var directory = Path.GetDirectoryName(path)!;
-
         Directory.CreateDirectory(directory);
 
-        await using var fileStream = File.Create(path);
+        var tempFile = $"{path}.tmp-{Guid.NewGuid():N}";
+        try
+        {
+            await using (var fileStream = File.Create(tempFile))
+            {
+                await stream.CopyToAsync(fileStream, cancellationToken);
+            }
 
-        await stream.CopyToAsync(fileStream, cancellationToken);
+            File.Move(tempFile, path, overwrite: true);
+        }
+        catch
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
+            throw;
+        }
     }
 
     public Task DeleteAsync(string storageKey, CancellationToken cancellationToken = default)

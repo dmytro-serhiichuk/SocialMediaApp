@@ -7,9 +7,11 @@ using WebApp1.Api.Utils;
 namespace WebApp1.Api.Services;
 
 public class PostService(
-    AppDbContext dbContext, CurrentUserService currentUser, TagService tagService, 
-    ImageService imageService
-)
+    AppDbContext dbContext, 
+    CurrentUserService currentUser, 
+    TagService tagService, 
+    ImageService imageService,
+    ILogger<PostService> logger)
 {
     public async Task Create(PostCreationRequest creationRequest, int userId)
     {
@@ -55,7 +57,14 @@ public class PostService(
 
             foreach (var image in createdImages)
             {
-                await imageService.DeleteStorageFileAsync(image);
+                try
+                {
+                    await imageService.DeleteStorageFileAsync(image);
+                }
+                catch(Exception ex)
+                {
+                    logger.LogError(ex, "Failed to delete file {StorageKey} after rollback", image.StorageKey);
+                }
             }
 
             throw;
