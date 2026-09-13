@@ -1,10 +1,10 @@
-import type { User } from "../auth/types";
 import type { Image } from "../image/types";
 import type { Tag } from "../tag/types";
+import type { UserResponse } from "../user/types";
 
 export interface Post {
     id: number,
-    user: User,
+    user: UserResponse,
     content: string,
     createdAt: string,
     updatedAt: string | null,

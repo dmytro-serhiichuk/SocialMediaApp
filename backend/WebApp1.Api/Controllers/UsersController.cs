@@ -43,4 +43,16 @@ public class UsersController(UserService userService) : ControllerBase
     {
         return Ok(await userService.FindUsersByTag(searchRequest));
     }
+
+    [HttpGet("{tag}/followers")]
+    public async Task<IActionResult> GetUserFollowers([FromRoute] string tag, [FromQuery] PaginationRequest paginationRequest)
+    {
+        return Ok(await userService.GetUserFollowers(paginationRequest, tag));
+    }
+
+    [HttpGet("{tag}/following")]
+    public async Task<IActionResult> GetUserFollowing([FromRoute] string tag, [FromQuery] PaginationRequest paginationRequest)
+    {
+        return Ok(await userService.GetUserFollowing(paginationRequest, tag));
+    }
 }

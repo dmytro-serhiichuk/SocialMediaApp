@@ -1,8 +1,8 @@
-import type { User } from "./types";
+import type { AuthUser } from "./types";
 
 type Listener = () => void;
 
-let currentUser: User | null = null;
+let currentUser: AuthUser | null = null;
 const listeners = new Set<Listener>();
 
 function notify() {
@@ -10,11 +10,11 @@ function notify() {
 }
 
 export const authStore = {
-    getUser(): Readonly<User | null> {
+    getUser(): Readonly<AuthUser | null> {
         return currentUser;
     },
 
-    setUser(user: User | null): void {
+    setUser(user: AuthUser | null): void {
         currentUser = user;
         notify();
     },
@@ -29,7 +29,7 @@ export const authStore = {
         return () => listeners.delete(listener);
     },
 
-    updateUser(update: Partial<User>) {
+    updateUser(update: Partial<AuthUser>) {
         if (!currentUser) return;
 
         currentUser = {

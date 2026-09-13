@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import type { User } from "../auth/types";
+import type { AuthUser } from "../auth/types";
 import type { TagSearchResponse } from "../tag/types";
 import { Link } from "react-router";
 import { getTagPagePath, getUserPagePath } from "../../utils/routerUtils";
 import { isUserTagValid, normalizeUserTag } from "../user/validation";
 import { apiClient } from "../../api/client";
 import { isTagNameValid, normalizeTagName } from "../tag/validation";
+import type { UserSearchResponse } from "./types";
 
 export default function SearchBar() {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [query, setQuery] = useState("");
     const [tagSuggestions, setTagSuggestions] = useState<TagSearchResponse[]>([]);
-    const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
+    const [userSuggestions, setUserSuggestions] = useState<AuthUser[]>([]);
 
     useEffect(() => {
         if (query.length < 2) return;
@@ -43,7 +44,7 @@ export default function SearchBar() {
         } else {
             const timeoutId = setTimeout(async () => {
                 try {
-                    const response = await apiClient<User[]>(`users/search?query=${q}`);
+                    const response = await apiClient<UserSearchResponse[]>(`users/search?query=${q}`);
                     setUserSuggestions(response);
                 } catch {
                     return;

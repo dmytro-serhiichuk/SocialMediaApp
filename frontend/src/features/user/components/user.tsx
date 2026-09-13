@@ -1,0 +1,47 @@
+import { useState } from "react";
+import type { UserResponse } from "../types";
+import { apiClient, ApiError } from "../../../api/client";
+import { Link } from "react-router";
+import { getUserPagePath } from "../../../utils/routerUtils";
+
+export default function UserComponent({user}: {user: UserResponse}) {
+    const [isFollowedByMe, setIsFollowedByMe] = useState<boolean>(user.isFollowedByMe);
+    const [isBusy, setIsBusy] = useState<boolean>(false);
+
+    const handleClick = async () => {
+        try {
+            setIsBusy(true);
+
+            await apiClient(`users/${user.id}/follow`, {
+                method: isFollowedByMe ? 'DELETE' : 'POST'
+            });
+
+            setIsFollowedByMe(prev => !prev);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                alert(error.message);
+            } else {
+                throw error;
+            }
+        } finally {
+            setIsBusy(false);
+        }
+    }
+
+    return (
+        <div className="user-container">
+            <Link to={getUserPagePath(user.userTag)}>
+                <p>{user.userName}</p>
+                <p>@{user.userTag}</p>
+            </Link>
+            
+            <button disabled={isBusy} onClick={handleClick}>
+                {isFollowedByMe 
+                    ? "Unfollow"
+                    : user.isFollowingMe
+                        ? "Follow back"
+                        : "Follow"}
+            </button>
+        </div>
+    );
+}

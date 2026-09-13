@@ -13,7 +13,7 @@ import { completePasswordResetAction, completeRegisterAction, loginAction, logou
 import RootErrorBoundary from "./components/rootErrorBoundary";
 import PostEditorPage from "./pages/PostEditorPage";
 import { createPostAction } from "./features/posts/actions";
-import { profileLoader, userLoader } from "./features/user/loaders";
+import { followersLoader, followingLoader, profileLoader, userLoader } from "./features/user/loaders";
 import TagPage from "./pages/TagPage";
 import { tagLoader } from "./features/tag/loaders";
 import SavedPostsPage from "./pages/SavedPostsPage";
@@ -26,6 +26,7 @@ import PasswordResetRequestPage from "./pages/PasswordResetRequestPage";
 import CompletePasswordResetPage from "./pages/CompletePasswordResetPage";
 import AccountRecoveryPage from "./pages/AccountRecoveryPage";
 import CompletePasswordCreationPage from "./pages/CompletePasswordCreationPage";
+import UserFollowPage from "./pages/UserFollowPage";
 
 const router = createBrowserRouter([
     {
@@ -44,6 +45,16 @@ const router = createBrowserRouter([
                 path: ROUTES.USER,
                 Component: UserPage,
                 loader: userLoader
+            },
+            {
+                path: ROUTES.USER_FOLLOWERS,
+                Component: UserFollowPage,
+                loader: followersLoader
+            },
+            {
+                path: ROUTES.USER_FOLLOWING,
+                Component: UserFollowPage,
+                loader: followingLoader
             },
             {
                 path: ROUTES.TAG,

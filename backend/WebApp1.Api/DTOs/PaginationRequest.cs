@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApp1.Api.DTOs;
 
-public class PostPaginationRequest
+public class PaginationRequest
 {
     // TODO: Set limit to 20
     // [Range(1, 50)]

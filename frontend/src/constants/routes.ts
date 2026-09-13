@@ -16,5 +16,7 @@ export const ROUTES = Object.freeze({
     PASSWORD_RESET_REQUEST: "/password-reset",
     PASSWORD_RESET_COMPLETE: "/password-reset/complete",
     ACCOUNT_RECOVERY: "/account-recovery",
-    PASSWORD_CREATE_COMPLETE: "settings/password-create"
+    PASSWORD_CREATE_COMPLETE: "settings/password-create",
+    USER_FOLLOWERS: "/users/:userTag/followers",
+    USER_FOLLOWING: "/users/:userTag/following"
 })

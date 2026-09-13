@@ -38,7 +38,7 @@ public class AuthController(
         
         if (user is null) return NotFound();
         
-        return Ok(UserResponse.CreateFromUser(user));
+        return Ok(AuthUserResponse.CreateFromUser(user));
     }
 
     
@@ -77,7 +77,7 @@ public class AuthController(
 
         SetTokenCookies(accessToken, sessionCreationResult.Token);
 
-        return StatusCode(StatusCodes.Status201Created, UserResponse.CreateFromUser(user));
+        return StatusCode(StatusCodes.Status201Created, AuthUserResponse.CreateFromUser(user));
     }
 
     [HttpPost("login")]
@@ -100,7 +100,7 @@ public class AuthController(
 
         SetTokenCookies(accessToken, sessionCreationResult.Token);
 
-        return Ok(UserResponse.CreateFromUser(user));
+        return Ok(AuthUserResponse.CreateFromUser(user));
     }
 
     private void SetTokenCookies(string accessToken, string refreshToken)

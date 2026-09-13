@@ -2,9 +2,10 @@ import { Link, useLoaderData } from "react-router";
 import { useUser } from "../features/auth/hooks";
 import type { UserProfile } from "../features/user/types";
 import PostList from "../features/posts/components/postList";
-import { useState } from "react";
-import { apiClient } from "../api/client";
+import { useEffect, useState } from "react";
+import { apiClient, ApiError } from "../api/client";
 import { ROUTES } from "../constants/routes";
+import { getUserFollowersPagePath, getUserFollowingPagePath } from "../utils/routerUtils";
 
 export default function UserPage() {
     const currentUser = useUser();
@@ -23,28 +24,26 @@ export default function UserPage() {
             await apiClient(`users/${profileUser.id}/follow`, {
                 method: isFollowedByMe ? 'DELETE' : 'POST'
             });
-            
-            setIsFollowedByMe(prev => {
-                if (profileUser.isFollowedByMe) {
-                    if (prev) setFollowersCount(profileUser.followersCount - 1);
-                    else      setFollowersCount(profileUser.followersCount);
-                } else {
-                    if (prev) setFollowersCount(profileUser.followersCount);
-                    else      setFollowersCount(profileUser.followersCount + 1);
-                }
-                
-                return !prev
-            });
+
+            setIsFollowedByMe(prev => !prev);
+            setFollowersCount(prev =>
+                isFollowedByMe ? prev - 1 : prev + 1
+            );
         } catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof ApiError) {
                 alert(error.message);
             } else {
-                alert('Something went wrong');
+                throw error;
             }
         } finally {
             setIsBusy(false);
         }
     }
+
+    useEffect(() => {
+        setFollowersCount(profileUser.followersCount);
+        setIsFollowedByMe(profileUser.isFollowedByMe);
+    }, [profileUser.id]);
 
     return(
         <>
@@ -54,9 +53,17 @@ export default function UserPage() {
             <p>Tag: {profileUser.userTag}</p>
 
             <p>Owner: {isOwnProfile ? "Yes" : "No"}</p>
-
-            <p>Followers: {followersCount}</p>
-            <p>Followings: {profileUser.followingCount}</p>
+            
+            <Link to={getUserFollowersPagePath(profileUser.userTag)}>
+                <button>
+                    Followers: {followersCount}
+                </button>
+            </Link>
+            <Link to={getUserFollowingPagePath(profileUser.userTag)}>
+                <button>
+                    Followings: {profileUser.followingCount}
+                </button>
+            </Link>
 
             {currentUser && !isOwnProfile ? 
                 <>
@@ -85,7 +92,9 @@ export default function UserPage() {
 
             <hr />
             
-            <PostList endpoint={`users/${profileUser.id}/posts/`} />
+            <PostList
+                key={profileUser.id} 
+                endpoint={`users/${profileUser.id}/posts/`} />
         </>
     );
 }

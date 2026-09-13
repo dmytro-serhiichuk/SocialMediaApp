@@ -1,6 +1,6 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
 import { apiClient, ApiError } from "../../api/client";
-import type { LoginRequest, RegisterCompletionRequest, RegisterRequest, RequestPasswordResetRequest, ResetPasswordRequest, User } from "./types";
+import type { LoginRequest, RegisterCompletionRequest, RegisterRequest, RequestPasswordResetRequest, ResetPasswordRequest, AuthUser } from "./types";
 import { getFormString } from "../../utils/formDataUtils";
 import { authStore } from "./store";
 import { logout } from "./api";
@@ -48,7 +48,7 @@ export async function loginAction({ request }: ActionFunctionArgs) {
     const errorsStatuses = [400, 401, 403];
 
     try {
-        const user = await apiClient<User>('auth/login', {
+        const user = await apiClient<AuthUser>('auth/login', {
             method: "POST",
             body: JSON.stringify(loginRequest)
         });
@@ -77,7 +77,7 @@ export async function completeRegisterAction({ request }: ActionFunctionArgs) {
     };
 
     try {
-        const user = await apiClient<User>('auth/register/complete', {
+        const user = await apiClient<AuthUser>('auth/register/complete', {
             method: "POST",
             body: JSON.stringify(registerRequest)
         });

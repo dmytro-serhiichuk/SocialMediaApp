@@ -21,17 +21,8 @@ export default function PostComponent({ post }: { post: Post }) {
             `posts/${post.id}/likes`, 
             likedByMe ? 'DELETE' : 'POST', 
             () => {
-                setLikedByMe(prev => {
-                    if (post.isLikedByMe) {
-                        if (prev) setLikesCount(post.likesCount - 1);
-                        else      setLikesCount(post.likesCount);
-                    } else {
-                        if (prev) setLikesCount(post.likesCount);
-                        else      setLikesCount(post.likesCount + 1);
-                    }
-                    
-                    return !prev
-                });
+                setLikedByMe(prev => !prev);
+                setLikesCount(prev => likedByMe ? prev - 1 : prev + 1);
         });
     }
 

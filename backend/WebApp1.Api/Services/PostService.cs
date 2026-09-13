@@ -71,7 +71,7 @@ public class PostService(
         }  
     }
 
-    public async Task<PaginationResponse<PostResponse>> GetPosts(PostPaginationRequest postPagination)
+    public async Task<PaginationResponse<PostResponse>> GetPosts(PaginationRequest postPagination)
     {
         IQueryable<Post> query = dbContext.Posts
             .OrderByDescending(p => p.CreatedAt)
@@ -80,7 +80,7 @@ public class PostService(
         return await GetPostsByQuery(query, postPagination);
     }
 
-    public async Task<PaginationResponse<PostResponse>> GetPostsByUser(PostPaginationRequest postPagination, int userId)
+    public async Task<PaginationResponse<PostResponse>> GetPostsByUser(PaginationRequest postPagination, int userId)
     {
         IQueryable<Post> query = dbContext.Posts
             .Where(p => p.UserId == userId)
@@ -90,7 +90,7 @@ public class PostService(
         return await GetPostsByQuery(query, postPagination);
     }
 
-    public async Task<PaginationResponse<PostResponse>> GetPostsByTag(PostPaginationRequest postPagination, int tagId)
+    public async Task<PaginationResponse<PostResponse>> GetPostsByTag(PaginationRequest postPagination, int tagId)
     {
         IQueryable<Post> query = dbContext.Posts
             .Where(p => p.Tags.Any(t => t.TagId == tagId))
@@ -100,7 +100,7 @@ public class PostService(
         return await GetPostsByQuery(query, postPagination);
     }
 
-    public async Task<PaginationResponse<PostResponse>> GetSavedPosts(PostPaginationRequest postPagination, int userId)
+    public async Task<PaginationResponse<PostResponse>> GetSavedPosts(PaginationRequest postPagination, int userId)
     {
         IQueryable<Post> query = dbContext.PostSaves
             .Where(x => x.UserId == userId)
@@ -110,7 +110,7 @@ public class PostService(
         return await GetPostsByQuery(query, postPagination);
     }
 
-    public async Task<PaginationResponse<PostResponse>> GetFollowingPosts(PostPaginationRequest postPagination, int userId)
+    public async Task<PaginationResponse<PostResponse>> GetFollowingPosts(PaginationRequest postPagination, int userId)
     {
         IQueryable<Post> query = dbContext.UserFollows
             .Where(x => x.FollowerId == userId)
@@ -121,7 +121,7 @@ public class PostService(
         return await GetPostsByQuery(query, postPagination);
     }
 
-    private async Task<PaginationResponse<PostResponse>> GetPostsByQuery(IQueryable<Post> query, PostPaginationRequest postPagination)
+    private async Task<PaginationResponse<PostResponse>> GetPostsByQuery(IQueryable<Post> query, PaginationRequest postPagination)
     {
         var cursor = CursorEncoder.Decode<PostPaginationCursor>(postPagination.Cursor);
         
@@ -147,7 +147,11 @@ public class PostService(
                 {
                     Id = p.User.Id,
                     UserName = p.User.UserName,
-                    UserTag = p.User.UserTag
+                    UserTag = p.User.UserTag,
+                    IsFollowedByMe = userId != null 
+                        && p.User.Followers.Any(y => y.FollowerId == userId),
+                    IsFollowingMe  = userId != null 
+                        && p.User.Following.Any(y => y.FollowingId == userId)
                 },
                 LikesCount = p.Likes.Count,
                 IsLikedByMe = userId != null && p.Likes.Any(l => l.UserId == userId),

@@ -36,3 +36,28 @@ export async function profileLoader() {
         return redirect(getUserPagePath(user.userTag));
     }
 }
+
+export interface UserFollowLoaderData {
+    page: "Following" | "Followers",
+    userTag: string
+}
+
+export function followersLoader({ params }: LoaderFunctionArgs): UserFollowLoaderData {
+    if (!params.userTag) {
+        throw new Response("Tag name is required", { status: 400 });
+    }
+    return { 
+        page: "Followers",
+        userTag: params.userTag
+    };
+}
+
+export function followingLoader({ params }: LoaderFunctionArgs): UserFollowLoaderData {
+    if (!params.userTag) {
+        throw new Response("Tag name is required", { status: 400 });
+    }
+    return { 
+        page: "Following",
+        userTag: params.userTag
+    };
+}

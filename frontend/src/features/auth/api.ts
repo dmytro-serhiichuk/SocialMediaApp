@@ -1,11 +1,11 @@
 import { apiClient, ApiError } from "../../api/client";
 import type { ConfirmationRequest } from "../confirmation/types";
 import { authStore } from "./store";
-import type { User } from "./types";
+import type { AuthUser } from "./types";
 
-export async function getCurrentUser(): Promise<User | null> {
+export async function getCurrentUser(): Promise<AuthUser | null> {
     try {
-        return await apiClient<User>('auth/me/');
+        return await apiClient<AuthUser>('auth/me/');
     } catch (err) {
         if (err instanceof ApiError && err.status == 401) {
             return null;
@@ -19,7 +19,7 @@ export async function confirmRegister(token: string) {
         token: token,
     };
 
-    const user = await apiClient<User>("auth/register/confirm", { 
+    const user = await apiClient<AuthUser>("auth/register/confirm", { 
         method: "POST",
         body: JSON.stringify(req)
     });
@@ -37,7 +37,7 @@ export async function secureAccount(token: string) {
         token: token,
     };
 
-    await apiClient<User>("auth/acccount-recovery/secure", { 
+    await apiClient<AuthUser>("auth/acccount-recovery/secure", { 
         method: "POST",
         body: JSON.stringify(req)
     });

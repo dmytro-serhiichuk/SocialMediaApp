@@ -22,26 +22,26 @@ public class PostsController(PostService postService) : ControllerBase
     }
 
     [HttpGet("[controller]")]
-    public async Task<IActionResult> GetPosts([FromQuery] PostPaginationRequest postPagination)
+    public async Task<IActionResult> GetPosts([FromQuery] PaginationRequest postPagination)
     {
         return Ok(await postService.GetPosts(postPagination));
     }
 
     [HttpGet("users/{userId}/[controller]")]
-    public async Task<IActionResult> GetPostsByUser([FromQuery] PostPaginationRequest postPagination, [FromRoute] int userId)
+    public async Task<IActionResult> GetPostsByUser([FromQuery] PaginationRequest postPagination, [FromRoute] int userId)
     {
         return Ok(await postService.GetPostsByUser(postPagination, userId));
     }
 
     [HttpGet("tags/{tagId}/[controller]")]
-    public async Task<IActionResult> GetPostsByTag([FromQuery] PostPaginationRequest postPagination, [FromRoute] int tagId)
+    public async Task<IActionResult> GetPostsByTag([FromQuery] PaginationRequest postPagination, [FromRoute] int tagId)
     {
         return Ok(await postService.GetPostsByTag(postPagination, tagId));
     }
 
     [Authorize]
     [HttpGet("[controller]/saved")]
-    public async Task<IActionResult> GetSavedPosts([FromQuery] PostPaginationRequest postPagination)
+    public async Task<IActionResult> GetSavedPosts([FromQuery] PaginationRequest postPagination)
     {
         var userId = User.GetUserId();
         return Ok(await postService.GetSavedPosts(postPagination, userId));
@@ -49,7 +49,7 @@ public class PostsController(PostService postService) : ControllerBase
 
     [Authorize]
     [HttpGet("[controller]/following")]
-    public async Task<IActionResult> GetFollowingUsersPosts([FromQuery] PostPaginationRequest postPagination)
+    public async Task<IActionResult> GetFollowingUsersPosts([FromQuery] PaginationRequest postPagination)
     {
         var userId = User.GetUserId();
         return Ok(await postService.GetFollowingPosts(postPagination, userId));
