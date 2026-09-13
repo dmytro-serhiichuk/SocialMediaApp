@@ -136,7 +136,7 @@ public class AuthController(
 
         if (!string.IsNullOrEmpty(refreshToken))
         {
-            await sessionService.DeleteByToken(refreshToken);
+            await sessionService.LogoutSession(refreshToken);
         }
 
         Response.Cookies.Delete(accessTokenOptions.AccessTokenCookieName);

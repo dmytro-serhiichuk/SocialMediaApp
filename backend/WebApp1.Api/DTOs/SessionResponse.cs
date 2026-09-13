@@ -1,3 +1,5 @@
+using WebApp1.Api.Models;
+
 namespace WebApp1.Api.DTOs;
 
 public class SessionResponse
@@ -8,4 +10,5 @@ public class SessionResponse
     public string? DeviceInfo { get; set; }
     public string? Ip { get; set; }
     public bool IsCurrentSession { get; set; }
+    public SessionState State { get; set; }
 }

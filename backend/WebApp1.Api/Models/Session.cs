@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace WebApp1.Api.Models;
 
 public class Session
@@ -17,4 +19,15 @@ public class Session
 
     public string? LastDeviceInfo { get; set; }
     public string? LastIpAddress { get; set; }
+
+    public SessionState State { get; set; }
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum SessionState
+{
+    Active = 0,
+    LoggedOut = 1,
+    ReuseDetected = 2,
+    Terminated = 3
 }

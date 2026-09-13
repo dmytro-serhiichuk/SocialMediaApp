@@ -40,12 +40,13 @@ public class SettingsService(
                         LastLogin = s.LastUsedAt,
                         DeviceInfo = s.LastDeviceInfo,
                         Ip = s.LastIpAddress,
-                        IsCurrentSession = s.Id == sessionId
+                        IsCurrentSession = s.Id == sessionId,
+                        State = s.State
                     }).ToList(),
                 HasPassword = x.PasswordHash != null,
                 ConnectedLoginProviders = x.ExternalLogins.Select(l => l.Provider).ToList()
             })
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
     }
 
     public async Task UpdateProfile(int userId, SettingsProfileRequest profileRequest)

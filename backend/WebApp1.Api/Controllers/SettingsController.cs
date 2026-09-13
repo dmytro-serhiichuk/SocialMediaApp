@@ -72,7 +72,7 @@ public class SettingsController(
     }
 
     [Authorize]
-    [HttpDelete("sessions/{sessionId:int}")]
+    [HttpPost("sessions/{sessionId:int}/terminate")]
     public async Task<IActionResult> TerminateSession([FromRoute] int sessionId)
     {
         var userId = User.GetUserId();
@@ -85,7 +85,7 @@ public class SettingsController(
     }
 
     [Authorize]
-    [HttpDelete("sessions")]
+    [HttpPost("sessions/terminate")]
     public async Task<IActionResult> TerminateAllOtherSession()
     {
         var userId = User.GetUserId();

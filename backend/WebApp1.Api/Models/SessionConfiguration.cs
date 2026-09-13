@@ -31,5 +31,8 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
         
         builder.HasIndex(s => s.PreviousRefreshTokenHash);
         builder.HasIndex(s => s.RefreshTokenExpiresAt);
+
+        builder.Property(x => x.State)
+            .IsRequired();
     }
 }

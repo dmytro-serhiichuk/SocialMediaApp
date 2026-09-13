@@ -10,13 +10,20 @@ export interface SettingsDataResponse {
     connectedLoginProviders: string[] 
 }
 
+export type SessionState = 
+    | "Active"
+    | "LoggedOut"
+    | "ReuseDetected"
+    | "Terminated"
+
 export interface SessionInfo {
     id: number,
     firstLogin: string,
     lastLogin: string,
     deviceInfo: string | null,
     ip: string | null,
-    isCurrentSession: boolean
+    isCurrentSession: boolean,
+    state: SessionState
 }
 
 export interface SettingsProfileUpdateRequest {

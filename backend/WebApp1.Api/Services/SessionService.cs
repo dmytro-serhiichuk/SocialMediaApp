@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using UAParser;
 using WebApp1.Api.Configuration;
 using WebApp1.Api.Data;
+using WebApp1.Api.Exceptions;
 using WebApp1.Api.Models;
 using WebApp1.Api.Services.Email;
 using WebApp1.Api.Utils;
@@ -38,7 +39,9 @@ public class SessionService(
             LastUsedAt = now,
 
             LastDeviceInfo = userAgent != null ? ParseUserAgent(userAgent) : null,
-            LastIpAddress = ip
+            LastIpAddress = ip,
+
+            State = SessionState.Active
         };
 
         dbContext.Sessions.Add(session);
@@ -80,16 +83,16 @@ public class SessionService(
         return $"{browser} {browserVersion}, {os} {osVersion}";
     }
 
-    public async Task DeleteByToken(string refreshToken)
+    public async Task LogoutSession(string refreshToken)
     {
         var tokenHash = OpaqueTokenManager.HashToken(refreshToken);
 
         var session = await dbContext.Sessions
             .SingleOrDefaultAsync(s => s.RefreshTokenHash == tokenHash);
 
-        if (session != null)
+        if (session != null && session.State == SessionState.Active)
         {
-            dbContext.Sessions.Remove(session);
+            session.State = SessionState.LoggedOut;
             await dbContext.SaveChangesAsync();
         }
     }
@@ -103,14 +106,27 @@ public class SessionService(
 
         if (session is not null)
         {
-            return new SessionCreationResult(await RotateAsync(session, userAgent, ip), session);
+            if (session.State == SessionState.Active)
+            {
+                return new SessionCreationResult(await RotateAsync(session, userAgent, ip), session);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         var reused = await dbContext.Sessions
             .SingleOrDefaultAsync(s => s.PreviousRefreshTokenHash == tokenHash);
 
-        if (reused is null || reused.PreviousTokenGraceUntil < DateTime.UtcNow)
+        if (reused is null || reused.State != SessionState.Active)
         {
+            return null;
+        }
+        else if (reused.PreviousTokenGraceUntil < DateTime.UtcNow)
+        {
+            reused.State = SessionState.ReuseDetected;
+            await dbContext.SaveChangesAsync();
             return null;
         }
         
@@ -147,7 +163,12 @@ public class SessionService(
             return false;
         }
 
-        dbContext.Sessions.Remove(session);
+        if (session.State != SessionState.Active)
+        {
+            throw new InvalidSessionStateException();
+        }
+
+        session.State = SessionState.Terminated;
         await dbContext.SaveChangesAsync();
         return true;
     }
@@ -155,20 +176,20 @@ public class SessionService(
     public async Task TerminateAllSessionsButCurrent(int userId, int sessionId)
     {
         var sessions = await dbContext.Sessions
-            .Where(s => s.Id != sessionId && s.UserId == userId)
+            .Where(s => s.Id != sessionId && s.UserId == userId && s.State == SessionState.Active)
             .ToListAsync();
 
-        dbContext.Sessions.RemoveRange(sessions);
+        sessions.ForEach(s => s.State = SessionState.Terminated);
         await dbContext.SaveChangesAsync();
     }
 
     public async Task TerminateAllSessions(int userId)
     {
         var sessions = await dbContext.Sessions
-            .Where(s => s.UserId == userId)
+            .Where(s => s.UserId == userId && s.State == SessionState.Active)
             .ToListAsync();
 
-        dbContext.Sessions.RemoveRange(sessions);
+        sessions.ForEach(s => s.State = SessionState.Terminated);
         await dbContext.SaveChangesAsync();
     }
 }
