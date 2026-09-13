@@ -40,6 +40,8 @@ namespace WebApp1.Api.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("ExpiresAt");
+
                     b.HasIndex("TokenHash")
                         .IsUnique();
 
@@ -123,6 +125,8 @@ namespace WebApp1.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ExpiresAt");
+
                     b.HasIndex("SessionId")
                         .IsUnique();
 
@@ -147,6 +151,8 @@ namespace WebApp1.Api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("ExpiresAt");
 
                     b.HasIndex("TokenHash")
                         .IsUnique();
@@ -187,6 +193,8 @@ namespace WebApp1.Api.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
 
                     b.ToTable("pendingRegistrations", (string)null);
                 });

@@ -84,6 +84,8 @@ builder.Services
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+builder.Services.AddHostedService<ExpiredDataCleanupService>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUserService>();
 

@@ -26,7 +26,7 @@ public class PendingRegstrationConfiguration : IEntityTypeConfiguration<PendingR
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.Property(u => u.ExpiresAt)
-            .IsRequired();
+        builder.Property(x => x.ExpiresAt).IsRequired();
+        builder.HasIndex(x => x.ExpiresAt);
     }
 }

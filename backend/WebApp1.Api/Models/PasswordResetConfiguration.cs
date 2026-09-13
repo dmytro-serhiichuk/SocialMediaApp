@@ -15,6 +15,7 @@ public class PasswordResetConfiguration : IEntityTypeConfiguration<PasswordReset
             .IsUnique();
 
         builder.Property(x => x.ExpiresAt).IsRequired();
+        builder.HasIndex(x => x.ExpiresAt);
 
         builder.HasOne(x => x.User)
             .WithOne()

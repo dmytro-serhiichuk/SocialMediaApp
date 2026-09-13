@@ -14,8 +14,8 @@ public class NewLoginSecurityRequestConfiguration : IEntityTypeConfiguration<New
         builder.HasIndex(x => x.TokenHash)
             .IsUnique();
 
-        builder.Property(x => x.ExpiresAt)
-            .IsRequired();
+        builder.Property(x => x.ExpiresAt).IsRequired();
+        builder.HasIndex(x => x.ExpiresAt);
 
         builder.HasIndex(x => x.UserId);
 

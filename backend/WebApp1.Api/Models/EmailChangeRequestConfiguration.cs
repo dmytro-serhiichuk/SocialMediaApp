@@ -15,7 +15,9 @@ public class EmailChangeRequestConfiguration : IEntityTypeConfiguration<EmailCha
             .IsUnique();
 
         builder.Property(x => x.NewEmail).IsRequired();
+
         builder.Property(x => x.ExpiresAt).IsRequired();
+        builder.HasIndex(x => x.ExpiresAt);
 
         builder.HasOne(x => x.User)
             .WithOne()
