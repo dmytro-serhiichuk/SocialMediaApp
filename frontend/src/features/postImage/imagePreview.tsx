@@ -4,10 +4,9 @@ import type { InputImageInfo } from "./types";
 
 type ImagePreviewProps = {
     image: InputImageInfo,
-    onRemove: () => void
 }
 
-export default function ImagePreview({ image, onRemove }: ImagePreviewProps) {
+export default function ImagePreview({ image }: ImagePreviewProps) {
     const [url, setUrl] = useState<string>();
 
     useEffect(() => {
@@ -27,9 +26,6 @@ export default function ImagePreview({ image, onRemove }: ImagePreviewProps) {
     if (!imageUrl) return null;
 
     return (
-        <div className="image-input-item">
-            <img src={imageUrl} alt="" />
-            <button type="button" onClick={onRemove}>Remove</button>
-        </div>
+        <img src={imageUrl} alt="" />
     )
 }

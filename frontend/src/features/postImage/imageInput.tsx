@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-import ImagePreview from "./imagePreview";
 import type { InputImageInfo } from "./types";
+import ImageCarousel from "./ImageCarousel";
 
 type ImageInputProps = {
     images: InputImageInfo[];
@@ -67,12 +67,9 @@ export default function ImageInput({images, onChange}: ImageInputProps) {
 
             {error && <p>{error}</p>}
 
-            {images.map((image, index) => (
-                <ImagePreview
-                    key={index}
-                    image={image}
-                    onRemove={() => handleRemoveImage(index)} />
-            ))}
+            <ImageCarousel 
+                images={images} 
+                onRemove={handleRemoveImage} />
         </>
     );
 }

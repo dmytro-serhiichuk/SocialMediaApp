@@ -4,8 +4,7 @@ import { getPostEditPagePath, getTagPagePath, getUserPagePath } from "../../../u
 import { useState } from "react";
 import { apiClient } from "../../../api/client";
 import { useUser } from "../../auth/hooks";
-import { getFullImageUrl } from "../../image/utils";
-import { ROUTES } from "../../../constants/routes";
+import ImageCarousel from "../../postImage/ImageCarousel";
 
 export default function PostComponent({ post }: { post: Post }) {
     const navigate = useNavigate();
@@ -62,9 +61,12 @@ export default function PostComponent({ post }: { post: Post }) {
                 </button>
             )}
 
-            {post.images.map((img, index) => (
-                <img src={getFullImageUrl(img.url)} alt="" key={index} className="post-image" width={img.width}  />
-            ))}
+            <ImageCarousel 
+                images={post.images.map(img => ({
+                    type: "existing",
+                    id: img.id,
+                    url: img.url
+                }))}/>
 
             <Link to={getUserPagePath(post.user.userTag)}>
                 <p>{post.user.userName}</p>
