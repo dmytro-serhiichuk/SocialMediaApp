@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp1.Api.Data;
 using WebApp1.Api.DTOs;
+using WebApp1.Api.Exceptions;
 using WebApp1.Api.Models;
 using WebApp1.Api.Utils;
 
@@ -13,8 +14,13 @@ public class PostService(
     ImageService imageService,
     ILogger<PostService> logger)
 {
-    public async Task Create(PostCreationRequest creationRequest, int userId)
+    public async Task Create(PostUpdateRequest creationRequest, int userId)
     {
+        if (creationRequest.ImageInfos.Count != creationRequest.Images.Count)
+        {
+            throw new InvalidPostImagesException();
+        }
+
         var tags = await tagService.CreateOrGetTagsByName(creationRequest.Tags);
 
         var post = new Post
@@ -31,17 +37,18 @@ public class PostService(
 
         try
         {
-            var order = 0;
-
-            foreach (var file in creationRequest.Images)
+            for (var i = 0; i < creationRequest.ImageInfos.Count; i++)
             {
+                var index = creationRequest.ImageInfos[i].Index ?? throw new InvalidPostImagesException();
+                var file = creationRequest.Images[index];
+
                 var image = await imageService.CreateAsync(file);
                 createdImages.Add(image);
 
                 post.Images.Add(new PostImage
                 {
                     Image = image,
-                    Order = order++
+                    Order = i
                 });
             }
 
@@ -69,6 +76,125 @@ public class PostService(
 
             throw;
         }  
+    }
+
+    public async Task<bool> UpdatePost(PostUpdateRequest updateRequest, int userId, int postId)
+    {
+        // TODO: check if data was actually changed
+        var existingImageIds = updateRequest.ImageInfos
+            .Where(x => x.ImageId is not null)
+            .Select(x => x.ImageId!.Value)
+            .ToHashSet();
+
+        var post = await dbContext.Posts
+            .Include(x => x.Images)
+            .ThenInclude(x => x.Image)
+            .Include(x => x.Tags)
+            .Where(x => x.UserId == userId && x.Id == postId)
+            .SingleOrDefaultAsync();
+
+        if (post is null) return false;
+
+        var currentImagesById = post.Images.ToDictionary(x => x.ImageId);
+
+        if (existingImageIds.Any(id => !currentImagesById.ContainsKey(id)))
+            return false;
+
+        var imagesToRemove = post.Images
+            .Where(x => !existingImageIds.Contains(x.ImageId))
+            .ToList();
+
+        var tags = await tagService.CreateOrGetTagsByName(updateRequest.Tags);
+
+        var newlyCreatedImages = new List<Image>();
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            var orderedImages = new List<Image>();
+
+            foreach (var info in updateRequest.ImageInfos)
+            {
+                if (info.ImageId is not null)
+                {
+                    orderedImages.Add(currentImagesById[info.ImageId.Value].Image);
+                }
+                else
+                {
+                    var file = updateRequest.Images[info.Index!.Value];
+                    var image = await imageService.CreateAsync(file);
+                    newlyCreatedImages.Add(image);
+                    orderedImages.Add(image);
+                }
+            }
+
+            dbContext.RemoveRange(post.Images);
+            post.Images.Clear();
+
+            dbContext.RemoveRange(imagesToRemove.Select(x => x.Image));
+
+            var newTagIds = tags.Select(t => t.Id).ToHashSet();
+            foreach (var oldTag in post.Tags.Where(x => !newTagIds.Contains(x.TagId)).ToList())
+            {
+                post.Tags.Remove(oldTag);
+            }
+            
+            post.Content = updateRequest.Content;
+            post.UpdatedAt = DateTimeOffset.UtcNow;
+
+            await dbContext.SaveChangesAsync();
+
+            for (var i = 0; i < orderedImages.Count; i++)
+            {
+                post.Images.Add(new PostImage
+                {
+                    Image = orderedImages[i],
+                    Order = i
+                });
+            }
+
+            var currentTagIds = post.Tags.Select(x => x.TagId).ToHashSet();
+            foreach (var tag in tags.Where(t => !currentTagIds.Contains(t.Id)))
+            {
+                post.Tags.Add(new PostTag { Tag = tag });
+            }
+
+            await dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+
+            foreach (var image in newlyCreatedImages)
+            {
+                try
+                {
+                    await imageService.DeleteStorageFileAsync(image);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to delete file {StorageKey} after rollback", image.StorageKey);
+                }
+            }
+
+            throw;
+        }
+
+        foreach (var removedPostImage in imagesToRemove)
+        {
+            try
+            {
+                await imageService.DeleteStorageFileAsync(removedPostImage.Image);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to delete file {StorageKey} for removed image", removedPostImage.Image.StorageKey);
+            }
+        }
+
+        return true;
     }
 
     public async Task<PaginationResponse<PostResponse>> GetPosts(PaginationRequest postPagination)
@@ -164,7 +290,7 @@ public class PostService(
                 Images = p.Images.OrderBy(i => i.Order).Select(i => new ImageResponse
                 {
                     Id = i.Image.Id,
-                    Url = $"/api/images/{i.Image.Id}",
+                    Url = ImageResponse.GetApiURL(i.ImageId),
                     Width = i.Image.Width,
                     Height = i.Image.Height
                 }).ToList()
@@ -250,5 +376,26 @@ public class PostService(
             dbContext.PostSaves.Remove(savedPost);
             await dbContext.SaveChangesAsync();
         }
+    }
+
+    public async Task<PostEditInfoResponse?> GetPostEditInfo(int postId, int userId)
+    {
+        return await dbContext.Posts
+            .Where(x => x.Id == postId && x.UserId == userId)
+            .Select(x => new PostEditInfoResponse
+            {
+                Id = x.Id,
+                Content = x.Content,
+                Tags = x.Tags.Select(x => x.Tag.Name).ToList(),
+                Images = x.Images
+                    .OrderBy(i => i.Order)
+                    .Select(i => new ImageResponse
+                    {
+                        Id = i.Image.Id,
+                        Url = ImageResponse.GetApiURL(i.ImageId),
+                        Width = i.Image.Width,
+                        Height = i.Image.Height
+                    }).ToList()
+            }).SingleOrDefaultAsync();
     }
 }

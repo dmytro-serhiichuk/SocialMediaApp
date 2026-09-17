@@ -1,19 +1,20 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { Post } from "../types";
-import { getTagPagePath, getUserPagePath } from "../../../utils/routerUtils";
+import { getPostEditPagePath, getTagPagePath, getUserPagePath } from "../../../utils/routerUtils";
 import { useState } from "react";
 import { apiClient } from "../../../api/client";
 import { useUser } from "../../auth/hooks";
 import { getFullImageUrl } from "../../image/utils";
+import { ROUTES } from "../../../constants/routes";
 
 export default function PostComponent({ post }: { post: Post }) {
+    const navigate = useNavigate();
     const currentUser = useUser();
+    const isOwnedByMe = post.user.id === currentUser?.id
 
     const [likesCount, setLikesCount] = useState<number>(post.likesCount);
     const [likedByMe, setLikedByMe] = useState<boolean>(post.isLikedByMe);
-
     const [savedByMe, setSavedByMe] = useState<boolean>(post.isSavedByMe);
-
     const [isBusy, setIsBusy] = useState<boolean>(false); 
 
     const handleLike = async () => {
@@ -55,6 +56,12 @@ export default function PostComponent({ post }: { post: Post }) {
 
     return (
         <div className="post-container">
+            {isOwnedByMe && (
+                <button onClick={() => navigate(getPostEditPagePath(post.id))}>
+                    Edit
+                </button>
+            )}
+
             {post.images.map((img, index) => (
                 <img src={getFullImageUrl(img.url)} alt="" key={index} className="post-image" width={img.width}  />
             ))}
@@ -65,6 +72,7 @@ export default function PostComponent({ post }: { post: Post }) {
             </Link>
 
             <p>{new Date(post.createdAt).toISOString()}</p>
+            {post.updatedAt && (<p>*Updated {new Date(post.updatedAt).toISOString()}</p>)}
 
             <div>
                 <p>{post.content}</p>

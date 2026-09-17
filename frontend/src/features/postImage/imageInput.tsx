@@ -1,47 +1,57 @@
 import { useRef, useState } from "react";
 import ImagePreview from "./imagePreview";
+import type { InputImageInfo } from "./types";
 
-export default function ImageInput() {
+type ImageInputProps = {
+    images: InputImageInfo[];
+    onChange: (images: InputImageInfo[]) => void;
+}
+
+export default function ImageInput({images, onChange}: ImageInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
-    
-    const [images, setImages] = useState<File[]>([]);
     const [error, setError] = useState<string>();
 
     const handleImagesChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(event.target.files ?? []);
-
         if (files.length === 0) return;
 
         setError("");
 
         if (files.length + images.length > MAX_IMAGES) {
             setError(`You can add up to ${MAX_IMAGES} images.`);
+            event.target.value = "";
             return;
         }
 
-        const validFiles: File[] = [];
+        const validFiles: InputImageInfo[] = [];
         const errors: string[] = [];
 
         for (const file of files) {
             const err = await validateImage(file);
 
             if (err) errors.push(`${file.name}: ${err}`);
-            else     validFiles.push(file);
+            else     validFiles.push({
+                type: "new",
+                file: file
+            });
         }
 
-        setImages(prev => [...prev, ...validFiles]);
+        onChange([...images, ...validFiles]);
 
         if (errors.length > 0) setError(errors.join("\n"));
+
+        event.target.value = "";
     };
 
     const handleRemoveImage = (index: number) => {
-        setImages(prev => prev.filter((_, i) => i !== index));
+        onChange(images.filter((_, i) => i !== index));
     }
 
     const handleAddButtonClicked = () => {
         inputRef.current?.click();
     }
 
+    // TODO: add order changing option
     return (
         <>
             <input
@@ -59,8 +69,8 @@ export default function ImageInput() {
 
             {images.map((image, index) => (
                 <ImagePreview
-                    key={`${image.name}-${image.lastModified}-${index}`}
-                    file={image}
+                    key={index}
+                    image={image}
                     onRemove={() => handleRemoveImage(index)} />
             ))}
         </>

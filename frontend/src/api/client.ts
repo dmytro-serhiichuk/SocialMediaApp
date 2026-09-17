@@ -1,12 +1,14 @@
 import { API_URL } from "../constants";
 import { authStore } from "../features/auth/store";
 
+export type ValidationErrors = Record<string, string[]>;
+
 type ProblemDetails = {
     type?: string;
     title?: string;
     status?: number;
     detail?: string;
-    errors?: Record<string, string[]>;
+    errors?: ValidationErrors;
 };
 
 export class ApiError extends Error {

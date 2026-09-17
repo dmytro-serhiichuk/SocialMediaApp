@@ -13,3 +13,7 @@ export function getUserFollowingPagePath(userTag: string) {
 export function getTagPagePath(tagName: string) {
     return `/tags/${tagName}`;
 }
+
+export function getPostEditPagePath(id: number) {
+    return `/posts/${id}/edit`;
+}

@@ -17,6 +17,7 @@ public class EmailService(
 
     public async Task SendAsync(string recipientEmail, string subject, string htmlBody, CancellationToken cancellationToken = default)
     {
+        return;
         var message = new MimeMessage();
 
         message.From.Add(new MailboxAddress(emailOptions.SenderName, emailOptions.SenderEmail));
@@ -35,6 +36,7 @@ public class EmailService(
     public async Task SendEmailConfirmationMessageAsync(string email, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/settings/email-change/confirm#token={token}";
+        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 
@@ -59,6 +61,7 @@ public class EmailService(
     public async Task SendNewLoginNotificationMessageAsync(string email, Session session, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/account-recovery#token={token}";
+        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 
@@ -137,6 +140,7 @@ public class EmailService(
     public async Task SendRegistrationConfirmationMessageAsync(string email, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/register/confirm#token={token}";
+        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 

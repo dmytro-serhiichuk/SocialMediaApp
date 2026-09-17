@@ -11,8 +11,8 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { completePasswordResetAction, completeRegisterAction, loginAction, logoutAction, recoverAccountAction, registerAction, requestPasswordResetAction } from "./features/auth/actions";
 import RootErrorBoundary from "./components/rootErrorBoundary";
-import PostEditorPage from "./pages/PostEditorPage";
-import { createPostAction } from "./features/posts/actions";
+import CreatePostPage from "./pages/CreatePostPage";
+import { createPostAction, updatePostAction } from "./features/posts/actions";
 import { followersLoader, followingLoader, profileLoader, userLoader } from "./features/user/loaders";
 import TagPage from "./pages/TagPage";
 import { tagLoader } from "./features/tag/loaders";
@@ -27,6 +27,8 @@ import CompletePasswordResetPage from "./pages/CompletePasswordResetPage";
 import AccountRecoveryPage from "./pages/AccountRecoveryPage";
 import CompletePasswordCreationPage from "./pages/CompletePasswordCreationPage";
 import UserFollowPage from "./pages/UserFollowPage";
+import EditPostPage from "./pages/EditPostPage";
+import { editPostLoader } from "./features/posts/loaders";
 
 const router = createBrowserRouter([
     {
@@ -79,8 +81,14 @@ const router = createBrowserRouter([
                     },
                     {
                         path: ROUTES.POST_NEW,
-                        Component: PostEditorPage,
+                        Component: CreatePostPage,
                         action: createPostAction
+                    },
+                    {
+                        path: ROUTES.POST_EDIT,
+                        Component: EditPostPage,
+                        loader: editPostLoader,
+                        action: updatePostAction
                     },
                     {
                         path: ROUTES.SAVED_POSTS,

@@ -12,11 +12,25 @@ public class PostsController(PostService postService) : ControllerBase
 {
     [Authorize]
     [HttpPost("[controller]/create")]
-    public async Task<IActionResult> Create([FromForm] PostCreationRequest creationRequest)
+    public async Task<IActionResult> Create([FromForm] PostUpdateRequest creationRequest)
     {
         var userId = User.GetUserId();
 
         await postService.Create(creationRequest, userId);
+
+        return StatusCode(StatusCodes.Status201Created);
+    }
+
+    [Authorize]
+    [HttpPut("[controller]/{id}/update")]
+    public async Task<IActionResult> Update([FromForm] PostUpdateRequest updateRequest, [FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+
+        if (!await postService.UpdatePost(updateRequest, userId, id))
+        {
+            return BadRequest();
+        }
 
         return StatusCode(StatusCodes.Status201Created);
     }
@@ -90,5 +104,15 @@ public class PostsController(PostService postService) : ControllerBase
         var userId = User.GetUserId();
         await postService.UnsavePost(id, userId);
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet("[controller]/{id}/edit")]
+    public async Task<IActionResult> GetPostEditInfo([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        var post = await postService.GetPostEditInfo(id, userId);
+        if (post is null) return NotFound();
+        return Ok(post);
     }
 }

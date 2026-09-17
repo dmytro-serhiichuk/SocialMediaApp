@@ -73,6 +73,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             AccountRecoveryNotAvailableException => StatusCodes.Status409Conflict,
             ExternalLoginAlreadyExistsException => StatusCodes.Status403Forbidden,
             InvalidSessionStateException => StatusCodes.Status409Conflict,
+            InvalidPostImagesException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
     }

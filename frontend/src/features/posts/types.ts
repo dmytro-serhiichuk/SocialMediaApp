@@ -14,3 +14,10 @@ export interface Post {
     isSavedByMe: boolean,
     images: Image[]
 }
+
+export interface PostEditInfo {
+    id: number,
+    content: string,
+    tags: string[],
+    images: Image[]
+}
