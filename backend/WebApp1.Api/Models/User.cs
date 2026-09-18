@@ -15,6 +15,7 @@ public class User
     public ICollection<PostSave> SavedPosts { get; set; } = [];
     public ICollection<UserFollow> Following { get; set; } = [];
     public ICollection<UserFollow> Followers { get; set; } = [];
+    public ICollection<Comment> Comments { get; set; } = [];
 }
 
 public enum AccountStatus

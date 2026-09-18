@@ -103,6 +103,7 @@ builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<AccountSecurityService>();
+builder.Services.AddScoped<CommentsService>();
 
 var jwtKey = builder.Configuration["Jwt:SecretKey"]
     ?? throw new InvalidOperationException("JWT secret is missing.");

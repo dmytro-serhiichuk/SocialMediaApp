@@ -2,10 +2,11 @@ import { Link } from "react-router";
 import { getTagPagePath, getUserPagePath } from "../../../utils/routerUtils";
 import ImageCarousel from "../../postImage/ImageCarousel";
 import type { Post } from "../types";
-import CommentList from "../../comments/components/commentsList";
+import CommentList from "../../comments/components/commentList";
 import { apiClient } from "../../../api/client";
 import { useState } from "react";
 import { useUser } from "../../auth/hooks";
+import CommentInput from "../../comments/components/commentInput";
 
 export default function PostExtended({ post }: { post: Post }) {
     const currentUser = useUser();
@@ -51,6 +52,10 @@ export default function PostExtended({ post }: { post: Post }) {
         }
     }
 
+    const handleCommentCreated = (comment: Comment) => {
+        // TODO: insert comment to CommentList
+    }
+
     return (
         <div className="post-extended-container">
             <div className="post-extended-image">
@@ -63,36 +68,54 @@ export default function PostExtended({ post }: { post: Post }) {
             </div>
 
             <div className="post-extended-body">
-                <Link to={getUserPagePath(post.user.userTag)}>
-                    <p>{post.user.userName}</p>
-                    <p>{post.user.userTag}</p>
-                </Link>
+                <div className="post-extended-body-top">
+                    <Link to={getUserPagePath(post.user.userTag)}>
+                        <p>{post.user.userName}</p>
+                        <p>{post.user.userTag}</p>
+                    </Link>
 
-                <p>{new Date(post.createdAt).toISOString()}</p>
-                {post.updatedAt && (<p>*Updated {new Date(post.updatedAt).toISOString()}</p>)}
+                    <p>{new Date(post.createdAt).toISOString()}</p>
+                    {post.updatedAt && (
+                        <p><i>Edited</i> {new Date(post.updatedAt).toISOString()}</p>
+                    )}
+                </div>
+                
+                <div className="post-extended-body-middle">
+                    <div>
+                        <p>{post.content}</p>
+                    </div>
 
-                <div>
-                    <p>{post.content}</p>
+                    <hr />
+                
+                    <CommentList id={post.id} />
                 </div>
 
-                {post.tags.map(t => (
-                    <div className="tag-container" key={t.id}>
-                        <Link to={getTagPagePath(t.name)}>{t.name}</Link>
-                    </div>
-                ))}
+                <div className="post-extended-body-bottom">
+                    <hr />
 
-                <p>Likes: {likesCount}</p>
-                {currentUser && 
-                    <>
-                        <button onClick={handleLike} disabled={isBusy}>{likedByMe ? "Unlike" : "Like"}</button>
+                    {post.tags.map(t => (
+                        <div className="tag-container" key={t.id}>
+                            <Link to={getTagPagePath(t.name)}>{t.name}</Link>
+                        </div>
+                    ))}
 
-                        <button onClick={handleSave} disabled={isBusy}>{savedByMe ? "Unsave" : "Save"}</button>
-                    </>
-                }
-            
-                <CommentList />
+                    <p>Likes: {likesCount}</p>
+                    {currentUser && 
+                        <>
+                            <button onClick={handleLike} disabled={isBusy}>
+                                {likedByMe ? "Unlike" : "Like"}
+                            </button>
+                            <button onClick={handleSave} disabled={isBusy}>
+                                {savedByMe ? "Unsave" : "Save"}
+                            </button>
+                        </>
+                    }
+
+                    <CommentInput 
+                        id={post.id}
+                        onCommentCreated={handleCommentCreated} />
+                </div>
             </div>
-
         </div>
     );
 }

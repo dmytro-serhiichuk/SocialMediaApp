@@ -81,7 +81,9 @@ export default function PostComponent({ post }: { post: Post }) {
             </Link>
 
             <p>{new Date(post.createdAt).toISOString()}</p>
-            {post.updatedAt && (<p>*Updated {new Date(post.updatedAt).toISOString()}</p>)}
+            {post.updatedAt && (
+                <p><i>Edited</i> {new Date(post.updatedAt).toISOString()}</p>
+            )}
 
             <div>
                 <p>{post.content}</p>

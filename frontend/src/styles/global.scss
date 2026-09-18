@@ -92,9 +92,25 @@ form {
 
     & .post-extended-body {
         flex: 1;
-        overflow-y: auto;
         padding: 16px;
         box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+
+        & .post-extended-body-top {
+            flex: 1;
+        }
+
+        & .post-extended-body-middle {
+            overflow-y: auto;
+            flex: 4;
+        }
+
+        & .post-extended-body-bottom {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+        }
     }
 }
 

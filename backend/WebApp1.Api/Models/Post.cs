@@ -12,4 +12,5 @@ public class Post
     public ICollection<PostTag> Tags { get; set; } = [];
     public ICollection<PostSave> Saves { get; set; } = [];
     public ICollection<PostImage> Images { get; set; } = [];
+    public ICollection<Comment> Comments { get; set; } = [];
 }

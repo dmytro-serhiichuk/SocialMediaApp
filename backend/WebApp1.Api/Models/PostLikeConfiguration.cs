@@ -13,10 +13,12 @@ public class PostLikeConfiguration : IEntityTypeConfiguration<PostLike>
 
         builder.HasOne(x => x.User)
             .WithMany(u => u.LikedPosts)
-            .HasForeignKey(x => x.UserId);
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Post)
             .WithMany(p => p.Likes)
-            .HasForeignKey(x => x.PostId);
+            .HasForeignKey(x => x.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

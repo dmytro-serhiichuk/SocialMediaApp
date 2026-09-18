@@ -22,6 +22,54 @@ namespace WebApp1.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("WebApp1.Api.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ReplyToUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("ReplyToUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("CreatedAt", "Id", "ParentCommentId");
+
+                    b.HasIndex("CreatedAt", "Id", "PostId");
+
+                    b.ToTable("comments", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.EmailChangeRequest", b =>
                 {
                     b.Property<int>("UserId")
@@ -442,6 +490,39 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("userFollows", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.Comment", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("WebApp1.Api.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp1.Api.Models.User", "ReplyToUser")
+                        .WithMany()
+                        .HasForeignKey("ReplyToUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("ReplyToUser");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.EmailChangeRequest", b =>
                 {
                     b.HasOne("WebApp1.Api.Models.User", "User")
@@ -610,8 +691,15 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("Following");
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.Comment", b =>
+                {
+                    b.Navigation("Replies");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.Post", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("Images");
 
                     b.Navigation("Likes");
@@ -628,6 +716,8 @@ namespace WebApp1.Api.Migrations
 
             modelBuilder.Entity("WebApp1.Api.Models.User", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("ExternalLogins");
 
                     b.Navigation("Followers");

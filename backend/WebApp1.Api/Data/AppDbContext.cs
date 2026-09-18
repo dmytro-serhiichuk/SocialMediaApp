@@ -20,6 +20,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<PasswordReset> PasswordResets => Set<PasswordReset>();
     public DbSet<NewLoginSecurityRequest> NewLoginSecurityRequests => Set<NewLoginSecurityRequest>();
     public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
+    public DbSet<Comment> Comments => Set<Comment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

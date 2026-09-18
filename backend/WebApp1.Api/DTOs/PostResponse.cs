@@ -12,4 +12,5 @@ public class PostResponse
     public List<TagResponse> Tags { get; set; } = null!;
     public bool IsSavedByMe { get; set; }
     public List<ImageResponse> Images { get; set; } = null!;
+    // TODO: add comments count
 }

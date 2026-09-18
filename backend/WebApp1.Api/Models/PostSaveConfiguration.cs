@@ -13,11 +13,13 @@ public class PostSaveConfiguration : IEntityTypeConfiguration<PostSave>
 
         builder.HasOne(x => x.User)
             .WithMany(u => u.SavedPosts)
-            .HasForeignKey(x => x.UserId);
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Post)
             .WithMany(p => p.Saves)
-            .HasForeignKey(x => x.PostId);
+            .HasForeignKey(x => x.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(x => x.CreatedAt)
             .IsRequired();
