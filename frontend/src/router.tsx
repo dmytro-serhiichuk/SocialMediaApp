@@ -28,7 +28,8 @@ import AccountRecoveryPage from "./pages/AccountRecoveryPage";
 import CompletePasswordCreationPage from "./pages/CompletePasswordCreationPage";
 import UserFollowPage from "./pages/UserFollowPage";
 import EditPostPage from "./pages/EditPostPage";
-import { editPostLoader } from "./features/posts/loaders";
+import { editPostLoader, postPageLoader } from "./features/posts/loaders";
+import PostPage from "./pages/PostPage";
 
 const router = createBrowserRouter([
     {
@@ -67,6 +68,11 @@ const router = createBrowserRouter([
                 path: ROUTES.EMAIL_CHANGE,
                 Component: EmailChangeConfirmationPage,
                 loader: emailChangeConfirmLoader
+            },
+            {
+                path: ROUTES.POST,
+                Component: PostPage,
+                loader: postPageLoader
             },
             {
                 Component: ProtectedLayout,

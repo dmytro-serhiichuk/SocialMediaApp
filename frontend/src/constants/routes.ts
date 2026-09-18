@@ -8,6 +8,7 @@ export const ROUTES = Object.freeze({
     REGISTER: "/register",
     REGISTER_CONFIRM: "/register/confirm",
     LOGOUT: "/logout",
+    POST: "/posts/:postId",
     POST_NEW: "/posts/new",
     POST_EDIT: "/posts/:postId/edit",
     TAG: "/tags/:tagName",

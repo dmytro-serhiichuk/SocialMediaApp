@@ -197,6 +197,47 @@ public class PostService(
         return true;
     }
 
+    public async Task<PostResponse?> GetPostById(int id)
+    {
+        int? userId = currentUser.UserId;
+
+        return await dbContext.Posts
+            .Where(p => p.Id == id)
+            .Select(p => new PostResponse
+            {
+                Id = p.Id,
+                Content = p.Content,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
+                User = new UserResponse
+                {
+                    Id = p.User.Id,
+                    UserName = p.User.UserName,
+                    UserTag = p.User.UserTag,
+                    IsFollowedByMe = userId != null 
+                        && p.User.Followers.Any(y => y.FollowerId == userId),
+                    IsFollowingMe  = userId != null 
+                        && p.User.Following.Any(y => y.FollowingId == userId)
+                },
+                LikesCount = p.Likes.Count,
+                IsLikedByMe = userId != null && p.Likes.Any(l => l.UserId == userId),
+                Tags = p.Tags.Select(pt => new TagResponse
+                {
+                    Id = pt.Tag.Id,
+                    Name = pt.Tag.Name
+                }).ToList(),
+                IsSavedByMe = userId != null && p.Saves.Any(s => s.UserId == userId),
+                Images = p.Images.OrderBy(i => i.Order).Select(i => new ImageResponse
+                {
+                    Id = i.Image.Id,
+                    Url = ImageResponse.GetApiURL(i.ImageId),
+                    Width = i.Image.Width,
+                    Height = i.Image.Height
+                }).ToList()
+            })
+            .SingleOrDefaultAsync();
+    }
+
     public async Task<PaginationResponse<PostResponse>> GetPosts(PaginationRequest postPagination)
     {
         IQueryable<Post> query = dbContext.Posts

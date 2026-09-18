@@ -35,6 +35,14 @@ public class PostsController(PostService postService) : ControllerBase
         return StatusCode(StatusCodes.Status201Created);
     }
 
+    [HttpGet("[controller]/{id}")]
+    public async Task<IActionResult> GetPost([FromRoute] int id)
+    {
+        var post = await postService.GetPostById(id);
+        if (post is null) return NotFound();
+        return Ok(post);
+    }
+
     [HttpGet("[controller]")]
     public async Task<IActionResult> GetPosts([FromQuery] PaginationRequest postPagination)
     {

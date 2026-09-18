@@ -33,7 +33,7 @@ export default function ImageCarousel({images, onRemove}: ImageCarouselProps) {
     if (images.length === 0) return null;
     
     return (
-        <div className="image-viewer">
+        <div className="image-carousel">
             <ImagePreview image={currentImage}/>
             {onRemove && (
                 <button 
@@ -46,18 +46,20 @@ export default function ImageCarousel({images, onRemove}: ImageCarouselProps) {
             {images.length > 1 && (
                 <>
                     <button
+                        className="image-carousel-move-button image-carousel-left"
                         type="button"
                         onClick={moveLeft}>
                         ←
                     </button>
 
                     <button
+                        className="image-carousel-move-button image-carousel-right"
                         type="button"
                         onClick={moveRight}>
                         →
                     </button>
 
-                    <span>
+                    <span className="image-carousel-indicator">
                         {currentIndex + 1} / {images.length}
                     </span>
                 </>

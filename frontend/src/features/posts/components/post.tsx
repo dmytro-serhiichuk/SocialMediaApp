@@ -5,6 +5,8 @@ import { useState } from "react";
 import { apiClient } from "../../../api/client";
 import { useUser } from "../../auth/hooks";
 import ImageCarousel from "../../postImage/ImageCarousel";
+import PostCard from "./postCard";
+import PostExtended from "./postExtened";
 
 export default function PostComponent({ post }: { post: Post }) {
     const navigate = useNavigate();
@@ -15,6 +17,7 @@ export default function PostComponent({ post }: { post: Post }) {
     const [likedByMe, setLikedByMe] = useState<boolean>(post.isLikedByMe);
     const [savedByMe, setSavedByMe] = useState<boolean>(post.isSavedByMe);
     const [isBusy, setIsBusy] = useState<boolean>(false); 
+    const [extendedCardVisible, setExtendedCardVisible] = useState(false);
 
     const handleLike = async () => {
         makeApiRequest(
@@ -53,6 +56,10 @@ export default function PostComponent({ post }: { post: Post }) {
         }
     }
 
+    const handleCommentsToggle = () => {
+        setExtendedCardVisible(!extendedCardVisible);
+    }
+
     return (
         <div className="post-container">
             {isOwnedByMe && (
@@ -89,11 +96,25 @@ export default function PostComponent({ post }: { post: Post }) {
             <p>Likes: {likesCount}</p>
             {currentUser && 
                 <>
-                    <button onClick={handleLike} disabled={isBusy}>{likedByMe ? "Unlike" : "Like"}</button>
+                    <button onClick={handleLike} disabled={isBusy}>
+                        {likedByMe ? "Unlike" : "Like"}
+                    </button>
 
-                    <button onClick={handleSave} disabled={isBusy}>{savedByMe ? "Unsave" : "Save"}</button>
+                    <button onClick={handleSave} disabled={isBusy}>
+                        {savedByMe ? "Unsave" : "Save"}
+                    </button>
                 </>
             }
+
+            <button onClick={handleCommentsToggle}>
+                Show comments
+            </button>
+
+            {extendedCardVisible && (
+                <PostCard onClose={() => setExtendedCardVisible(false)}>
+                    <PostExtended post={post} />
+                </PostCard>
+            )}
         </div>
     );
 }
