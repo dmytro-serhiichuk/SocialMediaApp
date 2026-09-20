@@ -4,9 +4,10 @@ import ImageCarousel from "../../postImage/ImageCarousel";
 import type { Post } from "../types";
 import CommentList from "../../comments/components/commentList";
 import { apiClient } from "../../../api/client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useUser } from "../../auth/hooks";
 import CommentInput from "../../comments/components/commentInput";
+import { useComments } from "../../comments/hooks";
 
 export default function PostExtended({ post }: { post: Post }) {
     const currentUser = useUser();
@@ -14,6 +15,8 @@ export default function PostExtended({ post }: { post: Post }) {
     const [likedByMe, setLikedByMe] = useState<boolean>(post.isLikedByMe);
     const [savedByMe, setSavedByMe] = useState<boolean>(post.isSavedByMe);
     const [isBusy, setIsBusy] = useState<boolean>(false); 
+    const { comments, status, loadMore, addComment } = useComments(post.id);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const handleLike = async () => {
         makeApiRequest(
@@ -52,10 +55,6 @@ export default function PostExtended({ post }: { post: Post }) {
         }
     }
 
-    const handleCommentCreated = (comment: Comment) => {
-        // TODO: insert comment to CommentList
-    }
-
     return (
         <div className="post-extended-container">
             <div className="post-extended-image">
@@ -80,14 +79,18 @@ export default function PostExtended({ post }: { post: Post }) {
                     )}
                 </div>
                 
-                <div className="post-extended-body-middle">
+                <div className="post-extended-body-middle" ref={scrollContainerRef}>
                     <div>
                         <p>{post.content}</p>
                     </div>
 
                     <hr />
                 
-                    <CommentList id={post.id} />
+                    <CommentList
+                        comments={comments}
+                        status={status}
+                        onLoadMore={loadMore}
+                        scrollRootRef={scrollContainerRef}/>
                 </div>
 
                 <div className="post-extended-body-bottom">
@@ -113,7 +116,7 @@ export default function PostExtended({ post }: { post: Post }) {
 
                     <CommentInput 
                         id={post.id}
-                        onCommentCreated={handleCommentCreated} />
+                        onCommentCreated={addComment} />
                 </div>
             </div>
         </div>

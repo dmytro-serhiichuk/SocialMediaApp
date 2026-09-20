@@ -12,12 +12,13 @@ export interface InfinityScrollProps {
     loadingPlaceholer?: React.ReactNode;
     errorContent?: React.ReactNode;
     endContent?: React.ReactNode;
-    rootMargin?: string
+    rootMargin?: string;
+    rootRef?: React.RefObject<HTMLElement | null>;
 }
 
 export function InfinityScroll({
     status, onLoadMore, loadingPlaceholer, 
-    errorContent, endContent, rootMargin = "200px"
+    errorContent, endContent, rootMargin = "200px", rootRef
 }: InfinityScrollProps) {
     const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -35,6 +36,7 @@ export function InfinityScroll({
                 }
             },
             {
+                root: rootRef?.current ?? null,
                 rootMargin: rootMargin,
             }
         );
