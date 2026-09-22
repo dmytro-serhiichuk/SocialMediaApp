@@ -12,7 +12,8 @@ export interface Post {
     isLikedByMe: boolean,
     tags: Tag[],
     isSavedByMe: boolean,
-    images: Image[]
+    images: Image[],
+    commentsCount: number
 }
 
 export interface PostEditInfo {

@@ -1,25 +1,29 @@
 import { useState } from "react";
 import { apiClient, ApiError } from "../../../api/client";
-import type { CommentPostRequest, Comment } from "../types";
+import type { CommentRequest, Comment } from "../types";
 
 type CommentInputProps = {
-    id: number,
-    onCommentCreated: (comment: Comment) => void
+    postId: number,
+    onCommentCreated: (comment: Comment) => void,
+    repliedCommentId?: number
 }
 
-export default function CommentInput({ id, onCommentCreated }: CommentInputProps) {
+export default function CommentInput({ postId, onCommentCreated, repliedCommentId }: CommentInputProps) {
     const [content, setContent] = useState("");
     const [error, setError] = useState<string>();
 
     const handleClick = async () => {
         setError(undefined);
 
-        const body: CommentPostRequest = {
+        const body: CommentRequest = {
             content: content
         }
 
         try {
-            const res = await apiClient<Comment>(`posts/${id}/comment`, {
+            const endpoint = repliedCommentId ? `posts/${postId}/comments/${repliedCommentId}/reply`
+                                       : `posts/${postId}/comment`;
+
+            const res = await apiClient<Comment>(endpoint, {
                 method: "post",
                 body: JSON.stringify(body)
             });
@@ -38,10 +42,11 @@ export default function CommentInput({ id, onCommentCreated }: CommentInputProps
     }
     
     return (
-        <>
+        <div>
             {error && <p>{error}</p>}
 
             <textarea
+                name="comment"
                 placeholder="Enter your comment..." 
                 value={content} 
                 onChange={e => setContent(e.target.value)} />
@@ -49,8 +54,8 @@ export default function CommentInput({ id, onCommentCreated }: CommentInputProps
             <button 
                 disabled={content.length === 0}
                 onClick={handleClick}>
-                Comment
+                {repliedCommentId ? "Reply" : "Comment"}
             </button>
-        </>
+        </div>
     );
 }

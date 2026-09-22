@@ -233,7 +233,8 @@ public class PostService(
                     Url = ImageResponse.GetApiURL(i.ImageId),
                     Width = i.Image.Width,
                     Height = i.Image.Height
-                }).ToList()
+                }).ToList(),
+                CommentsCount = p.Comments.Count
             })
             .SingleOrDefaultAsync();
     }
@@ -334,7 +335,8 @@ public class PostService(
                     Url = ImageResponse.GetApiURL(i.ImageId),
                     Width = i.Image.Width,
                     Height = i.Image.Height
-                }).ToList()
+                }).ToList(),
+                CommentsCount = p.Comments.Count
             })
             .ToListAsync();
 

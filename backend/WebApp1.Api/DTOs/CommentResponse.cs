@@ -7,4 +7,6 @@ public class CommentResponse
     public string Content { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+    public string? ReplyToUserTag { get; set; }
+    public int RepliesCount { get; set; } = 0;
 }

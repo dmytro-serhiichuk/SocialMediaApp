@@ -2,12 +2,13 @@ import { Link } from "react-router";
 import { getTagPagePath, getUserPagePath } from "../../../utils/routerUtils";
 import ImageCarousel from "../../postImage/ImageCarousel";
 import type { Post } from "../types";
-import CommentList from "../../comments/components/commentList";
 import { apiClient } from "../../../api/client";
 import { useRef, useState } from "react";
 import { useUser } from "../../auth/hooks";
 import CommentInput from "../../comments/components/commentInput";
 import { useComments } from "../../comments/hooks";
+import type { Comment } from "../../comments/types";
+import CommentEntryList from "../../comments/components/commentEntryList";
 
 export default function PostExtended({ post }: { post: Post }) {
     const currentUser = useUser();
@@ -17,6 +18,16 @@ export default function PostExtended({ post }: { post: Post }) {
     const [isBusy, setIsBusy] = useState<boolean>(false); 
     const { comments, status, loadMore, addComment } = useComments(post.id);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [totalCommentsCount, setTotalCommentsCount] = useState(post.commentsCount);
+
+    const handleCommentCreated = (comment: Comment) => {
+        setTotalCommentsCount(prev => prev + 1);
+        addComment(comment);
+    }
+    
+    const handleReplyCreated = (reply: Comment) => {
+        setTotalCommentsCount(prev => prev + 1);
+    }
 
     const handleLike = async () => {
         makeApiRequest(
@@ -86,11 +97,14 @@ export default function PostExtended({ post }: { post: Post }) {
 
                     <hr />
                 
-                    <CommentList
+                    <CommentEntryList
+                        postId={post.id}
+                        commentsCount={totalCommentsCount}
                         comments={comments}
                         status={status}
                         onLoadMore={loadMore}
-                        scrollRootRef={scrollContainerRef}/>
+                        scrollRootRef={scrollContainerRef}
+                        onReplyCreated={handleReplyCreated}/>
                 </div>
 
                 <div className="post-extended-body-bottom">
@@ -111,12 +125,12 @@ export default function PostExtended({ post }: { post: Post }) {
                             <button onClick={handleSave} disabled={isBusy}>
                                 {savedByMe ? "Unsave" : "Save"}
                             </button>
+
+                            <CommentInput 
+                                postId={post.id}
+                                onCommentCreated={handleCommentCreated} />
                         </>
                     }
-
-                    <CommentInput 
-                        id={post.id}
-                        onCommentCreated={addComment} />
                 </div>
             </div>
         </div>
