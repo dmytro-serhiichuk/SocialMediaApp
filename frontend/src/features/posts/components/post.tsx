@@ -2,11 +2,11 @@ import { Link, useNavigate } from "react-router";
 import type { Post } from "../types";
 import { getPostEditPagePath, getTagPagePath, getUserPagePath } from "../../../utils/routerUtils";
 import { useState } from "react";
-import { apiClient } from "../../../api/client";
 import { useUser } from "../../auth/hooks";
 import ImageCarousel from "../../postImage/ImageCarousel";
 import PostCard from "./postCard";
 import PostExtended from "./postExtened";
+import { useToggleApiRequest } from "../../../api/hooks";
 
 export default function PostComponent({ post }: { post: Post }) {
     const navigate = useNavigate();
@@ -16,11 +16,12 @@ export default function PostComponent({ post }: { post: Post }) {
     const [likesCount, setLikesCount] = useState<number>(post.likesCount);
     const [likedByMe, setLikedByMe] = useState<boolean>(post.isLikedByMe);
     const [savedByMe, setSavedByMe] = useState<boolean>(post.isSavedByMe);
-    const [isBusy, setIsBusy] = useState<boolean>(false); 
+    const [isBusy, setIsBusy] = useState<boolean>(false);
+    const { toggleApiRequest } = useToggleApiRequest(setIsBusy);
     const [extendedCardVisible, setExtendedCardVisible] = useState(false);
 
     const handleLike = async () => {
-        makeApiRequest(
+        toggleApiRequest(
             `posts/${post.id}/likes`, 
             likedByMe ? 'DELETE' : 'POST', 
             () => {
@@ -30,30 +31,10 @@ export default function PostComponent({ post }: { post: Post }) {
     }
 
     const handleSave = async () => {
-        makeApiRequest(
+        toggleApiRequest(
             `posts/${post.id}/save`, 
             savedByMe ? 'DELETE' : 'POST', 
             () => setSavedByMe(prev => !prev));
-    }
-
-    const makeApiRequest = async (endpoint: string, method: string, func: () => void) => {
-        try {
-            setIsBusy(true);
-
-            await apiClient(endpoint, {
-                method: method
-            });
-
-            func();
-        } catch (error) {
-            if (error instanceof Error) {
-                alert(error.message);
-            } else {
-                alert('Something went wrong');
-            }
-        } finally {
-            setIsBusy(false);
-        }
     }
 
     const handleCommentsToggle = () => {

@@ -21,6 +21,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<NewLoginSecurityRequest> NewLoginSecurityRequests => Set<NewLoginSecurityRequest>();
     public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
     public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<CommentLike> CommentLikes => Set<CommentLike>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

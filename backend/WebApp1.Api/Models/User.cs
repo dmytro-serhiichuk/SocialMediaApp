@@ -12,6 +12,7 @@ public class User
     public ICollection<Session> Sessions { get; set; } = [];
     public ICollection<Post> Posts { get; set; } = [];
     public ICollection<PostLike> LikedPosts { get; set; } = [];
+    public ICollection<CommentLike> LikedComments { get; set; } = [];
     public ICollection<PostSave> SavedPosts { get; set; } = [];
     public ICollection<UserFollow> Following { get; set; } = [];
     public ICollection<UserFollow> Followers { get; set; } = [];

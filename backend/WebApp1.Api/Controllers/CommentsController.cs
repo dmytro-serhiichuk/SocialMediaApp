@@ -49,4 +49,22 @@ public class CommentsController(
     {
         return Ok(await commentService.GetCommentReplies(pagination, postId, commentId));
     }
+
+    [Authorize]
+    [HttpPost("[controller]/{id}/likes")]
+    public async Task<IActionResult> LikeComment([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        await commentService.LikeComment(id, userId);
+        return Created();
+    }
+
+    [Authorize]
+    [HttpDelete("[controller]/{id}/likes")]
+    public async Task<IActionResult> UnlikeComment([FromRoute] int id)
+    {
+        var userId = User.GetUserId();
+        await commentService.UnlikeComment(id, userId);
+        return NoContent();
+    }
 }

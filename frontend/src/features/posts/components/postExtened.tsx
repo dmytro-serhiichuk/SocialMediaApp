@@ -2,21 +2,22 @@ import { Link } from "react-router";
 import { getTagPagePath, getUserPagePath } from "../../../utils/routerUtils";
 import ImageCarousel from "../../postImage/ImageCarousel";
 import type { Post } from "../types";
-import { apiClient } from "../../../api/client";
 import { useRef, useState } from "react";
 import { useUser } from "../../auth/hooks";
 import CommentInput from "../../comments/components/commentInput";
 import { useComments } from "../../comments/hooks";
 import type { Comment } from "../../comments/types";
 import CommentEntryList from "../../comments/components/commentEntryList";
+import { useToggleApiRequest } from "../../../api/hooks";
 
 export default function PostExtended({ post }: { post: Post }) {
     const currentUser = useUser();
     const [likesCount, setLikesCount] = useState<number>(post.likesCount);
     const [likedByMe, setLikedByMe] = useState<boolean>(post.isLikedByMe);
     const [savedByMe, setSavedByMe] = useState<boolean>(post.isSavedByMe);
-    const [isBusy, setIsBusy] = useState<boolean>(false); 
-    const { comments, status, loadMore, addComment } = useComments(post.id);
+    const [isBusy, setIsBusy] = useState<boolean>(false);
+    const { toggleApiRequest } = useToggleApiRequest(setIsBusy);
+    const { comments, status, loadMore, addComment, updateComment } = useComments(post.id);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [totalCommentsCount, setTotalCommentsCount] = useState(post.commentsCount);
 
@@ -30,7 +31,7 @@ export default function PostExtended({ post }: { post: Post }) {
     }
 
     const handleLike = async () => {
-        makeApiRequest(
+        toggleApiRequest(
             `posts/${post.id}/likes`, 
             likedByMe ? 'DELETE' : 'POST', 
             () => {
@@ -40,30 +41,10 @@ export default function PostExtended({ post }: { post: Post }) {
     }
 
     const handleSave = async () => {
-        makeApiRequest(
+        toggleApiRequest(
             `posts/${post.id}/save`, 
             savedByMe ? 'DELETE' : 'POST', 
             () => setSavedByMe(prev => !prev));
-    }
-
-    const makeApiRequest = async (endpoint: string, method: string, func: () => void) => {
-        try {
-            setIsBusy(true);
-
-            await apiClient(endpoint, {
-                method: method
-            });
-
-            func();
-        } catch (error) {
-            if (error instanceof Error) {
-                alert(error.message);
-            } else {
-                alert('Something went wrong');
-            }
-        } finally {
-            setIsBusy(false);
-        }
     }
 
     return (
@@ -104,7 +85,8 @@ export default function PostExtended({ post }: { post: Post }) {
                         status={status}
                         onLoadMore={loadMore}
                         scrollRootRef={scrollContainerRef}
-                        onReplyCreated={handleReplyCreated}/>
+                        onReplyCreated={handleReplyCreated}
+                        updateComment={updateComment}/>
                 </div>
 
                 <div className="post-extended-body-bottom">

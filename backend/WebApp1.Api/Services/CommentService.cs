@@ -135,6 +135,8 @@ public class CommentService(
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt,
                 RepliesCount = x.Replies.Count,
+                LikesCount = x.Likes.Count,
+                IsLikedByMe = userId != null && x.Likes.Any(l => l.UserId == userId),
             }).ToListAsync();
 
         var hasMore = comments.Count > pagination.Limit;
@@ -196,7 +198,9 @@ public class CommentService(
                 Content = x.Content,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt,
-                ReplyToUserTag = x.ReplyToUser.UserTag
+                ReplyToUserTag = x.ReplyToUser.UserTag,
+                LikesCount = x.Likes.Count,
+                IsLikedByMe = userId != null && x.Likes.Any(l => l.UserId == userId),
             }).ToListAsync();
 
         var hasMore = comments.Count > pagination.Limit;
@@ -219,5 +223,34 @@ public class CommentService(
             HasMore = hasMore,
             NextCursor = nextCursor
         };
+    }
+
+    public async Task LikeComment(int commentId, int userId)
+    {
+        var alreadyLiked = await dbContext.CommentLikes
+            .AnyAsync(x => x.CommentId == commentId && x.UserId == userId);
+
+        if (!alreadyLiked)
+        {
+            dbContext.CommentLikes.Add(new CommentLike
+            {
+                CommentId = commentId,
+                UserId = userId
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UnlikeComment(int commentId, int userId)
+    {
+        var like = await dbContext.CommentLikes
+            .FirstOrDefaultAsync(x => x.CommentId == commentId && x.UserId == userId);
+
+        if (like is not null)
+        {
+            dbContext.CommentLikes.Remove(like);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }

@@ -7,7 +7,9 @@ export interface Comment {
     createdAt: string,
     updatedAt: string | null,
     replyToUserTag: string | null,
-    repliesCount: number
+    repliesCount: number,
+    likesCount: number,
+    isLikedByMe: boolean
 }
 
 export interface CommentRequest {

@@ -3,9 +3,9 @@ import { useUser } from "../features/auth/hooks";
 import type { UserProfile } from "../features/user/types";
 import PostList from "../features/posts/components/postList";
 import { useEffect, useState } from "react";
-import { apiClient, ApiError } from "../api/client";
 import { ROUTES } from "../constants/routes";
 import { getUserFollowersPagePath, getUserFollowingPagePath } from "../utils/routerUtils";
+import { useToggleApiRequest } from "../api/hooks";
 
 export default function UserPage() {
     const currentUser = useUser();
@@ -16,28 +16,16 @@ export default function UserPage() {
     const [followersCount, setFollowersCount] = useState<number>(profileUser.followersCount);
     const [isFollowedByMe, setIsFollowedByMe] = useState<boolean>(profileUser.isFollowedByMe);
     const [isBusy, setIsBusy] = useState<boolean>(false);
+    const { toggleApiRequest } = useToggleApiRequest(setIsBusy);
 
     const handleFollowButton = async () => {
-        try {
-            setIsBusy(true);
-
-            await apiClient(`users/${profileUser.id}/follow`, {
-                method: isFollowedByMe ? 'DELETE' : 'POST'
+        toggleApiRequest(
+            `users/${profileUser.id}/follow`, 
+            isFollowedByMe ? 'DELETE' : 'POST', 
+            () => {
+                setIsFollowedByMe(prev => !prev);
+                setFollowersCount(prev => isFollowedByMe ? prev - 1 : prev + 1);
             });
-
-            setIsFollowedByMe(prev => !prev);
-            setFollowersCount(prev =>
-                isFollowedByMe ? prev - 1 : prev + 1
-            );
-        } catch (error) {
-            if (error instanceof ApiError) {
-                alert(error.message);
-            } else {
-                throw error;
-            }
-        } finally {
-            setIsBusy(false);
-        }
     }
 
     useEffect(() => {

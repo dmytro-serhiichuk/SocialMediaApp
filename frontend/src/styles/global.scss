@@ -17,6 +17,7 @@ body.no-scroll {
     & main {
         flex: 1;
         max-width: vars.$main-width;
+        width: 100%;
         margin: 0 auto;
         padding: vars.$main-padding;
 

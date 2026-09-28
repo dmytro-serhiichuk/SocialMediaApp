@@ -19,6 +19,7 @@ public class Comment
     public User? ReplyToUser { get; set; }
 
     public ICollection<Comment> Replies { get; set; } = [];
+    public ICollection<CommentLike> Likes { get; set; } = [];
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; } = null;

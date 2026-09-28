@@ -3,14 +3,16 @@ import CommentInput from "./commentInput";
 import { useState } from "react";
 import { useUser } from "../../auth/hooks";
 import { CommentBody } from "./commentBody";
+import { toggleLike } from "../utils";
 
 type ReplyEntryProps = {
     reply: Comment;
     postId: number;
     handleReplyCreated: (reply: Comment) => void;
+    updateReply: (id: number, updater: (item: Comment) => Comment) => void;
 }
 
-export function ReplyEntry({ reply, postId, handleReplyCreated }: ReplyEntryProps) {
+export function ReplyEntry({ reply, postId, handleReplyCreated, updateReply }: ReplyEntryProps) {
     const currentUser = useUser();
     const [replyInputVisible, setReplyInputVisible] = useState(false);
 
@@ -19,7 +21,8 @@ export function ReplyEntry({ reply, postId, handleReplyCreated }: ReplyEntryProp
             <CommentBody
                 comment={reply}
                 isReply={true}
-                onReplyClick={() => setReplyInputVisible(prev => !prev)} />
+                onReplyClick={() => setReplyInputVisible(prev => !prev)}
+                onLikeToggle={(r) => updateReply(r.id, toggleLike)} />
 
             {currentUser && replyInputVisible && (
                 <>

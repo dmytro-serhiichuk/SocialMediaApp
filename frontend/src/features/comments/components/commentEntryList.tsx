@@ -10,10 +10,11 @@ type CommentEntryListProps = {
     onLoadMore: () => void;
     scrollRootRef: React.RefObject<HTMLElement | null>;
     onReplyCreated: (comment: Comment) => void;
+    updateComment: (id: number, updater: (item: Comment) => Comment) => void;
 }
 
 export default function CommentEntryList({
-    postId, commentsCount, comments, status, onLoadMore, scrollRootRef, onReplyCreated
+    postId, commentsCount, comments, status, onLoadMore, scrollRootRef, onReplyCreated, updateComment
 }: CommentEntryListProps) {
     return (
         <div className="comments-list">
@@ -26,7 +27,8 @@ export default function CommentEntryList({
                     comment={comment}
                     postId={postId}
                     scrollRootRef={scrollRootRef}
-                    onReplyCreated={onReplyCreated} />
+                    onReplyCreated={onReplyCreated}
+                    updateComment={updateComment} />
             ))}
 
             <InfinityScroll

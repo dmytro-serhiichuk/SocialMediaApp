@@ -2,15 +2,27 @@ import { Link } from "react-router";
 import { useUser } from "../../auth/hooks";
 import { getUserPagePath } from "../../../utils/routerUtils";
 import type { Comment } from "../types";
+import { useState } from "react";
+import { useToggleApiRequest } from "../../../api/hooks";
 
 type CommentBodyProps = {
     comment: Comment;
     isReply: boolean;
     onReplyClick: () => void;
+    onLikeToggle: (comment: Comment) => void;
 }
 
-export function CommentBody({ comment, isReply, onReplyClick }: CommentBodyProps) {
+export function CommentBody({ comment, isReply, onReplyClick, onLikeToggle }: CommentBodyProps) {
     const currentUser = useUser();
+    const [isBusy, setIsBusy] = useState<boolean>(false);
+    const { toggleApiRequest } = useToggleApiRequest(setIsBusy);
+
+    const handleLikePressed = async () => {
+        toggleApiRequest(
+            `comments/${comment.id}/likes`, 
+            comment.isLikedByMe ? 'DELETE' : 'POST', 
+            () => onLikeToggle(comment));
+        }
 
     return (
         <>
@@ -30,15 +42,18 @@ export function CommentBody({ comment, isReply, onReplyClick }: CommentBodyProps
                 )}
                 {comment.content}
             </p>
-
-            <p>Likes: 10</p>
-
-            {currentUser && (
-                <>
-                    <button>Like</button>
-                    <button onClick={onReplyClick}>Reply</button>
+            
+            <p>Likes: {comment.likesCount}</p>
+            {currentUser && 
+                <> 
+                    <button onClick={handleLikePressed} disabled={isBusy}>
+                        {comment.isLikedByMe ? "Unlike" : "Like"}
+                    </button>
+                    <button onClick={onReplyClick}>
+                        Reply
+                    </button>
                 </>
-            )}
+            }
         </>
     );
 }

@@ -9,10 +9,11 @@ type ReplyEntryListProps = {
     status: InfiniteScrollStatus;
     onLoadMore: () => void;
     scrollRootRef?: React.RefObject<HTMLElement | null>;
+    updateReply: (id: number, updater: (item: Comment) => Comment) => void;
 }
 
 export function ReplyEntryList({
-    postId, handleReplyCreated, replies, status, onLoadMore, scrollRootRef
+    postId, handleReplyCreated, replies, status, onLoadMore, scrollRootRef, updateReply
 }: ReplyEntryListProps) {
     return (
         <div className="reply-list">
@@ -21,7 +22,8 @@ export function ReplyEntryList({
                     key={reply.id}
                     reply={reply}
                     postId={postId}
-                    handleReplyCreated={handleReplyCreated} />
+                    handleReplyCreated={handleReplyCreated}
+                    updateReply={updateReply} />
             ))}
 
             <InfinityScroll

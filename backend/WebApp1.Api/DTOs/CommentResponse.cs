@@ -9,4 +9,6 @@ public class CommentResponse
     public DateTimeOffset? UpdatedAt { get; set; }
     public string? ReplyToUserTag { get; set; }
     public int RepliesCount { get; set; } = 0;
+    public int LikesCount { get; set; } = 0;
+    public bool IsLikedByMe { get; set; } = false;
 }

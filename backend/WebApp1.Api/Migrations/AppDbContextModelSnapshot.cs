@@ -70,6 +70,21 @@ namespace WebApp1.Api.Migrations
                     b.ToTable("comments", (string)null);
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.CommentLike", b =>
+                {
+                    b.Property<int>("CommentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CommentId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("commentLikes", (string)null);
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.EmailChangeRequest", b =>
                 {
                     b.Property<int>("UserId")
@@ -523,6 +538,25 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApp1.Api.Models.CommentLike", b =>
+                {
+                    b.HasOne("WebApp1.Api.Models.Comment", "Comment")
+                        .WithMany("Likes")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp1.Api.Models.User", "User")
+                        .WithMany("LikedComments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApp1.Api.Models.EmailChangeRequest", b =>
                 {
                     b.HasOne("WebApp1.Api.Models.User", "User")
@@ -693,6 +727,8 @@ namespace WebApp1.Api.Migrations
 
             modelBuilder.Entity("WebApp1.Api.Models.Comment", b =>
                 {
+                    b.Navigation("Likes");
+
                     b.Navigation("Replies");
                 });
 
@@ -723,6 +759,8 @@ namespace WebApp1.Api.Migrations
                     b.Navigation("Followers");
 
                     b.Navigation("Following");
+
+                    b.Navigation("LikedComments");
 
                     b.Navigation("LikedPosts");
 
