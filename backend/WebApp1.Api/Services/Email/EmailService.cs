@@ -15,9 +15,15 @@ public class EmailService(
     private readonly EmailOptions emailOptions = emailOptions.Value;
     private readonly FrontendOptions frontendOptions = frontendOptions.Value;
 
+    private readonly SecureSocketOptions secureOption = emailOptions.Value.Security switch
+    {
+        "None" => SecureSocketOptions.None,
+        "StartTls" => SecureSocketOptions.StartTls,
+        _ => throw new InvalidOperationException("")
+    };
+
     public async Task SendAsync(string recipientEmail, string subject, string htmlBody, CancellationToken cancellationToken = default)
     {
-        return;
         var message = new MimeMessage();
 
         message.From.Add(new MailboxAddress(emailOptions.SenderName, emailOptions.SenderEmail));
@@ -27,8 +33,11 @@ public class EmailService(
 
         using var client = new SmtpClient();
 
-        await client.ConnectAsync(emailOptions.Host, emailOptions.Port, SecureSocketOptions.StartTls, cancellationToken);
-        await client.AuthenticateAsync(emailOptions.Username, emailOptions.Password, cancellationToken);
+        await client.ConnectAsync(emailOptions.Host, emailOptions.Port, secureOption, cancellationToken);
+        if (!string.IsNullOrEmpty(emailOptions.Username))
+        {
+            await client.AuthenticateAsync(emailOptions.Username, emailOptions.Password, cancellationToken);
+        }
         await client.SendAsync(message, cancellationToken);
         await client.DisconnectAsync(true, cancellationToken);
     }
@@ -36,7 +45,6 @@ public class EmailService(
     public async Task SendEmailConfirmationMessageAsync(string email, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/settings/email-change/confirm#token={token}";
-        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 
@@ -61,7 +69,6 @@ public class EmailService(
     public async Task SendNewLoginNotificationMessageAsync(string email, Session session, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/account-recovery#token={token}";
-        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 
@@ -90,7 +97,6 @@ public class EmailService(
     public async Task SendPasswordResetMessageAsync(string email, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/password-reset/complete#token={token}";
-        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 
@@ -115,7 +121,6 @@ public class EmailService(
     public async Task SendPasswordCreateMessageAsync(string email, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/settings/password-create#token={token}";
-        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 
@@ -140,7 +145,6 @@ public class EmailService(
     public async Task SendRegistrationConfirmationMessageAsync(string email, string token, CancellationToken cancellationToken = default)
     {
         var confirmationUrl = $"{frontendOptions.Url}/register/confirm#token={token}";
-        System.Console.WriteLine(confirmationUrl);
 
         await SendAsync(
             email, 

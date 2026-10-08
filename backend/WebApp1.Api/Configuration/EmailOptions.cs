@@ -10,4 +10,5 @@ public class EmailOptions
     public string Password { get; set; } = string.Empty;
     public string SenderEmail { get; set; } = string.Empty;
     public string SenderName { get; set; } = string.Empty;
+    public string Security { get; set; } = string.Empty;
 }
