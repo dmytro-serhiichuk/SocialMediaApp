@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      target: development
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5126
+      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
+      Jwt__SecretKey: ${Jwt__SecretKey}
+      Auth__Google__ClientId: ${Auth__Google__ClientId}
+      Auth__Google__ClientSecret: ${Auth__Google__ClientSecret}
+      Email__Host: mailpit
+    ports:
+      - 127.0.0.1:5126:5126
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    ports:
+      - 127.0.0.1:5173:5173
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend

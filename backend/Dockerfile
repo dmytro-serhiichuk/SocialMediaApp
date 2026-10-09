@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0.301 as development
+
+WORKDIR /app
+
+COPY . .
+
+EXPOSE 5126
+
+CMD ["dotnet", "watch", "run", "--project", "WebApp1.Api/WebApp1.Api.csproj", "--urls", "http://0.0.0.0:5126"]

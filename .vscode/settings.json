@@ -1,3 +1,3 @@
 {
-    "dotnet.defaultSolution": "Backend.slnx"
+    "dotnet.defaultSolution": "backend/WebApp1.slnx"
 }
