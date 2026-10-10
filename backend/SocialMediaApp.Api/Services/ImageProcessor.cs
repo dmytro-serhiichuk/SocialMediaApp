@@ -12,14 +12,19 @@ public class ImageProcessor : IImageProcessor
     {
         await using var input = file.OpenReadStream();
 
-        using var image = await Image.LoadAsync(input, cancellationToken);
+        var info = await Image.IdentifyAsync(input, cancellationToken);
 
-        var ratio = (double)image.Width / image.Height;
+        if (info.Width is > 10000 or < 200 || info.Height is > 10000 or < 200)
+        {
+            throw new ValidationException("Each side of the image must be between 200 and 10000 pixels.");
+        }
 
-        if (ratio is > 4 or < 0.25)
+        if ((double)info.Width / info.Height is > 4 or < 0.25)
         {
             throw new ValidationException("Image aspect ratio must be between 1:4 and 4:1.");
         }
+        
+        using var image = await Image.LoadAsync(input, cancellationToken);
 
         image.Mutate(x =>
         {
