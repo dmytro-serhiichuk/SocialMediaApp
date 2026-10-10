@@ -8,4 +8,9 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  server: {
+    watch: {
+      usePolling: process.env.VITE_USE_POLLING === 'true',
+    }
+  }
 })

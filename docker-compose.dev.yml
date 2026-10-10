@@ -6,10 +6,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5126
-      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
-      Jwt__SecretKey: ${Jwt__SecretKey}
-      Auth__Google__ClientId: ${Auth__Google__ClientId}
-      Auth__Google__ClientSecret: ${Auth__Google__ClientSecret}
+      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection:?set ConnectionStrings__DefaultConnection in .env}
+      Jwt__SecretKey: ${Jwt__SecretKey:?set Jwt__SecretKey in .env}
+      Auth__Google__ClientId: ${Auth__Google__ClientId:?set Auth__Google__ClientId in .env}
+      Auth__Google__ClientSecret: ${Auth__Google__ClientSecret:?set Auth__Google__ClientSecret in .env}
       Email__Host: mailpit
     ports:
       - 127.0.0.1:5126:5126
@@ -25,6 +25,8 @@ services:
     build:
       context: ./frontend
       target: development
+    environment:
+      VITE_USE_POLLING: "true"
     ports:
       - 127.0.0.1:5173:5173
     volumes:

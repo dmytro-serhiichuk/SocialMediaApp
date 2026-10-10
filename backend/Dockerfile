@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0.301 as development
+FROM mcr.microsoft.com/dotnet/sdk:9.0.301 AS development
 
 WORKDIR /app
 
