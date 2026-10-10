@@ -79,7 +79,13 @@ builder.Services
 
 builder.Services
     .AddOptions<EmailOptions>()
-    .Bind(builder.Configuration.GetSection(EmailOptions.SectionName));
+    .Bind(builder.Configuration.GetSection(EmailOptions.SectionName))
+    .Validate(options =>
+        !(string.IsNullOrWhiteSpace(options.Username) ^
+         string.IsNullOrWhiteSpace(options.Password)),
+        "SMTP Username and password must either both be specified or both be left unspecified"
+    )
+    .ValidateOnStart();
 
 
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -111,7 +117,7 @@ var jwtKey = builder.Configuration["Jwt:SecretKey"]
 var frontendUrl = builder.Configuration["Frontend:Url"] 
         ?? throw new InvalidOperationException("Frontend Url is missing");
 
-builder.Services
+var authentication = builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -141,30 +147,39 @@ builder.Services
                 return Task.CompletedTask;
             }
         };
-    })
-    .AddCookie("External")
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Auth:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"];
-
-        options.SignInScheme = "External";
-
-        options.Events = new OAuthEvents
-        {
-            OnRemoteFailure = context =>
-            {
-                var errorPath = "/login";
-                if (context.Properties?.Items.TryGetValue("errorRedirectPath", out var path) == true && path is not null)
-                {
-                    errorPath = path;
-                }
-                context.HandleResponse();
-                context.Response.Redirect($"{frontendUrl}{errorPath}?error=oauth_failed");
-                return Task.CompletedTask;
-            }
-        };
     });
+
+var googleClientId = builder.Configuration["Auth:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Auth:Google:ClientSecret"];
+
+if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+{
+    authentication
+        .AddCookie("External")
+        .AddGoogle(options =>
+        {
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+
+            options.SignInScheme = "External";
+
+            options.Events = new OAuthEvents
+            {
+                OnRemoteFailure = context =>
+                {
+                    var errorPath = "/login";
+                    if (context.Properties?.Items.TryGetValue("errorRedirectPath", out var path) == true && path is not null)
+                    {
+                        errorPath = path;
+                    }
+                    context.HandleResponse();
+                    context.Response.Redirect($"{frontendUrl}{errorPath}?error=oauth_failed");
+                    return Task.CompletedTask;
+                }
+            };
+        });
+}
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>

@@ -6,6 +6,7 @@ type LoginViaExternalProviderButtonProps = {
 
 export default function LoginViaExternalProviderButton({provider}: LoginViaExternalProviderButtonProps) {
     const handleClick = () => {
+        // TODO: handle 501 error
         window.location.href = provider.signInEndpoint;
     }
     

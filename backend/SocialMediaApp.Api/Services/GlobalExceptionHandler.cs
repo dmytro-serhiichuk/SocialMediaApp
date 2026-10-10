@@ -74,6 +74,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             ExternalLoginAlreadyExistsException => StatusCodes.Status403Forbidden,
             InvalidSessionStateException => StatusCodes.Status409Conflict,
             InvalidPostImagesException => StatusCodes.Status400BadRequest,
+            AuthSchemeNotConfiguredException => StatusCodes.Status501NotImplemented,
             _ => StatusCodes.Status500InternalServerError
         };
     }

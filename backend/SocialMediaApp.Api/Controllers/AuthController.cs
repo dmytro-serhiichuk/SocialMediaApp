@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SocialMediaApp.Api.Configuration;
 using SocialMediaApp.Api.DTOs;
+using SocialMediaApp.Api.Exceptions;
 using SocialMediaApp.Api.Extensions;
 using SocialMediaApp.Api.Models;
 using SocialMediaApp.Api.Services;
@@ -22,7 +24,8 @@ public class AuthController(
     IOptions<JwtOptions> accessTokenOptions, 
     IOptions<RefreshTokenOptions> refreshTokenOptions,
     IOptions<FrontendOptions> frontendOptions,
-    AccountSecurityService accountSecurityService) : ControllerBase
+    AccountSecurityService accountSecurityService,
+    IAuthenticationSchemeProvider schemeProvider) : ControllerBase
 {
     private readonly JwtOptions accessTokenOptions = accessTokenOptions.Value;
     private readonly RefreshTokenOptions refreshTokenOptions = refreshTokenOptions.Value;
@@ -209,8 +212,13 @@ public class AuthController(
     }
 
     [HttpGet("google")]
-    public IActionResult GoogleLogin()
+    public async Task<IActionResult> GoogleLogin()
     {
+        if (await schemeProvider.GetSchemeAsync("Google") is null)
+        {
+            throw new AuthSchemeNotConfiguredException("Google");
+        }
+
         return Challenge(new AuthenticationProperties
             {
                 RedirectUri = "/api/auth/google-login-callback",
@@ -221,8 +229,13 @@ public class AuthController(
 
     [Authorize]
     [HttpGet("google/connect")]
-    public IActionResult GoogleConnect()
+    public async Task<IActionResult> GoogleConnect()
     {
+        if (await schemeProvider.GetSchemeAsync("Google") is null)
+        {
+            throw new AuthSchemeNotConfiguredException("Google");
+        }
+
         return Challenge(new AuthenticationProperties
             {
                 RedirectUri = "/api/auth/google-connect-callback",
