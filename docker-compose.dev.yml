@@ -11,6 +11,10 @@ services:
       Auth__Google__ClientId: ${Auth__Google__ClientId:-}
       Auth__Google__ClientSecret: ${Auth__Google__ClientSecret:-}
       Email__Host: ${Email__Host:-mailpit}
+      Email__Port: ${Email__Port:-1025}
+      Email__Security: ${Email__Security:-None}
+      Email__Username: ${Email__Username:-}
+      Email__Password: ${Email__Password:-}
     ports:
       - 127.0.0.1:5126:5126
     volumes:

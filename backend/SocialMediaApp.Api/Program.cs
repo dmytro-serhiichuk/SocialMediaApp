@@ -81,8 +81,20 @@ builder.Services
     .AddOptions<EmailOptions>()
     .Bind(builder.Configuration.GetSection(EmailOptions.SectionName))
     .Validate(options =>
-        !(string.IsNullOrWhiteSpace(options.Username) ^
-         string.IsNullOrWhiteSpace(options.Password)),
+        !string.IsNullOrWhiteSpace(options.Host),
+        "SMTP Host must be specified"
+    )
+    .Validate(options =>
+        !string.IsNullOrWhiteSpace(options.Security),
+        "SMTP Security must be specified"
+    )
+    .Validate(options =>
+        !string.IsNullOrWhiteSpace(options.SenderEmail),
+        "SMTP SenderEmail must be specified"
+    )
+    .Validate(options =>
+        string.IsNullOrWhiteSpace(options.Username) == 
+        string.IsNullOrWhiteSpace(options.Password),
         "SMTP Username and password must either both be specified or both be left unspecified"
     )
     .ValidateOnStart();
@@ -152,7 +164,7 @@ var authentication = builder.Services
 var googleClientId = builder.Configuration["Auth:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Auth:Google:ClientSecret"];
 
-if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
 {
     authentication
         .AddCookie("External")

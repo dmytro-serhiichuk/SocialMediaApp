@@ -210,7 +210,7 @@ Secrets live in a local `.env` file that is not committed; `.env.example` lists 
 | `ConnectionStrings__DefaultConnection` | For example `Host=postgres;Port=5432;Database=<DB_NAME>;Username=<DB_USER>;Password=<DB_PASSWORD>` (use `Host=localhost` when the API runs outside Docker) |
 | `Jwt__SecretKey` | JWT signing key: a long random string, for example from `openssl rand -base64 48` |
 | `Auth__Google__ClientId`, `Auth__Google__ClientSecret` | Google sign-in. In Google Cloud Console, add the API callback as an authorized redirect URI: `http://localhost:5126/signin-google` |
-| `Email__Host`, `Email__Username`, `Email__Password` | Only for a real SMTP server; not needed with Mailpit |
+| `Email__Host`, `Email__Port`, `Email__Security`, `Email__Username`, `Email__Password` | Only for a real SMTP server; not needed with Mailpit |
 | `VITE_SERVER_BASE_URL` | Optional. Address of the API as seen from the browser (default `http://localhost:5126`). Not a secret: it is embedded in the frontend bundle |
 
 Non-secret settings live in `appsettings.json`: access token lifetime (15 minutes), refresh token lifetime (30 days) with a 20-second grace window for rotation, the lifetimes of confirmation links (email confirmation, email change, password reset, new-login recovery), and the image storage root.
