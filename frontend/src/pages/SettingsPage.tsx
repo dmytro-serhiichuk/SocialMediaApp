@@ -4,7 +4,7 @@ import { SettingsEmail } from "../features/settings/components/settingsEmail";
 import { SettingsPassword } from "../features/settings/components/settingsPassword";
 import { Sessions } from "../features/settings/components/sessions";
 import SettingsPasswordCreate from "../features/settings/components/settingsPasswordCreate";
-import ExternalLoginSettings from "../features/settings/components/externalLoginSettings ";
+import ExternalLoginSettings from "../features/settings/components/externalLoginSettings";
 import type { settingsLoader } from "../features/settings/loaders";
 
 
