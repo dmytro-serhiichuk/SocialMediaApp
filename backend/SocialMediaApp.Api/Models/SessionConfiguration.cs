@@ -1,0 +1,41 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace SocialMediaApp.Api.Models;
+
+public class SessionConfiguration : IEntityTypeConfiguration<Session>
+{
+    public void Configure(EntityTypeBuilder<Session> builder)
+    {
+        builder.ToTable("sessions");
+
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.RefreshTokenHash)
+            .IsRequired()
+            .HasMaxLength(64);
+
+        builder.Property(s => s.PreviousRefreshTokenHash)
+            .HasMaxLength(64);
+
+        builder.Property(s => s.LastIpAddress).HasMaxLength(45);
+        builder.Property(s => s.LastDeviceInfo).HasMaxLength(128);
+
+        builder.HasOne(x => x.User)
+            .WithMany(t => t.Sessions)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(s => s.RefreshTokenHash)
+            .IsUnique();
+        
+        builder.HasIndex(s => s.PreviousRefreshTokenHash);
+
+        builder.Property(s => s.RefreshTokenExpiresAt)
+            .IsRequired();
+        builder.HasIndex(s => s.RefreshTokenExpiresAt);
+
+        builder.Property(x => x.State)
+            .IsRequired();
+    }
+}

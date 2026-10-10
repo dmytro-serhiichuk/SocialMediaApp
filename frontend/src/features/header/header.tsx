@@ -7,7 +7,7 @@ import SearchBar from "./searchBar";
 export default function Header({user}: {user: AuthUser | null}) {
     return (
         <header>
-            <Link to={ROUTES.HOME}>WebApp 1</Link>
+            <Link to={ROUTES.HOME}>Social Media App</Link>
             {user ? (
                 <>
                     <Link to={getUserPagePath(user.userTag)}>Profile</Link>
