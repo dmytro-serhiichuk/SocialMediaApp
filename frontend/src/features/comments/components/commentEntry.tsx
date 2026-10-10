@@ -4,7 +4,7 @@ import { useReplies } from "../hooks";
 import CommentInput from "./commentInput";
 import { useUser } from "../../auth/hooks";
 import { CommentBody } from "./commentBody";
-import { ReplyEntryList } from "./replyEntrytList";
+import { ReplyEntryList } from "./replyEntryList";
 import { toggleLike } from "../utils";
 
 type CommentEntryProps = {

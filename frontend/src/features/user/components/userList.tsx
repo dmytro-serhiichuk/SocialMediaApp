@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { InfinityScroll, type InfiniteScrollStatus } from "../../pagination/inifinityScroll";
+import { InfinityScroll, type InfinityScrollStatus } from "../../pagination/infinityScroll";
 import type { UserResponse } from "../types";
 import type { PaginationResponse } from "../../pagination/types";
 import { apiClient } from "../../../api/client";
@@ -11,7 +11,7 @@ export type UserListEndpoint = {
 };
 
 export default function UserList({endpoint}: UserListEndpoint) {
-    const [state, setStatus]  = useState<InfiniteScrollStatus>("idle");
+    const [state, setStatus]  = useState<InfinityScrollStatus>("idle");
     const [cursor, setCursor] = useState<string | null>(null);
     const [users, setUsers]   = useState<UserResponse[]>([]);
     

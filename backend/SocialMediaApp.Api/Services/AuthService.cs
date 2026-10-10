@@ -17,10 +17,10 @@ public class AuthService(
     AppDbContext dbContext,
     IPasswordHasher<User> userPasswordHasher, 
     IPasswordHasher<PendingRegistration> registerPasswordHasher, 
-    IOptions<ConfiramtionTokenOptions> confiramtionTokenOptions,
+    IOptions<ConfirmationTokenOptions> ConfirmationTokenOptions,
     IEmailService emailService)
 {
-    private readonly ConfiramtionTokenOptions confiramtionTokenOptions = confiramtionTokenOptions.Value;
+    private readonly ConfirmationTokenOptions ConfirmationTokenOptions = ConfirmationTokenOptions.Value;
 
     public async Task<User?> GetById(int id)
     {
@@ -77,7 +77,7 @@ public class AuthService(
             UserName = request.UserName,
             UserTag = request.UserTag,
             TokenHash = tokenHash,
-            ExpiresAt = DateTime.UtcNow.AddHours(confiramtionTokenOptions.EmailConfirmationLifetimeHours)
+            ExpiresAt = DateTime.UtcNow.AddHours(ConfirmationTokenOptions.EmailConfirmationLifetimeHours)
         };
 
         pendingRegistration.PasswordHash = registerPasswordHasher.HashPassword(

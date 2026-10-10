@@ -61,8 +61,8 @@ builder.Services
     .ValidateOnStart();
 
 builder.Services
-    .AddOptions<ConfiramtionTokenOptions>()
-    .Bind(builder.Configuration.GetSection(ConfiramtionTokenOptions.SectionName))
+    .AddOptions<ConfirmationTokenOptions>()
+    .Bind(builder.Configuration.GetSection(ConfirmationTokenOptions.SectionName))
     .Validate(options =>
         options.EmailChangeLifetimeMinutes > 0,
         "Email change token lifetime must be greater than zero.")

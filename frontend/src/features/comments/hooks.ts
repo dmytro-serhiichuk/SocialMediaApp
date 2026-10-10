@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { apiClient } from "../../api/client";
-import type { InfiniteScrollStatus } from "../pagination/inifinityScroll";
+import type { InfinityScrollStatus } from "../pagination/infinityScroll";
 import type { PaginationResponse } from "../pagination/types";
 import type { Comment } from "./types";
 
 type ThreadOrder = "newestFirst" | "chronological"
 
 function useCommentThread(endpoint: string, order: ThreadOrder) {
-    const [status, setStatus] = useState<InfiniteScrollStatus>("idle");
+    const [status, setStatus] = useState<InfinityScrollStatus>("idle");
     const [cursor, setCursor] = useState<string | null>(null);
     const [items, setItems] = useState<Comment[]>([]);
 

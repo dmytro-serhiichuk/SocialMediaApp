@@ -13,11 +13,11 @@ namespace SocialMediaApp.Api.Services;
 public class SessionService(
     AppDbContext dbContext, 
     IOptions<RefreshTokenOptions> tokenOptions,
-    IOptions<ConfiramtionTokenOptions> confiramtionTokenOptions,
+    IOptions<ConfirmationTokenOptions> ConfirmationTokenOptions,
     IEmailService emailService)
 {
     private readonly RefreshTokenOptions tokenOptions = tokenOptions.Value;
-    private readonly ConfiramtionTokenOptions confiramtionTokenOptions = confiramtionTokenOptions.Value;
+    private readonly ConfirmationTokenOptions ConfirmationTokenOptions = ConfirmationTokenOptions.Value;
 
     public async Task<SessionCreationResult> CreateSession(User user, string? userAgent, string? ip)
     {
@@ -54,7 +54,7 @@ public class SessionService(
             UserId = user.Id,
             Session = session,
             TokenHash = tokenHash,
-            ExpiresAt = now.AddMinutes(confiramtionTokenOptions.NewLoginTokenLifetimeMinutes)
+            ExpiresAt = now.AddMinutes(ConfirmationTokenOptions.NewLoginTokenLifetimeMinutes)
         });
 
         await dbContext.SaveChangesAsync();

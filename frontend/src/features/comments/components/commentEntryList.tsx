@@ -1,4 +1,4 @@
-import { InfinityScroll, type InfiniteScrollStatus } from "../../pagination/inifinityScroll";
+import { InfinityScroll, type InfinityScrollStatus } from "../../pagination/infinityScroll";
 import type { Comment } from "../types";
 import CommentEntry from "./commentEntry";
 
@@ -6,7 +6,7 @@ type CommentEntryListProps = {
     postId: number;
     commentsCount: number;
     comments: Comment[];
-    status: InfiniteScrollStatus;
+    status: InfinityScrollStatus;
     onLoadMore: () => void;
     scrollRootRef: React.RefObject<HTMLElement | null>;
     onReplyCreated: (comment: Comment) => void;

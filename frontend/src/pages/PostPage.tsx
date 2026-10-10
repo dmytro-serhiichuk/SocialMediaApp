@@ -1,5 +1,5 @@
 import { useLoaderData } from "react-router";
-import PostExtended from "../features/posts/components/postExtened";
+import PostExtended from "../features/posts/components/postExtended";
 import { postPageLoader } from "../features/posts/loaders";
 
 export default function PostPage() {

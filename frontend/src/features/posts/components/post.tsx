@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useUser } from "../../auth/hooks";
 import ImageCarousel from "../../postImage/ImageCarousel";
 import PostCard from "./postCard";
-import PostExtended from "./postExtened";
+import PostExtended from "./postExtended";
 import { useToggleApiRequest } from "../../../api/hooks";
 
 export default function PostComponent({ post }: { post: Post }) {

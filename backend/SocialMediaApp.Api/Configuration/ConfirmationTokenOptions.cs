@@ -1,6 +1,6 @@
 namespace SocialMediaApp.Api.Configuration;
 
-public class ConfiramtionTokenOptions
+public class ConfirmationTokenOptions
 {
     public const string SectionName = "ConfirmationToken";
 

@@ -13,11 +13,11 @@ namespace SocialMediaApp.Api.Services;
 
 public class AccountSecurityService(
     AppDbContext dbContext,
-    IOptions<ConfiramtionTokenOptions> confiramtionTokenOptions,
+    IOptions<ConfirmationTokenOptions> ConfirmationTokenOptions,
     IEmailService emailService,
     IPasswordHasher<User> userPasswordHasher)
 {
-    private readonly ConfiramtionTokenOptions confiramtionTokenOptions = confiramtionTokenOptions.Value;
+    private readonly ConfirmationTokenOptions ConfirmationTokenOptions = ConfirmationTokenOptions.Value;
 
     public async Task RequestPasswordReset(RequestPasswordResetRequest request, CancellationToken cancellationToken = default)
     {
@@ -44,7 +44,7 @@ public class AccountSecurityService(
         var tokenHash = OpaqueTokenManager.HashToken(token);
 
         passwordReset.TokenHash = tokenHash;
-        passwordReset.ExpiresAt = DateTime.UtcNow.AddMinutes(confiramtionTokenOptions.PasswordResetLifetimeMinutes);
+        passwordReset.ExpiresAt = DateTime.UtcNow.AddMinutes(ConfirmationTokenOptions.PasswordResetLifetimeMinutes);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

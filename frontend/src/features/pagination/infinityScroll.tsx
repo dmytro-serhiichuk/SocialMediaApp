@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 
-export type InfiniteScrollStatus =
+export type InfinityScrollStatus =
     | "idle"
     | "loading"
     | "error"
     | "finished";
 
 export interface InfinityScrollProps {
-    status: InfiniteScrollStatus,
+    status: InfinityScrollStatus,
     onLoadMore: () => void;
     loadingPlaceholer?: React.ReactNode;
     errorContent?: React.ReactNode;

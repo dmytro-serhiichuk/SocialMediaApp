@@ -14,11 +14,11 @@ namespace SocialMediaApp.Api.Services;
 
 public class SettingsService(
     AppDbContext dbContext, 
-    IOptions<ConfiramtionTokenOptions> options, 
+    IOptions<ConfirmationTokenOptions> options, 
     IEmailService emailService, 
     IPasswordHasher<User> passwordHasher)
 {
-    private readonly ConfiramtionTokenOptions confiramtionTokenOptions = options.Value;
+    private readonly ConfirmationTokenOptions ConfirmationTokenOptions = options.Value;
 
     public async Task<SettingsDataResponse?> GetData(int userId, int sessionId)
     {
@@ -90,7 +90,7 @@ public class SettingsService(
         }
 
         req.NewEmail = emailChangeRequest.NewEmail;
-        req.ExpiresAt = DateTime.UtcNow.AddMinutes(confiramtionTokenOptions.EmailChangeLifetimeMinutes);
+        req.ExpiresAt = DateTime.UtcNow.AddMinutes(ConfirmationTokenOptions.EmailChangeLifetimeMinutes);
         req.TokenHash = tokenHash;
         
         await dbContext.SaveChangesAsync();
